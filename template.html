@@ -2,28 +2,37 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>Müll-Hotspot Monitor Berlin</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@300;400;600;700&display=swap" rel="stylesheet">
 <style>
-:root{--red:#be0000;--gray:#404040;--light:#f4f4f4;--border:#d0d0d0;--white:#fff;--c-niedrig:#2d7d2d;--c-mittel:#b8860b;--c-hoch:#cc5500;--c-kritisch:#be0000}
+:root{
+  --red:#be0000;--gray:#404040;--light:#f4f4f4;--border:#d0d0d0;--white:#fff;
+  --c-niedrig:#2d7d2d;--c-mittel:#b8860b;--c-hoch:#cc5500;--c-kritisch:#be0000;
+  --header-h:52px;--sheet-peek:200px;--sheet-mid:55vh;--sheet-full:90vh;
+}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Source Sans 3',Arial,sans-serif;background:var(--light);color:var(--gray);height:100vh;display:flex;flex-direction:column;overflow:hidden;font-size:14px}
-.header{background:var(--red);height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;flex-shrink:0;box-shadow:0 2px 5px rgba(0,0,0,.25);z-index:1000}
+body{font-family:'Source Sans 3',Arial,sans-serif;background:var(--light);color:var(--gray);height:100vh;display:flex;flex-direction:column;overflow:hidden;font-size:14px;-webkit-tap-highlight-color:transparent}
+
+/* ── HEADER ── */
+.header{background:var(--red);height:var(--header-h);display:flex;align-items:center;justify-content:space-between;padding:0 16px;flex-shrink:0;box-shadow:0 2px 5px rgba(0,0,0,.25);z-index:200}
 .header-left{display:flex;align-items:center;gap:12px}
-.app-icon{width:34px;height:34px;flex-shrink:0}
+.app-icon{width:32px;height:32px;flex-shrink:0}
 .h-title h1{color:white;font-size:15px;font-weight:700}
 .h-stats{display:flex;gap:2px}
 .hst{background:rgba(255,255,255,.15);border-radius:3px;padding:3px 9px;text-align:center;color:white;min-width:50px}
 .hst-v{font-size:16px;font-weight:700;line-height:1}
 .hst-l{font-size:9px;opacity:.8;text-transform:uppercase;letter-spacing:.3px}
 .hst.dark{background:rgba(0,0,0,.2)}
-.main{display:flex;flex:1;overflow:hidden}
-#map{flex:1}
-.sidebar{width:360px;background:white;border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;flex-shrink:0}
-/* FILTERS */
+
+/* ── DESKTOP LAYOUT ── */
+.main{display:flex;flex:1;overflow:hidden;position:relative}
+#map{flex:1;z-index:1}
+.sidebar{width:360px;background:white;border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;flex-shrink:0;z-index:2}
+
+/* ── FILTERS ── */
 .filters{background:var(--light);border-bottom:2px solid var(--red);padding:8px 12px;flex-shrink:0}
 .fr{display:flex;align-items:center;gap:7px;margin-bottom:5px}
 .fr:last-child{margin-bottom:0}
@@ -47,7 +56,8 @@ select.fs:focus{outline:2px solid var(--red)}
 .katbtn{padding:2px 7px;border-radius:10px;font-size:10px;font-weight:600;cursor:pointer;border:1.5px solid;background:transparent;font-family:inherit;transition:all .12s}
 .katbtn.on{color:white!important;border-color:transparent!important}
 .rcount{font-size:11px;color:#999;margin-top:1px}
-/* TABS */
+
+/* ── TABS ── */
 .tabs{display:flex;border-bottom:1px solid var(--border);flex-shrink:0;background:white}
 .tab{flex:1;padding:9px 4px;text-align:center;font-size:11px;font-weight:700;cursor:pointer;color:#999;border-bottom:3px solid transparent;transition:all .15s;text-transform:uppercase;letter-spacing:.4px}
 .tab.on{color:var(--red);border-bottom-color:var(--red)}
@@ -56,7 +66,8 @@ select.fs:focus{outline:2px solid var(--red)}
 .panel.on{display:flex}
 .panel::-webkit-scrollbar{width:4px}
 .panel::-webkit-scrollbar-thumb{background:#ccc;border-radius:2px}
-/* HOTSPOT CARDS — aufklappbar */
+
+/* ── HOTSPOT CARDS ── */
 .hlist{padding:7px;display:flex;flex-direction:column;gap:4px}
 .hcard{background:white;border:1px solid var(--border);border-left:4px solid;border-radius:2px;cursor:pointer;overflow:hidden;transition:border-color .12s}
 .hcard[data-l="niedrig"]{border-left-color:var(--c-niedrig)}
@@ -65,7 +76,6 @@ select.fs:focus{outline:2px solid var(--red)}
 .hcard[data-l="kritisch"]{border-left-color:var(--c-kritisch)}
 .hcard:hover{border-color:#bbb}
 .hcard.sel{border-color:var(--red)}
-/* Kopfzeile immer sichtbar */
 .hc-head{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;gap:8px}
 .hc-left{display:flex;flex-direction:column;gap:2px;flex:1;min-width:0}
 .hc-bez{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -75,16 +85,13 @@ select.fs:focus{outline:2px solid var(--red)}
 .hc-right{display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0}
 .hc-badge{font-size:9px;font-weight:700;padding:1px 6px;border-radius:2px;color:white;text-transform:uppercase}
 .bg-niedrig{background:var(--c-niedrig)}.bg-mittel{background:var(--c-mittel)}.bg-hoch{background:var(--c-hoch)}.bg-kritisch{background:var(--c-kritisch)}
-.hc-chevron{font-size:10px;color:#bbb;transition:transform .2s;line-height:1}
+.hc-chevron{font-size:10px;color:#bbb;transition:transform .2s}
 .hcard.open .hc-chevron{transform:rotate(180deg)}
-/* Aufklappbarer Detailbereich */
 .hc-detail{display:none;padding:0 10px 10px;border-top:1px solid #f0f0f0}
 .hcard.open .hc-detail{display:block}
-/* Müllart Pills */
-.kat-strip{display:flex;gap:3px;flex-wrap:wrap;margin-bottom:7px;margin-top:6px}
+.kat-strip{display:flex;gap:3px;flex-wrap:wrap;margin:6px 0}
 .kat-pill{display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:10px;font-size:11px;font-weight:600;color:white}
 .kat-pct{opacity:.75;font-size:10px}
-/* Wochentag Balken */
 .wd-section{margin-bottom:6px}
 .wd-label{font-size:10px;color:#999;text-transform:uppercase;letter-spacing:.3px;margin-bottom:3px}
 .wd-bars{display:flex;gap:2px;align-items:flex-end;height:22px}
@@ -93,15 +100,14 @@ select.fs:focus{outline:2px solid var(--red)}
 .wd-bar.is-mo{background:var(--red)}.wd-bar.is-wknd{background:#7b3fa0}.wd-bar.is-norm{background:#99b8d8}
 .wd-lbl{font-size:8px;color:#ccc;font-weight:600}
 .wd-lbl.mo{color:var(--red)}.wd-lbl.wknd{color:#7b3fa0}
-/* Auffälligkeiten */
 .auf-section{margin-top:4px}
 .auf-label{font-size:10px;color:#999;text-transform:uppercase;letter-spacing:.3px;margin-bottom:4px}
 .auf-item{font-size:11px;color:#555;line-height:1.5;padding:3px 0;border-bottom:1px solid #f0f0f0}
 .auf-item:last-child{border-bottom:none}
-/* Score bar */
 .sbar{height:2px;background:#eee;margin-top:6px}
 .sfill{height:100%}
-/* BEZIRK */
+
+/* ── BEZIRK ── */
 .blist{padding:7px;display:flex;flex-direction:column;gap:4px}
 .bcard{background:white;border:1px solid var(--border);border-radius:2px;padding:10px 12px}
 .bc-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
@@ -110,14 +116,16 @@ select.fs:focus{outline:2px solid var(--red)}
 .bc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-bottom:5px}
 .bc-i{text-align:center}.bc-v{font-size:15px;font-weight:700}.bc-l{font-size:9px;color:#aaa;text-transform:uppercase}
 .bc-bar{height:3px;background:#eee}.bc-fill{height:100%}
-/* INFO */
+
+/* ── INFO ── */
 .isec{padding:12px 14px;border-bottom:1px solid var(--border)}
 .isec h3{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--red);margin-bottom:7px}
 .leg-row{display:flex;align-items:center;gap:8px;margin-bottom:5px;font-size:12px}
 .leg-dot{width:11px;height:11px;border-radius:50%;flex-shrink:0}
 .logic-item{display:flex;gap:7px;margin-bottom:6px;font-size:12px;color:#555;line-height:1.4}
 .logic-n{color:var(--red);font-weight:700;flex-shrink:0;min-width:20px}
-/* POPUP */
+
+/* ── POPUP ── */
 .leaflet-popup-content-wrapper{border-radius:2px!important;box-shadow:0 3px 14px rgba(0,0,0,.22)!important;padding:0!important;overflow:hidden}
 .leaflet-popup-content{margin:0!important;width:270px!important}
 .pop-head{background:var(--red);color:white;padding:8px 12px}
@@ -131,17 +139,66 @@ select.fs:focus{outline:2px solid var(--red)}
 .leaflet-control-zoom{border:1px solid var(--border)!important;border-radius:2px!important}
 .leaflet-control-zoom a{color:var(--gray)!important;font-weight:700!important}
 .leaflet-control-attribution{font-size:9px!important}
+
+/* ══════════════════════════════════════════
+   MOBILE BOTTOM SHEET
+   ══════════════════════════════════════════ */
 @media(max-width:768px){
-  .header{height:50px;padding:0 10px}
   .h-stats .hst:nth-child(3),.h-stats .hst:nth-child(4){display:none}
-  .main{flex-direction:column}
-  #map{flex:none;height:50vh}
-  .sidebar{width:100%;height:50vh;border-left:none;border-top:2px solid var(--red)}
-  .sidebar::before{content:'';display:block;width:32px;height:3px;background:var(--border);border-radius:2px;margin:6px auto 0}
+
+  .main{flex-direction:column;position:relative;overflow:visible}
+
+  /* Karte füllt alles unter dem Header */
+  #map{
+    position:absolute;top:0;left:0;right:0;
+    bottom:0;
+    z-index:1;
+  }
+
+  /* Bottom Sheet */
+  .sidebar{
+    position:absolute;
+    left:0;right:0;bottom:0;
+    width:100%;
+    height:var(--sheet-full);
+    transform:translateY(calc(100% - var(--sheet-peek)));
+    border-left:none;
+    border-top:none;
+    border-radius:16px 16px 0 0;
+    box-shadow:0 -4px 20px rgba(0,0,0,.15);
+    transition:transform .35s cubic-bezier(.32,.72,0,1);
+    z-index:100;
+    overflow:hidden;
+  }
+  .sidebar.mid{transform:translateY(calc(100% - var(--sheet-mid)))}
+  .sidebar.full{transform:translateY(calc(100% - var(--sheet-full)))}
+
+  /* Handle + Drag-Bereich */
+  .sheet-handle{
+    width:100%;padding:10px 0 4px;text-align:center;cursor:grab;
+    background:white;border-radius:16px 16px 0 0;flex-shrink:0;
+    touch-action:none;user-select:none;
+  }
+  .sheet-handle::before{
+    content:'';display:inline-block;width:36px;height:4px;
+    background:var(--border);border-radius:2px;
+  }
+
+  /* Kompakte Filter auf Mobile */
+  .filters{padding:6px 10px}
+  .fr{margin-bottom:4px;gap:5px}
+  .fl{min-width:44px;font-size:9px}
+  select.fs{font-size:11px;padding:3px 20px 3px 6px}
+  .lbtn{padding:2px 7px;font-size:10px}
+  .sbtn{padding:2px 7px;font-size:10px}
+  .katbtn{padding:1px 6px;font-size:9px}
+
+  .tabs .tab{font-size:10px;padding:8px 2px}
 }
 </style>
 </head>
 <body>
+
 <div class="header">
   <div class="header-left">
     <svg class="app-icon" viewBox="0 0 34 34" xmlns="http://www.w3.org/2000/svg">
@@ -157,9 +214,13 @@ select.fs:focus{outline:2px solid var(--red)}
   </div>
   <div class="h-stats" id="hStats"></div>
 </div>
+
 <div class="main">
   <div id="map"></div>
-  <div class="sidebar">
+  <div class="sidebar" id="sheet">
+    <!-- Handle nur auf Mobile sichtbar, zum Ziehen -->
+    <div class="sheet-handle" id="sheetHandle"></div>
+
     <div class="filters">
       <div class="fr">
         <span class="fl">Bezirk</span>
@@ -190,18 +251,20 @@ select.fs:focus{outline:2px solid var(--red)}
       </div>
       <div class="rcount" id="rCount"></div>
     </div>
+
     <div class="tabs">
       <div class="tab on" onclick="switchTab('hotspots')">Standorte</div>
       <div class="tab" onclick="switchTab('bezirke')">Bezirke</div>
       <div class="tab" onclick="switchTab('info')">Legende</div>
     </div>
+
     <div class="panel on" id="panel-hotspots"><div class="hlist" id="hList"></div></div>
     <div class="panel" id="panel-bezirke"><div class="blist" id="bList"></div></div>
     <div class="panel" id="panel-info">
       <div class="isec"><h3>Einstufungssystem</h3>
-        <div class="leg-row"><div class="leg-dot" style="background:var(--c-niedrig)"></div><strong style="color:var(--c-niedrig)">Niedrig (0–3)</strong> — Einzelmeldung, kein Muster</div>
+        <div class="leg-row"><div class="leg-dot" style="background:var(--c-niedrig)"></div><strong style="color:var(--c-niedrig)">Niedrig (0–3)</strong> — Einzelmeldung</div>
         <div class="leg-row"><div class="leg-dot" style="background:var(--c-mittel)"></div><strong style="color:var(--c-mittel)">Mittel (4–7)</strong> — Gelegentliche Häufung</div>
-        <div class="leg-row"><div class="leg-dot" style="background:var(--c-hoch)"></div><strong style="color:var(--c-hoch)">Hoch (8–12)</strong> — Wiederholungsmuster erkannt</div>
+        <div class="leg-row"><div class="leg-dot" style="background:var(--c-hoch)"></div><strong style="color:var(--c-hoch)">Hoch (8–12)</strong> — Wiederholungsmuster</div>
         <div class="leg-row"><div class="leg-dot" style="background:var(--c-kritisch)"></div><strong style="color:var(--c-kritisch)">Kritisch (13+)</strong> — Dauerhafter Problemstandort</div>
       </div>
       <div class="isec"><h3>Abfallarten</h3>
@@ -221,7 +284,7 @@ select.fs:focus{outline:2px solid var(--red)}
       <div class="isec"><h3>Bewertungsberechnung</h3>
         <div class="logic-item"><span class="logic-n">+1</span>Pro Meldung an diesem Standort</div>
         <div class="logic-item"><span class="logic-n">+3</span>Folgemeldung innerhalb 21 Tagen nach Beseitigung</div>
-        <div class="logic-item"><span class="logic-n">×</span>Zeitfaktor: aktuellere Standorte werden höher gewichtet</div>
+        <div class="logic-item"><span class="logic-n">×</span>Zeitfaktor: aktuellere Standorte höher gewichtet</div>
       </div>
       <div class="isec"><h3>Datengrundlage</h3>
         <p style="font-size:12px;color:#666;line-height:1.6">Ordnungsamt Online API · Berlin Open Data<br>Datenlizenz Deutschland – Namensnennung 2.0<br>Tagesaktuelle Aktualisierung</p>
@@ -229,16 +292,77 @@ select.fs:focus{outline:2px solid var(--red)}
     </div>
   </div>
 </div>
+
 <script>
 const D=__APP_DATA_PLACEHOLDER__;
 const DAYS=['Mo','Di','Mi','Do','Fr','Sa','So'];
 const COLORS={niedrig:'#2d7d2d',mittel:'#b8860b',hoch:'#cc5500',kritisch:'#be0000'};
 let fBezirk='',fLevel='all',fKat='',fSort='score_desc',markers=[],map;
 
+// ── Bottom Sheet Drag ─────────────────────────────────────────────────
+const isMobile=()=>window.innerWidth<=768;
+let sheetState='peek'; // peek | mid | full
+const sheet=document.getElementById('sheet');
+const handle=document.getElementById('sheetHandle');
+let dragStart=null,sheetStartY=null;
+
+function setSheetState(state){
+  sheetState=state;
+  sheet.classList.remove('mid','full');
+  if(state==='mid')sheet.classList.add('mid');
+  if(state==='full')sheet.classList.add('full');
+  // Invalidate map size after transition
+  setTimeout(()=>{ if(map) map.invalidateSize(); },380);
+}
+
+function onDragStart(e){
+  if(!isMobile())return;
+  dragStart=e.touches?e.touches[0].clientY:e.clientY;
+  sheetStartY=sheet.getBoundingClientRect().top;
+  sheet.style.transition='none';
+}
+function onDragMove(e){
+  if(dragStart===null||!isMobile())return;
+  e.preventDefault();
+  const cur=e.touches?e.touches[0].clientY:e.clientY;
+  const dy=dragStart-cur;
+  const vh=window.innerHeight-parseInt(getComputedStyle(document.documentElement).getPropertyValue('--header-h'));
+  const peekPx=parseInt(getComputedStyle(document.documentElement).getPropertyValue('--sheet-peek').replace('px',''));
+  let newH=Math.max(peekPx,Math.min(vh*0.92, (vh-sheetStartY+parseInt(getComputedStyle(document.documentElement).getPropertyValue('--header-h')))+dy));
+  sheet.style.transform=`translateY(calc(100% - ${newH}px))`;
+}
+function onDragEnd(e){
+  if(dragStart===null||!isMobile())return;
+  sheet.style.transition='';
+  const cur=e.changedTouches?e.changedTouches[0].clientY:e.clientY;
+  const dy=dragStart-cur;
+  if(dy>60)setSheetState(sheetState==='peek'?'mid':'full');
+  else if(dy<-60)setSheetState(sheetState==='full'?'mid':'peek');
+  else setSheetState(sheetState);
+  dragStart=null;
+}
+
+handle.addEventListener('touchstart',onDragStart,{passive:true});
+handle.addEventListener('touchmove',onDragMove,{passive:false});
+handle.addEventListener('touchend',onDragEnd,{passive:true});
+handle.addEventListener('mousedown',onDragStart);
+document.addEventListener('mousemove',onDragMove);
+document.addEventListener('mouseup',onDragEnd);
+
+// Tap on handle cycles states
+handle.addEventListener('click',()=>{
+  if(!isMobile())return;
+  const states=['peek','mid','full'];
+  setSheetState(states[(states.indexOf(sheetState)+1)%3]);
+});
+
+// ── Map ───────────────────────────────────────────────────────────────
 function initMap(){
   map=L.map('map',{center:[52.52,13.405],zoom:11});
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap',maxZoom:19}).addTo(map);
   renderMarkers();
+  // Tap on map collapses sheet on mobile
+  map.on('click',()=>{ if(isMobile()&&sheetState!=='peek')setSheetState('peek'); });
 }
 function makeIcon(level){
   const c=COLORS[level],r={niedrig:8,mittel:11,hoch:15,kritisch:20}[level],sz=r*2+10,cx=sz/2;
@@ -248,7 +372,10 @@ function makeIcon(level){
 function renderMarkers(){
   markers.forEach(m=>map.removeLayer(m));markers=[];
   filteredHotspots().forEach(h=>{
-    const m=L.marker([h.lat_center,h.lon_center],{icon:makeIcon(h.score_label)}).addTo(map).on('click',()=>selectHotspot(h.cluster_id,true));
+    const m=L.marker([h.lat_center,h.lon_center],{icon:makeIcon(h.score_label)}).addTo(map).on('click',()=>{
+      selectHotspot(h.cluster_id,true);
+      if(isMobile())setSheetState('mid');
+    });
     m._cid=h.cluster_id;markers.push(m);
   });
 }
@@ -262,13 +389,13 @@ function makePopup(h){
     <div><div class="pop-l">Erstmeldung</div><div class="pop-v" style="font-size:11px">${h.first_seen}</div></div>
     <div><div class="pop-l">Letzte Meldung</div><div class="pop-v" style="font-size:11px">${h.last_seen}</div></div>
   </div>
-  ${kats?`<div style="margin-bottom:0"><div class="pop-l" style="margin-bottom:4px">Abfallarten</div><div style="display:flex;flex-wrap:wrap;gap:2px">${kats}</div></div>`:''}
+  ${kats?`<div><div class="pop-l" style="margin-bottom:4px">Abfallarten</div><div style="display:flex;flex-wrap:wrap;gap:2px">${kats}</div></div>`:''}
   </div>`;
 }
 function selectHotspot(cid,fromMap){
   const h=D.hotspots.find(x=>x.cluster_id===cid);if(!h)return;
   document.querySelectorAll('.hcard').forEach(el=>{
-    if(el.dataset.cid===cid){el.classList.add('sel');if(!fromMap){el.classList.add('open');}}
+    if(el.dataset.cid===cid){el.classList.add('sel');if(!fromMap)el.classList.add('open');}
     else el.classList.remove('sel');
   });
   const card=document.querySelector(`.hcard[data-cid="${cid}"]`);
@@ -278,7 +405,8 @@ function selectHotspot(cid,fromMap){
 }
 function toggleCard(cid){
   const card=document.querySelector(`.hcard[data-cid="${cid}"]`);
-  if(card){card.classList.toggle('open');selectHotspot(cid,false);}
+  if(card)card.classList.toggle('open');
+  selectHotspot(cid,false);
 }
 function filteredHotspots(){
   let hs=D.hotspots.slice();
@@ -310,12 +438,9 @@ function renderHList(){
   const maxScore=Math.max(...D.hotspots.map(h=>h.score),1);
   document.getElementById('hList').innerHTML=hs.map(h=>{
     const c=COLORS[h.score_label],pct=((h.score/maxScore)*100).toFixed(0);
-    // Basisinfo: top-2 Abfallarten als kleine Badges
-    const topKats=(h.kategorie_mix||[]).slice(0,2).map(k=>`<span style="font-size:10px;color:${k.color};font-weight:600">${k.label}</span>`).join('<span style="color:#ccc;margin:0 2px">·</span>');
+    const topKats=(h.kategorie_mix||[]).slice(0,2).map(k=>`<span style="font-size:10px;color:${k.color};font-weight:600">${k.label}</span>`).join('<span style="color:#ddd;margin:0 2px">·</span>');
     const hasAuf=(h.auffaelligkeiten||[]).length>0;
-    // Detail: volle Kategorie-Pills
     const katPills=(h.kategorie_mix||[]).map(k=>`<span class="kat-pill" style="background:${k.color}">${k.label}<span class="kat-pct">${k.pct}%</span></span>`).join('');
-    // Wochentag
     const wd=h.weekday_dist||{},maxWd=Math.max(...Object.values(wd),1);
     const wdBars=DAYS.map((d,i)=>{
       const val=wd[d]||0,hp=Math.max(2,Math.round((val/maxWd)*20));
@@ -323,11 +448,8 @@ function renderHList(){
       const lc=d==='Mo'?'mo':(d==='Sa'||d==='So'?'wknd':'');
       return `<div class="wd-col"><div class="wd-bar ${cls}" style="height:${hp}px"></div><span class="wd-lbl ${lc}">${d}</span></div>`;
     }).join('');
-    // Muster-Tag
     const patTag=h.pattern&&h.pattern!=='normal'?`<div style="font-size:10px;font-weight:700;padding:1px 6px;border-radius:8px;display:inline-block;margin-bottom:5px;${h.pattern==='montag'?'background:#e8f0ff;color:#0033aa':'background:#f0e8ff;color:#660099'}">${h.pattern==='montag'?'Montags-Schwerpunkt':'Wochenend-Schwerpunkt'} · ${h.pattern_label}</div>`:'';
-    // Auffälligkeiten
     const aufItems=(h.auffaelligkeiten||[]).map(a=>`<div class="auf-item">· ${a}</div>`).join('');
-
     return `<div class="hcard" data-l="${h.score_label}" data-cid="${h.cluster_id}" onclick="toggleCard('${h.cluster_id}')">
       <div class="hc-head">
         <div class="hc-left">
@@ -335,21 +457,18 @@ function renderHList(){
           <div class="hc-meta">
             <span class="hc-s"><strong>${h.meldungen_count}</strong> Meld.</span>
             <span class="hc-s"><strong>${h.recurrence_count}×</strong> Wiederk.</span>
-            ${topKats?`<span style="font-size:10px;color:#bbb">|</span>${topKats}`:''}
+            ${topKats?`<span style="color:#ddd;font-size:10px">|</span>${topKats}`:''}
           </div>
         </div>
         <div class="hc-right">
           <div class="hc-badge bg-${h.score_label}">${h.score_label}</div>
-          ${hasAuf?'<span style="font-size:9px;color:var(--red);font-weight:700">⚑ Auffällig</span>':''}
+          ${hasAuf?'<span style="font-size:9px;color:var(--red);font-weight:700">⚑ Feststellungen</span>':''}
           <div class="hc-chevron">▼</div>
         </div>
       </div>
       <div class="hc-detail">
         ${katPills?`<div class="kat-strip">${katPills}</div>`:''}
-        <div class="wd-section">
-          <div class="wd-label">Meldeverteilung nach Wochentag</div>
-          <div class="wd-bars">${wdBars}</div>
-        </div>
+        <div class="wd-section"><div class="wd-label">Meldeverteilung nach Wochentag</div><div class="wd-bars">${wdBars}</div></div>
         ${patTag}
         ${aufItems?`<div class="auf-section"><div class="auf-label">Feststellungen</div>${aufItems}</div>`:''}
         <div class="sbar"><div class="sfill" style="width:${pct}%;background:${c}"></div></div>
