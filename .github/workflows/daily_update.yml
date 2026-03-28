@@ -23,28 +23,18 @@ jobs:
 
       - run: pip install requests
 
-      - uses: actions/download-artifact@v4
-        with:
-          name: ordnungsamt-db
-          path: .
+      - name: Tracker ausführen
+        run: python tracker.py
         continue-on-error: true
 
-      - run: python tracker.py
+      - name: HTML exportieren
+        run: python export_html.py
         continue-on-error: true
 
-      - name: Fallback - index.html unveraendert lassen falls export fehlschlaegt
-        run: python export_html.py || echo "export_html.py fehlgeschlagen, index.html bleibt wie sie ist"
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: ordnungsamt-db
-          path: ordnungsamt.db
-          if-no-files-found: ignore
-          retention-days: 90
-
-      - run: |
+      - name: DB und HTML committen
+        run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Actions Bot"
-          git add index.html
+          git add index.html ordnungsamt.db
           git diff --staged --quiet || git commit -m "Auto-Update: $(date '+%Y-%m-%d')"
           git push
