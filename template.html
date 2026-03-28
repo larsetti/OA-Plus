@@ -11,55 +11,81 @@
 :root{
   --red:#be0000;--gray:#404040;--light:#f4f4f4;--border:#d0d0d0;--white:#fff;
   --c-niedrig:#2d7d2d;--c-mittel:#b8860b;--c-hoch:#cc5500;--c-kritisch:#be0000;
-  --header-h:52px;--sheet-peek:200px;--sheet-mid:55vh;--sheet-full:90vh;
+  --header-h:52px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Source Sans 3',Arial,sans-serif;background:var(--light);color:var(--gray);height:100vh;display:flex;flex-direction:column;overflow:hidden;font-size:14px;-webkit-tap-highlight-color:transparent}
+body{font-family:'Source Sans 3',Arial,sans-serif;background:var(--light);color:var(--gray);
+  height:100vh;display:flex;flex-direction:column;overflow:hidden;font-size:14px;
+  -webkit-tap-highlight-color:transparent}
 
-/* ── HEADER ── */
-.header{background:var(--red);height:var(--header-h);display:flex;align-items:center;justify-content:space-between;padding:0 16px;flex-shrink:0;box-shadow:0 2px 5px rgba(0,0,0,.25);z-index:200}
-.header-left{display:flex;align-items:center;gap:12px}
+/* HEADER */
+.header{background:var(--red);height:var(--header-h);display:flex;align-items:center;
+  justify-content:space-between;padding:0 16px;flex-shrink:0;
+  box-shadow:0 2px 5px rgba(0,0,0,.25);z-index:200}
+.hdr-left{display:flex;align-items:center;gap:12px}
 .app-icon{width:32px;height:32px;flex-shrink:0}
-.h-title h1{color:white;font-size:15px;font-weight:700}
-.h-stats{display:flex;gap:2px}
-.hst{background:rgba(255,255,255,.15);border-radius:3px;padding:3px 9px;text-align:center;color:white;min-width:50px}
+.hdr-title{color:white;font-size:15px;font-weight:700}
+.hdr-stats{display:flex;gap:2px}
+.hst{background:rgba(255,255,255,.15);border-radius:3px;padding:3px 9px;
+  text-align:center;color:white;min-width:50px}
 .hst-v{font-size:16px;font-weight:700;line-height:1}
 .hst-l{font-size:9px;opacity:.8;text-transform:uppercase;letter-spacing:.3px}
-.hst.dark{background:rgba(0,0,0,.2)}
+.hst.dk{background:rgba(0,0,0,.2)}
 
-/* ── DESKTOP LAYOUT ── */
+/* LAYOUT */
 .main{display:flex;flex:1;overflow:hidden;position:relative}
 #map{flex:1;z-index:1}
-.sidebar{width:360px;background:white;border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;flex-shrink:0;z-index:2}
 
-/* ── FILTERS ── */
-.filters{background:var(--light);border-bottom:2px solid var(--red);padding:8px 12px;flex-shrink:0}
-.fr{display:flex;align-items:center;gap:7px;margin-bottom:5px}
+/* SIDEBAR — Desktop */
+.sidebar{width:360px;background:white;border-left:1px solid var(--border);
+  display:flex;flex-direction:column;overflow:hidden;flex-shrink:0;z-index:2}
+
+/* FILTER PANEL */
+.filters{background:var(--light);border-bottom:2px solid var(--red);
+  padding:8px 12px;flex-shrink:0}
+.fr{display:flex;align-items:flex-start;gap:7px;margin-bottom:6px}
 .fr:last-child{margin-bottom:0}
-.fl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:#777;min-width:52px;flex-shrink:0}
-select.fs{flex:1;padding:4px 22px 4px 7px;border:1px solid var(--border);border-radius:2px;font-size:12px;font-family:inherit;background:white url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5'%3E%3Cpath d='M0 0l4 5 4-5z' fill='%23777'/%3E%3C/svg%3E") no-repeat right 7px center;appearance:none;color:var(--gray)}
+.fl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;
+  color:#777;min-width:52px;flex-shrink:0;padding-top:3px}
+.fr-right{display:flex;flex-direction:column;gap:4px;flex:1;min-width:0}
+select.fs{width:100%;padding:4px 22px 4px 7px;border:1px solid var(--border);
+  border-radius:2px;font-size:12px;font-family:inherit;
+  background:white url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5'%3E%3Cpath d='M0 0l4 5 4-5z' fill='%23777'/%3E%3C/svg%3E") no-repeat right 7px center;
+  appearance:none;color:var(--gray)}
 select.fs:focus{outline:2px solid var(--red)}
-.btns{display:flex;gap:3px;flex-wrap:wrap}
-.lbtn{padding:3px 8px;border-radius:10px;font-size:11px;font-weight:600;cursor:pointer;border:1.5px solid;background:transparent;font-family:inherit;transition:all .12s}
-.lbtn[data-l="all"]{border-color:#999;color:#777}
-.lbtn[data-l="niedrig"]{border-color:var(--c-niedrig);color:var(--c-niedrig)}
-.lbtn[data-l="mittel"]{border-color:var(--c-mittel);color:var(--c-mittel)}
-.lbtn[data-l="hoch"]{border-color:var(--c-hoch);color:var(--c-hoch)}
-.lbtn[data-l="kritisch"]{border-color:var(--c-kritisch);color:var(--c-kritisch)}
-.lbtn.on[data-l="all"]{background:#777;color:white}
-.lbtn.on[data-l="niedrig"]{background:var(--c-niedrig);color:white}
-.lbtn.on[data-l="mittel"]{background:var(--c-mittel);color:white}
-.lbtn.on[data-l="hoch"]{background:var(--c-hoch);color:white}
-.lbtn.on[data-l="kritisch"]{background:var(--c-kritisch);color:white}
-.sbtn{padding:3px 8px;border:1px solid var(--border);border-radius:2px;font-size:11px;font-weight:600;cursor:pointer;background:white;color:var(--gray);font-family:inherit;transition:all .12s}
-.sbtn.on{background:var(--red);color:white;border-color:var(--red)}
-.katbtn{padding:2px 7px;border-radius:10px;font-size:10px;font-weight:600;cursor:pointer;border:1.5px solid;background:transparent;font-family:inherit;transition:all .12s}
-.katbtn.on{color:white!important;border-color:transparent!important}
-.rcount{font-size:11px;color:#999;margin-top:1px}
 
-/* ── TABS ── */
+/* FILTER CHIPS — multi-select */
+.chips{display:flex;gap:4px;flex-wrap:wrap}
+.chip{padding:3px 9px;border-radius:12px;font-size:11px;font-weight:600;
+  cursor:pointer;border:1.5px solid;background:transparent;
+  font-family:inherit;transition:all .12s;white-space:nowrap;user-select:none}
+/* Einstufung chips */
+.chip[data-t="lvl"][data-v="niedrig"]{border-color:var(--c-niedrig);color:var(--c-niedrig)}
+.chip[data-t="lvl"][data-v="mittel"]{border-color:var(--c-mittel);color:var(--c-mittel)}
+.chip[data-t="lvl"][data-v="hoch"]{border-color:var(--c-hoch);color:var(--c-hoch)}
+.chip[data-t="lvl"][data-v="kritisch"]{border-color:var(--c-kritisch);color:var(--c-kritisch)}
+.chip[data-t="lvl"].on[data-v="niedrig"]{background:var(--c-niedrig);color:white}
+.chip[data-t="lvl"].on[data-v="mittel"]{background:var(--c-mittel);color:white}
+.chip[data-t="lvl"].on[data-v="hoch"]{background:var(--c-hoch);color:white}
+.chip[data-t="lvl"].on[data-v="kritisch"]{background:var(--c-kritisch);color:white}
+/* Abfallart chips */
+.chip[data-t="kat"]{border-color:#bbb;color:#666}
+.chip[data-t="kat"].on{background:var(--gray);color:white;border-color:var(--gray)}
+/* Sort chips */
+.chip[data-t="srt"]{border-color:#bbb;color:#777;font-size:11px}
+.chip[data-t="srt"].on{background:var(--red);color:white;border-color:var(--red)}
+
+.filter-actions{display:flex;justify-content:space-between;align-items:center;margin-top:4px}
+.rcount{font-size:11px;color:#999}
+.clear-btn{font-size:11px;color:var(--red);cursor:pointer;font-weight:600;
+  border:none;background:none;font-family:inherit;padding:0}
+.clear-btn:hover{text-decoration:underline}
+
+/* TABS */
 .tabs{display:flex;border-bottom:1px solid var(--border);flex-shrink:0;background:white}
-.tab{flex:1;padding:9px 4px;text-align:center;font-size:11px;font-weight:700;cursor:pointer;color:#999;border-bottom:3px solid transparent;transition:all .15s;text-transform:uppercase;letter-spacing:.4px}
+.tab{flex:1;padding:9px 4px;text-align:center;font-size:11px;font-weight:700;
+  cursor:pointer;color:#999;border-bottom:3px solid transparent;
+  transition:all .15s;text-transform:uppercase;letter-spacing:.4px}
 .tab.on{color:var(--red);border-bottom-color:var(--red)}
 .tab:hover:not(.on){background:var(--light)}
 .panel{display:none;flex:1;overflow-y:auto;flex-direction:column}
@@ -67,140 +93,145 @@ select.fs:focus{outline:2px solid var(--red)}
 .panel::-webkit-scrollbar{width:4px}
 .panel::-webkit-scrollbar-thumb{background:#ccc;border-radius:2px}
 
-/* ── HOTSPOT CARDS ── */
+/* HOTSPOT CARDS */
 .hlist{padding:7px;display:flex;flex-direction:column;gap:4px}
-.hcard{background:white;border:1px solid var(--border);border-left:4px solid;border-radius:2px;cursor:pointer;overflow:hidden;transition:border-color .12s}
+.hcard{background:white;border:1px solid var(--border);border-left:4px solid;
+  border-radius:2px;cursor:pointer;overflow:hidden;transition:border-color .12s}
 .hcard[data-l="niedrig"]{border-left-color:var(--c-niedrig)}
 .hcard[data-l="mittel"]{border-left-color:var(--c-mittel)}
 .hcard[data-l="hoch"]{border-left-color:var(--c-hoch)}
 .hcard[data-l="kritisch"]{border-left-color:var(--c-kritisch)}
-.hcard:hover{border-color:#bbb}
-.hcard.sel{border-color:var(--red)}
-.hc-head{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;gap:8px}
-.hc-left{display:flex;flex-direction:column;gap:2px;flex:1;min-width:0}
-.hc-bez{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.hc-meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.hc-s{font-size:11px;color:#999}
-.hc-s strong{color:var(--gray)}
-.hc-right{display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0}
-.hc-badge{font-size:9px;font-weight:700;padding:1px 6px;border-radius:2px;color:white;text-transform:uppercase}
-.bg-niedrig{background:var(--c-niedrig)}.bg-mittel{background:var(--c-mittel)}.bg-hoch{background:var(--c-hoch)}.bg-kritisch{background:var(--c-kritisch)}
-.hc-chevron{font-size:10px;color:#bbb;transition:transform .2s}
-.hcard.open .hc-chevron{transform:rotate(180deg)}
-.hc-detail{display:none;padding:0 10px 10px;border-top:1px solid #f0f0f0}
-.hcard.open .hc-detail{display:block}
-.kat-strip{display:flex;gap:3px;flex-wrap:wrap;margin:6px 0}
-.kat-pill{display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:10px;font-size:11px;font-weight:600;color:white}
-.kat-pct{opacity:.75;font-size:10px}
-.wd-section{margin-bottom:8px;overflow:hidden}
-.wd-label{font-size:10px;color:#999;text-transform:uppercase;letter-spacing:.3px;margin-bottom:3px}
-.wd-bars{display:flex;gap:2px;align-items:flex-end;height:22px;overflow:visible}
-.wd-col{display:flex;flex-direction:column;align-items:center;flex:1;gap:1px;min-width:0}
-.wd-bar{width:100%;border-radius:1px 1px 0 0;min-height:2px;background:#e8e8e8}
-.wd-bar.is-mo{background:var(--red)}.wd-bar.is-wknd{background:#7b3fa0}.wd-bar.is-norm{background:#99b8d8}
-.wd-lbl{font-size:8px;color:#ccc;font-weight:600}
-.wd-lbl.mo{color:var(--red)}.wd-lbl.wknd{color:#7b3fa0}
-.auf-section{margin-top:4px}
-.auf-label{font-size:10px;color:#999;text-transform:uppercase;letter-spacing:.3px;margin-bottom:4px}
-.auf-item{font-size:11px;color:#555;line-height:1.5;padding:3px 0;border-bottom:1px solid #f0f0f0}
-.auf-item:last-child{border-bottom:none}
-.sbar{height:2px;background:#eee;margin-top:6px}
-.sfill{height:100%}
+.hcard.sel{border-color:var(--red);background:#fff8f8}
+.hcard:active{background:#fafafa}
 
-/* ── BEZIRK ── */
+/* Card head — immer sichtbar */
+.hc-head{display:flex;justify-content:space-between;align-items:flex-start;
+  padding:9px 10px;gap:8px}
+.hc-main{flex:1;min-width:0}
+.hc-bez{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;
+  text-overflow:ellipsis;margin-bottom:2px}
+.hc-addr{font-size:11px;color:#888;margin-bottom:3px;white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis}
+.hc-meta{display:flex;gap:8px;flex-wrap:wrap}
+.hc-m{font-size:11px;color:#999}
+.hc-m strong{color:var(--gray)}
+.hc-topcats{display:flex;gap:4px;flex-wrap:wrap;margin-top:3px}
+.hc-catbadge{font-size:10px;font-weight:600;padding:1px 6px;border-radius:8px;color:white}
+.hc-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0}
+.hc-badge{font-size:9px;font-weight:700;padding:2px 7px;border-radius:2px;
+  color:white;text-transform:uppercase}
+.bg-n{background:var(--c-niedrig)}.bg-m{background:var(--c-mittel)}
+.bg-h{background:var(--c-hoch)}.bg-k{background:var(--c-kritisch)}
+.hc-flag{font-size:9px;color:var(--red);font-weight:700}
+.hc-chevron{font-size:11px;color:#ccc;transition:transform .2s;line-height:1}
+.hcard.open .hc-chevron{transform:rotate(180deg)}
+
+/* Card detail — aufklappbar */
+.hc-det{display:none;padding:0 10px 10px;border-top:1px solid #f5f5f5}
+.hcard.open .hc-det{display:block}
+.det-sec{margin-top:8px}
+.det-lbl{font-size:10px;color:#aaa;text-transform:uppercase;
+  letter-spacing:.4px;margin-bottom:4px;font-weight:600}
+.kat-pills{display:flex;gap:3px;flex-wrap:wrap}
+.kp{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;
+  border-radius:10px;font-size:11px;font-weight:600;color:white}
+.kp-pct{opacity:.75;font-size:10px}
+/* Wochentag-Chart — feste Höhe, kein Overflow */
+.wd-chart{display:flex;gap:3px;height:36px}
+.wd-col{display:flex;flex-direction:column;align-items:center;
+  justify-content:flex-end;flex:1;gap:2px;min-width:0}
+.wd-bar{width:100%;border-radius:1px 1px 0 0;flex-shrink:0}
+.wd-lbl{font-size:8px;font-weight:700;color:#ccc;line-height:1;flex-shrink:0}
+.wd-lbl.mo{color:var(--red)}.wd-lbl.wk{color:#7b3fa0}
+.pat-tag{display:inline-block;font-size:10px;font-weight:700;
+  padding:2px 8px;border-radius:8px;margin-bottom:4px}
+.pt-mo{background:#e8f0ff;color:#0033aa}
+.pt-wk{background:#f0e8ff;color:#660099}
+.auf-list{display:flex;flex-direction:column;gap:2px}
+.auf-i{font-size:11px;color:#555;line-height:1.5;
+  padding:3px 0 3px 12px;position:relative}
+.auf-i::before{content:'·';position:absolute;left:3px;color:var(--red);font-weight:700}
+.sbar{height:3px;background:#eee;border-radius:1px;margin-top:8px}
+.sfill{height:100%;border-radius:1px}
+.det-dates{font-size:10px;color:#bbb;margin-top:5px}
+
+/* BEZIRK */
 .blist{padding:7px;display:flex;flex-direction:column;gap:4px}
 .bcard{background:white;border:1px solid var(--border);border-radius:2px;padding:10px 12px}
 .bc-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
 .bc-name{font-size:13px;font-weight:700}
-.bc-score{font-size:10px;font-weight:700;padding:1px 6px;border-radius:2px;color:white}
+.bc-scr{font-size:10px;font-weight:700;padding:2px 7px;border-radius:2px;color:white}
 .bc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-bottom:5px}
-.bc-i{text-align:center}.bc-v{font-size:15px;font-weight:700}.bc-l{font-size:9px;color:#aaa;text-transform:uppercase}
+.bc-i{text-align:center}
+.bc-v{font-size:15px;font-weight:700}
+.bc-l{font-size:9px;color:#aaa;text-transform:uppercase}
 .bc-bar{height:3px;background:#eee}.bc-fill{height:100%}
 
-/* ── INFO ── */
+/* INFO */
 .isec{padding:12px 14px;border-bottom:1px solid var(--border)}
-.isec h3{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--red);margin-bottom:7px}
+.isec h3{font-size:11px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.5px;color:var(--red);margin-bottom:7px}
 .leg-row{display:flex;align-items:center;gap:8px;margin-bottom:5px;font-size:12px}
 .leg-dot{width:11px;height:11px;border-radius:50%;flex-shrink:0}
-.logic-item{display:flex;gap:7px;margin-bottom:6px;font-size:12px;color:#555;line-height:1.4}
-.logic-n{color:var(--red);font-weight:700;flex-shrink:0;min-width:20px}
+.li{display:flex;gap:7px;margin-bottom:6px;font-size:12px;color:#555;line-height:1.4}
+.ln{color:var(--red);font-weight:700;flex-shrink:0;min-width:20px}
 
-/* ── POPUP ── */
-.leaflet-popup-content-wrapper{border-radius:2px!important;box-shadow:0 3px 14px rgba(0,0,0,.22)!important;padding:0!important;overflow:hidden}
-.leaflet-popup-content{margin:0!important;width:270px!important}
-.pop-head{background:var(--red);color:white;padding:8px 12px}
-.pop-title{font-size:13px;font-weight:700}.pop-sub{font-size:10px;opacity:.85}
-.pop-body{padding:10px 12px}
-.pop-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:8px}
+/* POPUP */
+.leaflet-popup-content-wrapper{border-radius:3px!important;
+  box-shadow:0 4px 16px rgba(0,0,0,.2)!important;padding:0!important;overflow:hidden}
+.leaflet-popup-content{margin:0!important;width:280px!important}
+.pop-hd{background:var(--red);color:white;padding:9px 13px}
+.pop-ti{font-size:13px;font-weight:700;line-height:1.2}
+.pop-su{font-size:11px;opacity:.85;margin-top:2px}
+.pop-bd{padding:10px 13px}
+.pop-addr{font-size:12px;color:#555;margin-bottom:8px;padding-bottom:7px;
+  border-bottom:1px solid #f0f0f0}
+.pop-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
 .pop-l{font-size:10px;color:#999;text-transform:uppercase;letter-spacing:.3px}
 .pop-v{font-size:13px;font-weight:700}
+.pop-kats{margin-bottom:8px}
+.pop-auf{margin-top:4px;padding-top:7px;border-top:1px solid #f0f0f0}
 .leaflet-popup-tip{display:none}
 .leaflet-container{background:#e8e0d8!important}
-.leaflet-control-zoom{border:1px solid var(--border)!important;border-radius:2px!important}
 .leaflet-control-zoom a{color:var(--gray)!important;font-weight:700!important}
 .leaflet-control-attribution{font-size:9px!important}
 
-/* ══════════════════════════════════════════
-   MOBILE BOTTOM SHEET
-   ══════════════════════════════════════════ */
+/* ══ MOBILE BOTTOM SHEET ══ */
 @media(max-width:768px){
-  .h-stats .hst:nth-child(3),.h-stats .hst:nth-child(4){display:none}
-
-  .main{flex-direction:column;position:relative;overflow:visible}
-
-  /* Karte füllt alles unter dem Header */
-  #map{
-    position:absolute;top:0;left:0;right:0;
-    bottom:0;
-    z-index:1;
-  }
-
-  /* Bottom Sheet */
+  .hdr-stats .hst:nth-child(n+3){display:none}
+  .main{overflow:visible}
+  #map{position:absolute;inset:0;z-index:1}
   .sidebar{
-    position:absolute;
-    left:0;right:0;bottom:0;
-    width:100%;
-    height:var(--sheet-full);
-    transform:translateY(calc(100% - var(--sheet-peek)));
-    border-left:none;
-    border-top:none;
-    border-radius:16px 16px 0 0;
+    position:absolute;left:0;right:0;bottom:0;width:100%;
+    border-left:none;border-top:none;border-radius:16px 16px 0 0;
     box-shadow:0 -4px 20px rgba(0,0,0,.15);
-    transition:transform .35s cubic-bezier(.32,.72,0,1);
+    height:92vh;
+    transform:translateY(calc(100% - 180px));
+    transition:transform .3s cubic-bezier(.32,.72,0,1);
     z-index:100;
-    overflow:hidden;
   }
-  .sidebar.mid{transform:translateY(calc(100% - var(--sheet-mid)))}
-  .sidebar.full{transform:translateY(calc(100% - var(--sheet-full)))}
-
-  /* Handle + Drag-Bereich */
-  .sheet-handle{
-    width:100%;padding:10px 0 4px;text-align:center;cursor:grab;
-    background:white;border-radius:16px 16px 0 0;flex-shrink:0;
-    touch-action:none;user-select:none;
+  .sidebar.s-mid{transform:translateY(calc(100% - 52vh))}
+  .sidebar.s-full{transform:translateY(8vh)}
+  .sh-handle{
+    background:white;border-radius:16px 16px 0 0;
+    padding:10px 0 4px;text-align:center;
+    flex-shrink:0;cursor:pointer;touch-action:none;user-select:none;
   }
-  .sheet-handle::before{
-    content:'';display:inline-block;width:36px;height:4px;
-    background:var(--border);border-radius:2px;
-  }
-
-  /* Kompakte Filter auf Mobile */
+  .sh-handle::after{content:'';display:inline-block;
+    width:36px;height:4px;background:#ddd;border-radius:2px}
   .filters{padding:6px 10px}
   .fr{margin-bottom:4px;gap:5px}
-  .fl{min-width:44px;font-size:9px}
-  select.fs{font-size:11px;padding:3px 20px 3px 6px}
-  .lbtn{padding:2px 7px;font-size:10px}
-  .sbtn{padding:2px 7px;font-size:10px}
-  .katbtn{padding:1px 6px;font-size:9px}
-
+  .fl{min-width:40px;font-size:9px}
+  .chip{font-size:10px;padding:2px 7px}
   .tabs .tab{font-size:10px;padding:8px 2px}
+  /* Karten-Karte auf Mobile: volle Breite, tappable */
+  .hcard{touch-action:manipulation}
 }
 </style>
 </head>
 <body>
-
 <div class="header">
-  <div class="header-left">
+  <div class="hdr-left">
     <svg class="app-icon" viewBox="0 0 34 34" xmlns="http://www.w3.org/2000/svg">
       <rect x="2" y="2" width="30" height="30" rx="5" fill="white"/>
       <rect x="9" y="14" width="16" height="13" rx="2" fill="#be0000"/>
@@ -210,54 +241,66 @@ select.fs:focus{outline:2px solid var(--red)}
       <line x1="17" y1="16" x2="17" y2="25" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
       <line x1="21" y1="16" x2="21" y2="25" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
     </svg>
-    <div class="h-title"><h1>Müll-Hotspot Monitor · Berlin</h1></div>
+    <div class="hdr-title">Müll-Hotspot Monitor · Berlin</div>
   </div>
-  <div class="h-stats" id="hStats"></div>
+  <div class="hdr-stats" id="hStats"></div>
 </div>
 
 <div class="main">
   <div id="map"></div>
   <div class="sidebar" id="sheet">
-    <!-- Handle nur auf Mobile sichtbar, zum Ziehen -->
-    <div class="sheet-handle" id="sheetHandle"></div>
+    <div class="sh-handle" id="shHandle"></div>
 
+    <!-- FILTER -->
     <div class="filters">
       <div class="fr">
         <span class="fl">Bezirk</span>
-        <select class="fs" id="fBezirk" onchange="applyFilters()"><option value="">Alle Bezirke</option></select>
+        <div class="fr-right">
+          <select class="fs" id="fBezirk" onchange="applyFilters()">
+            <option value="">Alle Bezirke</option>
+          </select>
+        </div>
       </div>
       <div class="fr">
         <span class="fl">Einstufung</span>
-        <div class="btns">
-          <button class="lbtn on" data-l="all" onclick="setLevel('all')">Alle</button>
-          <button class="lbtn" data-l="kritisch" onclick="setLevel('kritisch')">Kritisch</button>
-          <button class="lbtn" data-l="hoch" onclick="setLevel('hoch')">Hoch</button>
-          <button class="lbtn" data-l="mittel" onclick="setLevel('mittel')">Mittel</button>
-          <button class="lbtn" data-l="niedrig" onclick="setLevel('niedrig')">Niedrig</button>
+        <div class="fr-right">
+          <div class="chips" id="lvlChips">
+            <span class="chip" data-t="lvl" data-v="kritisch" onclick="toggleChip(this)">Kritisch</span>
+            <span class="chip" data-t="lvl" data-v="hoch" onclick="toggleChip(this)">Hoch</span>
+            <span class="chip" data-t="lvl" data-v="mittel" onclick="toggleChip(this)">Mittel</span>
+            <span class="chip" data-t="lvl" data-v="niedrig" onclick="toggleChip(this)">Niedrig</span>
+          </div>
         </div>
       </div>
       <div class="fr">
         <span class="fl">Abfallart</span>
-        <div class="btns" id="katBtns"></div>
+        <div class="fr-right">
+          <div class="chips" id="katChips"></div>
+        </div>
       </div>
       <div class="fr">
         <span class="fl">Sortierung</span>
-        <div class="btns">
-          <button class="sbtn on" data-s="score_desc" onclick="setSort('score_desc')">▼ Bewertung</button>
-          <button class="sbtn" data-s="score_asc" onclick="setSort('score_asc')">▲ Bewertung</button>
-          <button class="sbtn" data-s="meldungen" onclick="setSort('meldungen')">Meldungen</button>
-          <button class="sbtn" data-s="datum" onclick="setSort('datum')">Aktuellste</button>
+        <div class="fr-right">
+          <div class="chips">
+            <span class="chip on" data-t="srt" data-v="score_desc" onclick="setSort(this)">▼ Bewertung</span>
+            <span class="chip" data-t="srt" data-v="score_asc" onclick="setSort(this)">▲ Bewertung</span>
+            <span class="chip" data-t="srt" data-v="meldungen" onclick="setSort(this)">Meldungen</span>
+            <span class="chip" data-t="srt" data-v="datum" onclick="setSort(this)">Aktuellste</span>
+          </div>
         </div>
       </div>
-      <div class="rcount" id="rCount"></div>
+      <div class="filter-actions">
+        <span class="rcount" id="rCount"></span>
+        <button class="clear-btn" onclick="clearFilters()">Filter zurücksetzen</button>
+      </div>
     </div>
 
+    <!-- TABS -->
     <div class="tabs">
       <div class="tab on" onclick="switchTab('hotspots')">Standorte</div>
       <div class="tab" onclick="switchTab('bezirke')">Bezirke</div>
       <div class="tab" onclick="switchTab('info')">Legende</div>
     </div>
-
     <div class="panel on" id="panel-hotspots"><div class="hlist" id="hList"></div></div>
     <div class="panel" id="panel-bezirke"><div class="blist" id="bList"></div></div>
     <div class="panel" id="panel-info">
@@ -268,23 +311,23 @@ select.fs:focus{outline:2px solid var(--red)}
         <div class="leg-row"><div class="leg-dot" style="background:var(--c-kritisch)"></div><strong style="color:var(--c-kritisch)">Kritisch (13+)</strong> — Dauerhafter Problemstandort</div>
       </div>
       <div class="isec"><h3>Abfallarten</h3>
-        <div class="logic-item"><span class="logic-n">🏗</span>Bauschutt — gewerbliche Herkunft wahrscheinlich</div>
-        <div class="logic-item"><span class="logic-n">🌿</span>Grünschnitt/Gartenabfall — Garten- oder Kleingartenanlagen</div>
-        <div class="logic-item"><span class="logic-n">🚗</span>Schrottfahrzeug — Verstoß gegen FZV</div>
-        <div class="logic-item"><span class="logic-n">🛋</span>Sperrmüll — Umgehung regulärer Entsorgungswege</div>
-        <div class="logic-item"><span class="logic-n">⚡</span>Elektroschrott — Verstoß gegen ElektroG</div>
-        <div class="logic-item"><span class="logic-n">🚮</span>Illegale Entsorgung — Ordnungswidrigkeit §61 KrWG</div>
+        <div class="li"><span class="ln">🏗</span>Bauschutt — gewerbliche Herkunft wahrscheinlich</div>
+        <div class="li"><span class="ln">🌿</span>Grünschnitt/Gartenabfall — Garten- oder Kleingartenanlagen</div>
+        <div class="li"><span class="ln">🚗</span>Schrottfahrzeug — Verstoß gegen FZV</div>
+        <div class="li"><span class="ln">🛋</span>Sperrmüll — Umgehung regulärer Entsorgungswege</div>
+        <div class="li"><span class="ln">⚡</span>Elektroschrott — Verstoß gegen ElektroG</div>
+        <div class="li"><span class="ln">🚮</span>Illegale Entsorgung — Ordnungswidrigkeit §61 KrWG</div>
       </div>
       <div class="isec"><h3>Zeitliche Auswertung</h3>
-        <div class="logic-item"><span class="logic-n" style="color:var(--red)">Mo</span>Erhöhtes Aufkommen montags → Ablagerung am Wochenende</div>
-        <div class="logic-item"><span class="logic-n" style="color:#7b3fa0">Sa/So</span>Erhöhtes Aufkommen Wochenende → außerhalb der Werktage</div>
-        <div class="logic-item"><span class="logic-n">📅</span>Monatsendhäufung → Zusammenhang mit Wohnungswechseln</div>
-        <div class="logic-item"><span class="logic-n">🌸</span>Saisonale Häufung → jahreszeittypisches Muster</div>
+        <div class="li"><span class="ln" style="color:var(--red)">Mo</span>Montags-Schwerpunkt → Ablagerung am Wochenende</div>
+        <div class="li"><span class="ln" style="color:#7b3fa0">Sa/So</span>Wochenend-Schwerpunkt → außerhalb der Werktage</div>
+        <div class="li"><span class="ln">📅</span>Monatsendhäufung → Zusammenhang mit Wohnungswechseln</div>
+        <div class="li"><span class="ln">🌸</span>Saisonale Häufung → jahreszeittypisches Muster</div>
       </div>
       <div class="isec"><h3>Bewertungsberechnung</h3>
-        <div class="logic-item"><span class="logic-n">+1</span>Pro Meldung an diesem Standort</div>
-        <div class="logic-item"><span class="logic-n">+3</span>Folgemeldung innerhalb 21 Tagen nach Beseitigung</div>
-        <div class="logic-item"><span class="logic-n">×</span>Zeitfaktor: aktuellere Standorte höher gewichtet</div>
+        <div class="li"><span class="ln">+1</span>Pro Meldung an diesem Standort</div>
+        <div class="li"><span class="ln">+3</span>Folgemeldung innerhalb 21 Tagen nach Beseitigung</div>
+        <div class="li"><span class="ln">×</span>Zeitfaktor: aktuellere Standorte höher gewichtet</div>
       </div>
       <div class="isec"><h3>Datengrundlage</h3>
         <p style="font-size:12px;color:#666;line-height:1.6">Ordnungsamt Online API · Berlin Open Data<br>Datenlizenz Deutschland – Namensnennung 2.0<br>Tagesaktuelle Aktualisierung</p>
@@ -294,211 +337,406 @@ select.fs:focus{outline:2px solid var(--red)}
 </div>
 
 <script>
-const D=__APP_DATA_PLACEHOLDER__;
-const DAYS=['Mo','Di','Mi','Do','Fr','Sa','So'];
-const COLORS={niedrig:'#2d7d2d',mittel:'#b8860b',hoch:'#cc5500',kritisch:'#be0000'};
-let fBezirk='',fLevel='all',fKat='',fSort='score_desc',markers=[],map;
+const D = __APP_DATA_PLACEHOLDER__;
+const DAYS = ['Mo','Di','Mi','Do','Fr','Sa','So'];
+const COLORS = {niedrig:'#2d7d2d',mittel:'#b8860b',hoch:'#cc5500',kritisch:'#be0000'};
 
-// ── Bottom Sheet Drag ─────────────────────────────────────────────────
-const isMobile=()=>window.innerWidth<=768;
-let sheetState='peek'; // peek | mid | full
-const sheet=document.getElementById('sheet');
-const handle=document.getElementById('sheetHandle');
-let dragStart=null,sheetStartY=null;
+// ── Filter State ───────────────────────────────────────────────────────
+// Alle Filter sind MULTI-SELECT Arrays, leeres Array = kein Filter
+let F = { bezirk:'', levels:[], kats:[], sort:'score_desc' };
+let markers = [], map, openCard = null;
 
-function setSheetState(state){
-  sheetState=state;
-  sheet.classList.remove('mid','full');
-  if(state==='mid')sheet.classList.add('mid');
-  if(state==='full')sheet.classList.add('full');
-  // Invalidate map size after transition
-  setTimeout(()=>{ if(map) map.invalidateSize(); },380);
-}
-
-function onDragStart(e){
-  if(!isMobile())return;
-  dragStart=e.touches?e.touches[0].clientY:e.clientY;
-  sheetStartY=sheet.getBoundingClientRect().top;
-  sheet.style.transition='none';
-}
-function onDragMove(e){
-  if(dragStart===null||!isMobile())return;
-  e.preventDefault();
-  const cur=e.touches?e.touches[0].clientY:e.clientY;
-  const dy=dragStart-cur;
-  const vh=window.innerHeight-parseInt(getComputedStyle(document.documentElement).getPropertyValue('--header-h'));
-  const peekPx=parseInt(getComputedStyle(document.documentElement).getPropertyValue('--sheet-peek').replace('px',''));
-  let newH=Math.max(peekPx,Math.min(vh*0.92, (vh-sheetStartY+parseInt(getComputedStyle(document.documentElement).getPropertyValue('--header-h')))+dy));
-  sheet.style.transform=`translateY(calc(100% - ${newH}px))`;
-}
-function onDragEnd(e){
-  if(dragStart===null||!isMobile())return;
-  sheet.style.transition='';
-  const cur=e.changedTouches?e.changedTouches[0].clientY:e.clientY;
-  const dy=dragStart-cur;
-  if(dy>60)setSheetState(sheetState==='peek'?'mid':'full');
-  else if(dy<-60)setSheetState(sheetState==='full'?'mid':'peek');
-  else setSheetState(sheetState);
-  dragStart=null;
-}
-
-handle.addEventListener('touchstart',onDragStart,{passive:true});
-handle.addEventListener('touchmove',onDragMove,{passive:false});
-handle.addEventListener('touchend',onDragEnd,{passive:true});
-handle.addEventListener('mousedown',onDragStart);
-document.addEventListener('mousemove',onDragMove);
-document.addEventListener('mouseup',onDragEnd);
-
-// Tap on handle cycles states
-handle.addEventListener('click',()=>{
-  if(!isMobile())return;
-  const states=['peek','mid','full'];
-  setSheetState(states[(states.indexOf(sheetState)+1)%3]);
-});
-
-// ── Map ───────────────────────────────────────────────────────────────
-function initMap(){
-  map=L.map('map',{center:[52.52,13.405],zoom:11});
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap',maxZoom:19}).addTo(map);
-  renderMarkers();
-  // Tap on map collapses sheet on mobile
-  map.on('click',()=>{ if(isMobile()&&sheetState!=='peek')setSheetState('peek'); });
-}
-function makeIcon(level){
-  const c=COLORS[level],r={niedrig:8,mittel:11,hoch:15,kritisch:20}[level],sz=r*2+10,cx=sz/2;
-  const pulse=level==='kritisch'?`<circle cx="${cx}" cy="${cx}" r="${r+5}" fill="none" stroke="${c}" stroke-width="1" opacity="0.3"><animate attributeName="r" values="${r+2};${r+9};${r+2}" dur="2.5s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.4;0;0.4" dur="2.5s" repeatCount="indefinite"/></circle>`:'';
-  return L.divIcon({html:`<svg width="${sz}" height="${sz}" xmlns="http://www.w3.org/2000/svg">${pulse}<circle cx="${cx}" cy="${cx}" r="${r}" fill="${c}" fill-opacity=".85" stroke="white" stroke-width="1.5"/></svg>`,className:'',iconSize:[sz,sz],iconAnchor:[cx,cx],popupAnchor:[0,-cx]});
-}
-function renderMarkers(){
-  markers.forEach(m=>map.removeLayer(m));markers=[];
-  filteredHotspots().forEach(h=>{
-    const m=L.marker([h.lat_center,h.lon_center],{icon:makeIcon(h.score_label)}).addTo(map).on('click',()=>{
-      selectHotspot(h.cluster_id,true);
-      if(isMobile())setSheetState('mid');
-    });
-    m._cid=h.cluster_id;markers.push(m);
-  });
-}
-function makePopup(h){
-  const kats=(h.kategorie_mix||[]).map(k=>`<span style="display:inline-flex;gap:3px;background:${k.color};color:white;padding:2px 7px;border-radius:8px;font-size:11px;font-weight:600;margin:1px">${k.label} <span style="opacity:.7;font-size:10px">${k.pct}%</span></span>`).join('');
-  return `<div class="pop-head"><div class="pop-title">${h.bezirk||'Unbekannt'}</div><div class="pop-sub">${h.score_label.charAt(0).toUpperCase()+h.score_label.slice(1)} · Bewertung ${h.score}</div></div>
-  <div class="pop-body">
-  <div class="pop-grid">
-    <div><div class="pop-l">Meldungen</div><div class="pop-v">${h.meldungen_count}</div></div>
-    <div><div class="pop-l">Wiederkehr</div><div class="pop-v">${h.recurrence_count}×</div></div>
-    <div><div class="pop-l">Erstmeldung</div><div class="pop-v" style="font-size:11px">${h.first_seen}</div></div>
-    <div><div class="pop-l">Letzte Meldung</div><div class="pop-v" style="font-size:11px">${h.last_seen}</div></div>
-  </div>
-  ${kats?`<div><div class="pop-l" style="margin-bottom:4px">Abfallarten</div><div style="display:flex;flex-wrap:wrap;gap:2px">${kats}</div></div>`:''}
-  </div>`;
-}
-function selectHotspot(cid,fromMap){
-  const h=D.hotspots.find(x=>x.cluster_id===cid);if(!h)return;
-  // Sidebar: nur markieren (sel), NICHT aufklappen — nur scrollIntoView
-  document.querySelectorAll('.hcard').forEach(el=>{
-    el.classList.toggle('sel', el.dataset.cid===cid);
-    if(el.dataset.cid===cid && !fromMap) el.classList.add('open'); // Sidebar-Klick öffnet
-  });
-  const card=document.querySelector(`.hcard[data-cid="${cid}"]`);
-  if(card)card.scrollIntoView({behavior:'smooth',block:'nearest'});
-  if(!fromMap)map.flyTo([h.lat_center,h.lon_center],14,{duration:.8});
-  // Popup immer anzeigen (mit vollen Details)
-  markers.forEach(m=>{if(m._cid===cid)m.bindPopup(makePopup(h),{maxWidth:300,className:''}).openPopup();});
-}
-function toggleCard(cid){
-  const card=document.querySelector(`.hcard[data-cid="${cid}"]`);
-  if(card)card.classList.toggle('open');
-  selectHotspot(cid,false);
-}
+// ── Filter Logik ───────────────────────────────────────────────────────
 function filteredHotspots(){
-  let hs=D.hotspots.slice();
-  if(fBezirk)hs=hs.filter(h=>h.bezirk===fBezirk);
-  if(fLevel!=='all')hs=hs.filter(h=>h.score_label===fLevel);
-  if(fKat)hs=hs.filter(h=>(h.kategorie_mix||[]).some(k=>k.key===fKat));
+  let hs = D.hotspots.slice();
+  if(F.bezirk) hs = hs.filter(h => h.bezirk === F.bezirk);
+  if(F.levels.length) hs = hs.filter(h => F.levels.includes(h.score_label));
+  if(F.kats.length) hs = hs.filter(h => (h.kategorie_mix||[]).some(k => F.kats.includes(k.key)));
   hs.sort((a,b)=>{
-    if(fSort==='score_desc')return b.score-a.score;if(fSort==='score_asc')return a.score-b.score;
-    if(fSort==='meldungen')return b.meldungen_count-a.meldungen_count;
-    if(fSort==='datum')return(b.last_seen||'').localeCompare(a.last_seen||'');return 0;
+    if(F.sort==='score_desc') return b.score-a.score;
+    if(F.sort==='score_asc')  return a.score-b.score;
+    if(F.sort==='meldungen')  return b.meldungen_count-a.meldungen_count;
+    if(F.sort==='datum')      return (b.last_seen||'').localeCompare(a.last_seen||'');
+    return 0;
   });
   return hs;
 }
-function applyFilters(){fBezirk=document.getElementById('fBezirk').value;renderMarkers();renderHList();}
-function setLevel(l){fLevel=l;document.querySelectorAll('.lbtn').forEach(b=>b.classList.toggle('on',b.dataset.l===l));renderMarkers();renderHList();}
-function setSort(s){fSort=s;document.querySelectorAll('.sbtn').forEach(b=>b.classList.toggle('on',b.dataset.s===s));renderHList();}
-function setKat(k){fKat=fKat===k?'':k;document.querySelectorAll('.katbtn').forEach(b=>b.classList.toggle('on',b.dataset.k===fKat&&fKat!==''));renderMarkers();renderHList();}
+
+function applyFilters(){
+  F.bezirk = document.getElementById('fBezirk').value;
+  renderMarkers();
+  renderHList();
+}
+
+function toggleChip(el){
+  const t = el.dataset.t, v = el.dataset.v;
+  if(t === 'lvl'){
+    el.classList.toggle('on');
+    F.levels = [...document.querySelectorAll('.chip[data-t="lvl"].on')].map(c=>c.dataset.v);
+  } else if(t === 'kat'){
+    el.classList.toggle('on');
+    F.kats = [...document.querySelectorAll('.chip[data-t="kat"].on')].map(c=>c.dataset.v);
+  }
+  renderMarkers();
+  renderHList();
+}
+
+function setSort(el){
+  document.querySelectorAll('.chip[data-t="srt"]').forEach(c=>c.classList.remove('on'));
+  el.classList.add('on');
+  F.sort = el.dataset.v;
+  renderHList();
+}
+
+function clearFilters(){
+  F = { bezirk:'', levels:[], kats:[], sort:'score_desc' };
+  document.getElementById('fBezirk').value = '';
+  document.querySelectorAll('.chip[data-t="lvl"], .chip[data-t="kat"]').forEach(c=>c.classList.remove('on'));
+  document.querySelectorAll('.chip[data-t="srt"]').forEach(c=>c.classList.remove('on'));
+  document.querySelector('.chip[data-t="srt"][data-v="score_desc"]').classList.add('on');
+  renderMarkers();
+  renderHList();
+}
+
+// ── Map ────────────────────────────────────────────────────────────────
+function initMap(){
+  map = L.map('map',{center:[52.52,13.405],zoom:11});
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+    attribution:'© OpenStreetMap',maxZoom:19}).addTo(map);
+  renderMarkers();
+  map.on('click', ()=>{ if(isMobile() && sheetState!=='peek') setSheet('peek'); });
+}
+
+function isMobile(){ return window.innerWidth <= 768; }
+
+function makeIcon(level){
+  const c=COLORS[level], r={niedrig:8,mittel:11,hoch:15,kritisch:20}[level];
+  const sz=r*2+10, cx=sz/2;
+  const pulse = level==='kritisch'
+    ? `<circle cx="${cx}" cy="${cx}" r="${r+5}" fill="none" stroke="${c}" stroke-width="1" opacity="0.3">
+        <animate attributeName="r" values="${r+2};${r+9};${r+2}" dur="2.5s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.4;0;0.4" dur="2.5s" repeatCount="indefinite"/>
+       </circle>` : '';
+  const svg = `<svg width="${sz}" height="${sz}" xmlns="http://www.w3.org/2000/svg">
+    ${pulse}
+    <circle cx="${cx}" cy="${cx}" r="${r}" fill="${c}" fill-opacity=".85" stroke="white" stroke-width="1.5"/>
+  </svg>`;
+  return L.divIcon({html:svg,className:'',iconSize:[sz,sz],iconAnchor:[cx,cx],popupAnchor:[0,-cx]});
+}
+
+function renderMarkers(){
+  markers.forEach(m=>map.removeLayer(m));
+  markers = [];
+  filteredHotspots().forEach(h=>{
+    const m = L.marker([h.lat_center,h.lon_center],{icon:makeIcon(h.score_label)})
+      .addTo(map)
+      .on('click', ()=>{
+        // Karten-Klick: Popup mit vollen Details öffnen + Karte in Liste markieren
+        showPopup(h);
+        highlightCard(h.cluster_id);
+        if(isMobile()) setSheet('mid');
+      });
+    m._cid = h.cluster_id;
+    markers.push(m);
+  });
+}
+
+// ── Popup (volle Details) ──────────────────────────────────────────────
+function makePopupHTML(h){
+  const c = COLORS[h.score_label];
+  const kats = (h.kategorie_mix||[]).map(k=>
+    `<span style="display:inline-flex;gap:2px;background:${k.color};color:white;
+      padding:2px 7px;border-radius:8px;font-size:11px;font-weight:600;margin:1px">
+      ${k.label} <span style="opacity:.7;font-size:10px">${k.pct}%</span></span>`
+  ).join('');
+
+  const wdHTML = DAYS.map(d=>{
+    const wd = h.weekday_dist||{}, maxWd=Math.max(...Object.values(wd),1);
+    const val=wd[d]||0, hp=Math.max(1,Math.round((val/maxWd)*18));
+    const bc = d==='Mo'?'#be0000':(d==='Sa'||d==='So'?'#7b3fa0':'#99b8d8');
+    const lc = d==='Mo'?'color:#be0000':(d==='Sa'||d==='So'?'color:#7b3fa0':'color:#bbb');
+    return `<div style="display:flex;flex-direction:column;align-items:center;
+      justify-content:flex-end;flex:1;gap:2px;height:26px">
+      <div style="width:100%;background:${bc};height:${hp}px;border-radius:1px 1px 0 0;flex-shrink:0"></div>
+      <span style="font-size:7px;font-weight:700;${lc};line-height:1;flex-shrink:0">${d}</span>
+    </div>`;
+  }).join('');
+
+  const auf = (h.auffaelligkeiten||[]).map(a=>
+    `<div style="font-size:11px;color:#555;padding:2px 0 2px 10px;position:relative;line-height:1.4;border-bottom:1px solid #f5f5f5">
+      <span style="position:absolute;left:0;color:var(--red);font-weight:700">·</span>${a}
+    </div>`
+  ).join('');
+
+  const addrLine = h.strasse
+    ? `📍 ${[h.strasse,h.plz,h.bezirk].filter(Boolean).join(' · ')}`
+    : `📍 ${h.bezirk||'Unbekannt'}`;
+
+  const maxScore=30, scorePct=Math.min(100,(h.score/maxScore)*100).toFixed(0);
+
+  return `
+  <div class="pop-hd">
+    <div class="pop-ti">${h.bezirk||'Unbekannt'} · ${h.score_label.charAt(0).toUpperCase()+h.score_label.slice(1)}</div>
+    <div class="pop-su">Bewertung ${h.score}</div>
+  </div>
+  <div class="pop-bd">
+    <div class="pop-addr">${addrLine}</div>
+    <div class="pop-grid">
+      <div><div class="pop-l">Meldungen</div><div class="pop-v">${h.meldungen_count}</div></div>
+      <div><div class="pop-l">Wiederkehr</div><div class="pop-v">${h.recurrence_count}×</div></div>
+      <div><div class="pop-l">Erstmeldung</div><div class="pop-v" style="font-size:11px">${h.first_seen}</div></div>
+      <div><div class="pop-l">Letzte Meldung</div><div class="pop-v" style="font-size:11px">${h.last_seen}</div></div>
+    </div>
+    ${kats?`<div class="pop-kats"><div class="pop-l" style="margin-bottom:4px">Abfallarten</div>
+      <div style="display:flex;flex-wrap:wrap;gap:2px">${kats}</div></div>`:''}
+    <div style="margin:7px 0 4px"><div class="pop-l" style="margin-bottom:3px">Wochentag</div>
+      <div style="display:flex;gap:2px;height:26px">${wdHTML}</div></div>
+    <div style="height:3px;background:#eee;border-radius:1px;margin-bottom:6px">
+      <div style="width:${scorePct}%;height:100%;background:${c};border-radius:1px"></div></div>
+    ${auf?`<div class="pop-auf"><div class="pop-l" style="margin-bottom:4px">Feststellungen</div>${auf}</div>`:''}
+  </div>`;
+}
+
+function showPopup(h){
+  markers.forEach(m=>{
+    if(m._cid === h.cluster_id){
+      m.bindPopup(makePopupHTML(h),{maxWidth:300,className:''}).openPopup();
+    }
+  });
+}
+
+// ── Card Interaktion ───────────────────────────────────────────────────
+function highlightCard(cid){
+  document.querySelectorAll('.hcard').forEach(el=>{
+    el.classList.toggle('sel', el.dataset.cid===cid);
+  });
+  const card = document.querySelector(`.hcard[data-cid="${cid}"]`);
+  if(card) card.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function toggleCard(cid){
+  // Karten-Klick in Sidebar: aufklappen + Karte zentrieren + Karte in Liste markieren
+  const card = document.querySelector(`.hcard[data-cid="${cid}"]`);
+  const h = D.hotspots.find(x=>x.cluster_id===cid);
+  if(!card || !h) return;
+
+  const wasOpen = card.classList.contains('open');
+
+  // Anderen schließen
+  document.querySelectorAll('.hcard.open').forEach(c=>{ if(c!==card) c.classList.remove('open'); });
+
+  card.classList.toggle('open', !wasOpen);
+  card.classList.add('sel');
+  document.querySelectorAll('.hcard:not([data-cid="'+cid+'"])').forEach(c=>c.classList.remove('sel'));
+
+  // Karte zentrieren + Popup öffnen
+  map.flyTo([h.lat_center, h.lon_center], 14, {duration:0.8});
+  showPopup(h);
+
+  // Mobile: Sheet auf mid
+  if(isMobile()) setSheet('mid');
+}
+
+// ── Render Header Stats ────────────────────────────────────────────────
 function renderStats(){
-  const hs=D.hotspots,krit=hs.filter(h=>h.score_label==='kritisch').length,hoch=hs.filter(h=>h.score_label==='hoch').length,total=hs.reduce((s,h)=>s+h.meldungen_count,0);
-  document.getElementById('hStats').innerHTML=`<div class="hst dark"><div class="hst-v">${krit}</div><div class="hst-l">Kritisch</div></div><div class="hst dark"><div class="hst-v">${hoch}</div><div class="hst-l">Hoch</div></div><div class="hst"><div class="hst-v">${hs.length}</div><div class="hst-l">Standorte</div></div><div class="hst"><div class="hst-v">${total}</div><div class="hst-l">Meldungen</div></div>`;
+  const hs=D.hotspots;
+  const krit=hs.filter(h=>h.score_label==='kritisch').length;
+  const hoch=hs.filter(h=>h.score_label==='hoch').length;
+  const total=hs.reduce((s,h)=>s+h.meldungen_count,0);
+  document.getElementById('hStats').innerHTML =
+    `<div class="hst dk"><div class="hst-v">${krit}</div><div class="hst-l">Kritisch</div></div>
+     <div class="hst dk"><div class="hst-v">${hoch}</div><div class="hst-l">Hoch</div></div>
+     <div class="hst"><div class="hst-v">${hs.length}</div><div class="hst-l">Standorte</div></div>
+     <div class="hst"><div class="hst-v">${total}</div><div class="hst-l">Meldungen</div></div>`;
 }
-function renderKatBtns(){
-  const kk=D.kat_keys||{};
-  document.getElementById('katBtns').innerHTML=Object.entries(kk).map(([key,info])=>`<button class="katbtn" data-k="${key}" onclick="setKat('${key}')" style="border-color:${info.color};color:${info.color}">${info.label}</button>`).join('');
+
+// ── Render Abfallart Chips ─────────────────────────────────────────────
+function renderKatChips(){
+  const kk = D.kat_keys||{};
+  document.getElementById('katChips').innerHTML = Object.entries(kk).map(([key,info])=>
+    `<span class="chip" data-t="kat" data-v="${key}" onclick="toggleChip(this)"
+      style="border-color:${info.color};color:${info.color}">${info.label}</span>`
+  ).join('');
 }
+
+// ── Render Hotspot List ────────────────────────────────────────────────
 function renderHList(){
-  const hs=filteredHotspots();
-  document.getElementById('rCount').textContent=`${hs.length} Standort${hs.length!==1?'e':''} gefunden`;
-  const maxScore=Math.max(...D.hotspots.map(h=>h.score),1);
-  document.getElementById('hList').innerHTML=hs.map(h=>{
-    const c=COLORS[h.score_label],pct=((h.score/maxScore)*100).toFixed(0);
-    const topKats=(h.kategorie_mix||[]).slice(0,2).map(k=>`<span style="font-size:10px;color:${k.color};font-weight:600">${k.label}</span>`).join('<span style="color:#ddd;margin:0 2px">·</span>');
-    const hasAuf=(h.auffaelligkeiten||[]).length>0;
-    const katPills=(h.kategorie_mix||[]).map(k=>`<span class="kat-pill" style="background:${k.color}">${k.label}<span class="kat-pct">${k.pct}%</span></span>`).join('');
-    const wd=h.weekday_dist||{},maxWd=Math.max(...Object.values(wd),1);
-    const wdBars=DAYS.map((d,i)=>{
-      const val=wd[d]||0,hp=Math.max(2,Math.round((val/maxWd)*18));
-      const bc=d==='Mo'?'var(--red)':(d==='Sa'||d==='So'?'#7b3fa0':'#99b8d8');
-      const lc=d==='Mo'?'color:var(--red)':(d==='Sa'||d==='So'?'color:#7b3fa0':'color:#ccc');
-      return `<div style="display:flex;flex-direction:column;align-items:center;flex:1;min-width:0;gap:1px;height:32px;justify-content:flex-end"><div style="width:100%;background:${bc};height:${hp}px;border-radius:1px 1px 0 0;flex-shrink:0"></div><span style="font-size:8px;font-weight:600;${lc};white-space:nowrap;flex-shrink:0;line-height:1.2">${d}</span></div>`;
+  const hs = filteredHotspots();
+  document.getElementById('rCount').textContent =
+    `${hs.length} Standort${hs.length!==1?'e':''} gefunden`;
+
+  const maxScore = Math.max(...D.hotspots.map(h=>h.score),1);
+
+  document.getElementById('hList').innerHTML = hs.map(h=>{
+    const c = COLORS[h.score_label];
+    const pct = ((h.score/maxScore)*100).toFixed(0);
+    const bgClass = {niedrig:'bg-n',mittel:'bg-m',hoch:'bg-h',kritisch:'bg-k'}[h.score_label];
+
+    // Basis: top-2 Abfallarten als kleine farbige Badges
+    const topCatBadges = (h.kategorie_mix||[]).slice(0,2).map(k=>
+      `<span class="hc-catbadge" style="background:${k.color}">${k.label}</span>`
+    ).join('');
+
+    // Detail: volle Pills
+    const katPills = (h.kategorie_mix||[]).map(k=>
+      `<span class="kp" style="background:${k.color}">${k.label}<span class="kp-pct">${k.pct}%</span></span>`
+    ).join('');
+
+    // Wochentag Chart
+    const wd=h.weekday_dist||{}, maxWd=Math.max(...Object.values(wd),1);
+    const wdBars = DAYS.map(d=>{
+      const val=wd[d]||0, hp=Math.max(2,Math.round((val/maxWd)*20));
+      const bc = d==='Mo'?'var(--red)':(d==='Sa'||d==='So'?'#7b3fa0':'#99b8d8');
+      const lc = d==='Mo'?'mo':(d==='Sa'||d==='So'?'wk':'');
+      return `<div class="wd-col">
+        <div class="wd-bar" style="height:${hp}px;background:${bc}"></div>
+        <span class="wd-lbl ${lc}">${d}</span>
+      </div>`;
     }).join('');
-    const patTag=h.pattern&&h.pattern!=='normal'?`<div style="font-size:10px;font-weight:700;padding:1px 6px;border-radius:8px;display:inline-block;margin-bottom:5px;${h.pattern==='montag'?'background:#e8f0ff;color:#0033aa':'background:#f0e8ff;color:#660099'}">${h.pattern==='montag'?'Montags-Schwerpunkt':'Wochenend-Schwerpunkt'} · ${h.pattern_label}</div>`:'';
-    const aufItems=(h.auffaelligkeiten||[]).map(a=>`<div class="auf-item">· ${a}</div>`).join('');
-    return `<div class="hcard" data-l="${h.score_label}" data-cid="${h.cluster_id}" onclick="toggleCard('${h.cluster_id}')">
+
+    const patTag = h.pattern && h.pattern!=='normal'
+      ? `<span class="pat-tag ${h.pattern==='montag'?'pt-mo':'pt-wk'}">
+          ${h.pattern==='montag'?'Montags-Schwerpunkt':'Wochenend-Schwerpunkt'} · ${h.pattern_label}
+        </span>` : '';
+
+    const aufItems = (h.auffaelligkeiten||[]).map(a=>
+      `<div class="auf-i">${a}</div>`
+    ).join('');
+
+    const hasAuf = (h.auffaelligkeiten||[]).length > 0;
+    const addrLine = h.strasse
+      ? `<div class="hc-addr">📍 ${h.strasse}${h.plz?' · '+h.plz:''}</div>`
+      : '';
+
+    return `<div class="hcard" data-l="${h.score_label}" data-cid="${h.cluster_id}"
+      onclick="toggleCard('${h.cluster_id}')">
       <div class="hc-head">
-        <div class="hc-left">
+        <div class="hc-main">
           <div class="hc-bez">${h.bezirk||'Unbekannt'}</div>
-          ${h.strasse?`<div style="font-size:11px;color:#888;margin-bottom:1px">📍 ${h.strasse}${h.plz?' · '+h.plz:''}</div>`:''}
+          ${addrLine}
           <div class="hc-meta">
-            <span class="hc-s"><strong>${h.meldungen_count}</strong> Meld.</span>
-            <span class="hc-s"><strong>${h.recurrence_count}×</strong> Wiederk.</span>
-            ${topKats?`<span style="color:#ddd;font-size:10px">|</span>${topKats}`:''}
+            <span class="hc-m"><strong>${h.meldungen_count}</strong> Meld.</span>
+            <span class="hc-m"><strong>${h.recurrence_count}×</strong> Wiederk.</span>
+            <span class="hc-m">Bew. <strong style="color:${c}">${h.score}</strong></span>
           </div>
+          <div class="hc-topcats">${topCatBadges}</div>
         </div>
         <div class="hc-right">
-          <div class="hc-badge bg-${h.score_label}">${h.score_label}</div>
-          ${hasAuf?'<span style="font-size:9px;color:var(--red);font-weight:700">⚑ Feststellungen</span>':''}
+          <div class="hc-badge ${bgClass}">${h.score_label}</div>
+          ${hasAuf?'<span class="hc-flag">⚑ Festst.</span>':''}
           <div class="hc-chevron">▼</div>
         </div>
       </div>
-      <div class="hc-detail">
-        ${katPills?`<div class="kat-strip">${katPills}</div>`:''}
-        <div class="wd-section"><div class="wd-label">Meldeverteilung nach Wochentag</div><div style="display:flex;gap:2px;align-items:flex-end;height:32px">${wdBars}</div></div>
-        ${patTag}
-        ${aufItems?`<div class="auf-section"><div class="auf-label">Feststellungen</div>${aufItems}</div>`:''}
+      <div class="hc-det">
+        ${katPills?`<div class="det-sec"><div class="det-lbl">Abfallarten</div><div class="kat-pills">${katPills}</div></div>`:''}
+        <div class="det-sec">
+          <div class="det-lbl">Meldeverteilung Wochentag</div>
+          <div class="wd-chart">${wdBars}</div>
+        </div>
+        ${patTag?`<div style="margin-top:5px">${patTag}</div>`:''}
+        ${aufItems?`<div class="det-sec"><div class="det-lbl">Feststellungen</div><div class="auf-list">${aufItems}</div></div>`:''}
         <div class="sbar"><div class="sfill" style="width:${pct}%;background:${c}"></div></div>
-        <div style="font-size:10px;color:#bbb;margin-top:4px">Erstmeldung: ${h.first_seen} · Letzte Meldung: ${h.last_seen}</div>
+        <div class="det-dates">Erstmeldung: ${h.first_seen} · Letzte Meldung: ${h.last_seen}</div>
       </div>
     </div>`;
   }).join('');
 }
+
+// ── Render Bezirk List ─────────────────────────────────────────────────
 function renderBList(){
-  const maxScore=Math.max(...D.bezirk_stats.map(b=>b.max_score||0),1);
-  document.getElementById('bList').innerHTML=D.bezirk_stats.map(b=>{
-    const pct=((b.max_score/maxScore)*100).toFixed(0);
-    let col='#2d7d2d';if(b.max_score>=13)col='#be0000';else if(b.max_score>=8)col='#cc5500';else if(b.max_score>=4)col='#b8860b';
-    return `<div class="bcard"><div class="bc-top"><div class="bc-name">${b.bezirk}</div><div class="bc-score" style="background:${col}">Bewertung ${b.max_score}</div></div>
-    <div class="bc-grid"><div class="bc-i"><div class="bc-v">${b.total_meldungen}</div><div class="bc-l">Meldungen</div></div><div class="bc-i"><div class="bc-v">${b.total_hotspots}</div><div class="bc-l">Standorte</div></div><div class="bc-i"><div class="bc-v" style="color:#be0000">${b.krit||0}</div><div class="bc-l">Kritisch</div></div><div class="bc-i"><div class="bc-v" style="color:#cc5500">${b.hoch||0}</div><div class="bc-l">Hoch</div></div></div>
-    <div class="bc-bar"><div class="bc-fill" style="width:${pct}%;background:${col}"></div></div></div>`;
+  const maxScore = Math.max(...D.bezirk_stats.map(b=>b.max_score||0),1);
+  document.getElementById('bList').innerHTML = D.bezirk_stats.map(b=>{
+    const pct = ((b.max_score/maxScore)*100).toFixed(0);
+    let col='#2d7d2d';
+    if(b.max_score>=13) col='#be0000';
+    else if(b.max_score>=8) col='#cc5500';
+    else if(b.max_score>=4) col='#b8860b';
+    return `<div class="bcard">
+      <div class="bc-top">
+        <div class="bc-name">${b.bezirk}</div>
+        <div class="bc-scr" style="background:${col}">Bewertung ${b.max_score}</div>
+      </div>
+      <div class="bc-grid">
+        <div class="bc-i"><div class="bc-v">${b.total_meldungen}</div><div class="bc-l">Meldungen</div></div>
+        <div class="bc-i"><div class="bc-v">${b.total_hotspots}</div><div class="bc-l">Standorte</div></div>
+        <div class="bc-i"><div class="bc-v" style="color:#be0000">${b.krit||0}</div><div class="bc-l">Kritisch</div></div>
+        <div class="bc-i"><div class="bc-v" style="color:#cc5500">${b.hoch||0}</div><div class="bc-l">Hoch</div></div>
+      </div>
+      <div class="bc-bar"><div class="bc-fill" style="width:${pct}%;background:${col}"></div></div>
+    </div>`;
   }).join('');
 }
+
+// ── Tab switch ─────────────────────────────────────────────────────────
 function switchTab(name){
-  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('on',['hotspots','bezirke','info'][i]===name));
+  document.querySelectorAll('.tab').forEach((t,i)=>
+    t.classList.toggle('on',['hotspots','bezirke','info'][i]===name));
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
   document.getElementById('panel-'+name).classList.add('on');
 }
+
+// ── Mobile Bottom Sheet ────────────────────────────────────────────────
+let sheetState='peek', dragY0=null, sheetY0=null;
+const sheet=document.getElementById('sheet');
+const shHandle=document.getElementById('shHandle');
+
+function setSheet(state){
+  sheetState=state;
+  sheet.style.transition='';
+  sheet.classList.remove('s-mid','s-full');
+  if(state==='mid') sheet.classList.add('s-mid');
+  if(state==='full') sheet.classList.add('s-full');
+  setTimeout(()=>{ if(map) map.invalidateSize(); },320);
+}
+
+function shDragStart(e){
+  if(!isMobile()) return;
+  dragY0 = e.touches?e.touches[0].clientY:e.clientY;
+  sheetY0 = sheet.getBoundingClientRect().top;
+  sheet.style.transition='none';
+}
+function shDragMove(e){
+  if(dragY0===null||!isMobile()) return;
+  e.preventDefault();
+  const cur=e.touches?e.touches[0].clientY:e.clientY;
+  const dy=dragY0-cur;
+  const vh=window.innerHeight-parseInt(getComputedStyle(document.documentElement).getPropertyValue('--header-h'));
+  const newH=Math.max(160, Math.min(vh*0.93, (vh-sheetY0)+dy+parseInt(getComputedStyle(document.documentElement).getPropertyValue('--header-h'))));
+  sheet.style.transform=`translateY(calc(100% - ${newH}px))`;
+}
+function shDragEnd(e){
+  if(dragY0===null||!isMobile()) return;
+  sheet.style.transition='';
+  const cur=e.changedTouches?e.changedTouches[0].clientY:e.clientY;
+  const dy=dragY0-cur;
+  if(dy>80) setSheet(sheetState==='peek'?'mid':'full');
+  else if(dy<-80) setSheet(sheetState==='full'?'mid':'peek');
+  else setSheet(sheetState);
+  dragY0=null;
+}
+
+shHandle.addEventListener('touchstart',shDragStart,{passive:true});
+shHandle.addEventListener('touchmove',shDragMove,{passive:false});
+shHandle.addEventListener('touchend',shDragEnd,{passive:true});
+shHandle.addEventListener('click',()=>{
+  if(!isMobile()) return;
+  const states=['peek','mid','full'];
+  setSheet(states[(states.indexOf(sheetState)+1)%3]);
+});
+
+// ── Init ───────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded',()=>{
+  // Bezirk Dropdown
   const sel=document.getElementById('fBezirk');
-  (D.bezirke||[]).forEach(b=>{const o=document.createElement('option');o.value=b;o.textContent=b;sel.appendChild(o);});
-  renderKatBtns();initMap();renderStats();renderHList();renderBList();
+  (D.bezirke||[]).forEach(b=>{
+    const o=document.createElement('option');o.value=b;o.textContent=b;sel.appendChild(o);
+  });
+
+  renderKatChips();
+  initMap();
+  renderStats();
+  renderHList();
+  renderBList();
 });
 </script>
 </body>
