@@ -11,28 +11,26 @@
 :root{--red:#be0000;--gray:#404040;--light:#f4f4f4;--border:#d0d0d0;--white:#fff;--c-niedrig:#2d7d2d;--c-mittel:#b8860b;--c-hoch:#cc5500;--c-kritisch:#be0000}
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Source Sans 3',Arial,sans-serif;background:var(--light);color:var(--gray);height:100vh;display:flex;flex-direction:column;overflow:hidden;font-size:14px}
-/* HEADER */
 .header{background:var(--red);height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;flex-shrink:0;box-shadow:0 2px 5px rgba(0,0,0,.25);z-index:1000}
 .header-left{display:flex;align-items:center;gap:12px}
 .app-icon{width:34px;height:34px;flex-shrink:0}
-.h-title h1{color:white;font-size:15px;font-weight:700;line-height:1}
+.h-title h1{color:white;font-size:15px;font-weight:700}
 .h-stats{display:flex;gap:2px}
 .hst{background:rgba(255,255,255,.15);border-radius:3px;padding:3px 9px;text-align:center;color:white;min-width:50px}
 .hst-v{font-size:16px;font-weight:700;line-height:1}
 .hst-l{font-size:9px;opacity:.8;text-transform:uppercase;letter-spacing:.3px}
 .hst.dark{background:rgba(0,0,0,.2)}
-/* LAYOUT */
 .main{display:flex;flex:1;overflow:hidden}
 #map{flex:1}
 .sidebar{width:360px;background:white;border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;flex-shrink:0}
 /* FILTERS */
-.filters{background:var(--light);border-bottom:2px solid var(--red);padding:9px 12px;flex-shrink:0}
+.filters{background:var(--light);border-bottom:2px solid var(--red);padding:8px 12px;flex-shrink:0}
 .fr{display:flex;align-items:center;gap:7px;margin-bottom:5px}
 .fr:last-child{margin-bottom:0}
-.fl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:#777;min-width:48px;flex-shrink:0}
+.fl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:#777;min-width:52px;flex-shrink:0}
 select.fs{flex:1;padding:4px 22px 4px 7px;border:1px solid var(--border);border-radius:2px;font-size:12px;font-family:inherit;background:white url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5'%3E%3Cpath d='M0 0l4 5 4-5z' fill='%23777'/%3E%3C/svg%3E") no-repeat right 7px center;appearance:none;color:var(--gray)}
-select.fs:focus{outline:2px solid var(--red);border-color:var(--red)}
-.lbtns,.sbtns,.katbtns{display:flex;gap:3px;flex-wrap:wrap}
+select.fs:focus{outline:2px solid var(--red)}
+.btns{display:flex;gap:3px;flex-wrap:wrap}
 .lbtn{padding:3px 8px;border-radius:10px;font-size:11px;font-weight:600;cursor:pointer;border:1.5px solid;background:transparent;font-family:inherit;transition:all .12s}
 .lbtn[data-l="all"]{border-color:#999;color:#777}
 .lbtn[data-l="niedrig"]{border-color:var(--c-niedrig);color:var(--c-niedrig)}
@@ -48,61 +46,70 @@ select.fs:focus{outline:2px solid var(--red);border-color:var(--red)}
 .sbtn.on{background:var(--red);color:white;border-color:var(--red)}
 .katbtn{padding:2px 7px;border-radius:10px;font-size:10px;font-weight:600;cursor:pointer;border:1.5px solid;background:transparent;font-family:inherit;transition:all .12s}
 .katbtn.on{color:white!important;border-color:transparent!important}
-.rcount{font-size:11px;color:#999;margin-top:2px}
+.rcount{font-size:11px;color:#999;margin-top:1px}
 /* TABS */
 .tabs{display:flex;border-bottom:1px solid var(--border);flex-shrink:0;background:white}
 .tab{flex:1;padding:9px 4px;text-align:center;font-size:11px;font-weight:700;cursor:pointer;color:#999;border-bottom:3px solid transparent;transition:all .15s;text-transform:uppercase;letter-spacing:.4px}
 .tab.on{color:var(--red);border-bottom-color:var(--red)}
-.tab:hover:not(.on){background:var(--light);color:var(--gray)}
-/* PANELS */
+.tab:hover:not(.on){background:var(--light)}
 .panel{display:none;flex:1;overflow-y:auto;flex-direction:column}
 .panel.on{display:flex}
 .panel::-webkit-scrollbar{width:4px}
 .panel::-webkit-scrollbar-thumb{background:#ccc;border-radius:2px}
-/* HOTSPOT CARDS */
-.hlist{padding:7px;display:flex;flex-direction:column;gap:5px}
-.hcard{background:white;border:1px solid var(--border);border-left:4px solid;border-radius:2px;padding:10px 11px;cursor:pointer;transition:all .12s}
+/* HOTSPOT CARDS — aufklappbar */
+.hlist{padding:7px;display:flex;flex-direction:column;gap:4px}
+.hcard{background:white;border:1px solid var(--border);border-left:4px solid;border-radius:2px;cursor:pointer;overflow:hidden;transition:border-color .12s}
 .hcard[data-l="niedrig"]{border-left-color:var(--c-niedrig)}
 .hcard[data-l="mittel"]{border-left-color:var(--c-mittel)}
 .hcard[data-l="hoch"]{border-left-color:var(--c-hoch)}
 .hcard[data-l="kritisch"]{border-left-color:var(--c-kritisch)}
-.hcard:hover{border-color:var(--red);background:#fafafa}
-.hcard.sel{background:#fff6f6;border-color:var(--red)}
-.hc-row1{display:flex;justify-content:space-between;align-items:center;margin-bottom:3px}
-.hc-bez{font-size:13px;font-weight:700}
+.hcard:hover{border-color:#bbb}
+.hcard.sel{border-color:var(--red)}
+/* Kopfzeile immer sichtbar */
+.hc-head{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;gap:8px}
+.hc-left{display:flex;flex-direction:column;gap:2px;flex:1;min-width:0}
+.hc-bez{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hc-meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.hc-s{font-size:11px;color:#999}
+.hc-s strong{color:var(--gray)}
+.hc-right{display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0}
 .hc-badge{font-size:9px;font-weight:700;padding:1px 6px;border-radius:2px;color:white;text-transform:uppercase}
 .bg-niedrig{background:var(--c-niedrig)}.bg-mittel{background:var(--c-mittel)}.bg-hoch{background:var(--c-hoch)}.bg-kritisch{background:var(--c-kritisch)}
-.hc-meta{display:flex;gap:10px;margin-bottom:6px}
-.hc-s{font-size:11px;color:#999}
-.hc-s strong{color:var(--gray);font-size:12px}
+.hc-chevron{font-size:10px;color:#bbb;transition:transform .2s;line-height:1}
+.hcard.open .hc-chevron{transform:rotate(180deg)}
+/* Aufklappbarer Detailbereich */
+.hc-detail{display:none;padding:0 10px 10px;border-top:1px solid #f0f0f0}
+.hcard.open .hc-detail{display:block}
 /* Müllart Pills */
-.kat-strip{display:flex;gap:3px;flex-wrap:wrap;margin-bottom:5px}
-.kat-pill{display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:10px;font-size:11px;font-weight:600;color:white;line-height:1.4}
-.kat-pill .kat-pct{opacity:.75;font-size:10px;font-weight:400}
-/* Wochentag */
-.wd-bars{display:flex;gap:2px;align-items:flex-end;height:24px;margin-bottom:3px}
+.kat-strip{display:flex;gap:3px;flex-wrap:wrap;margin-bottom:7px;margin-top:6px}
+.kat-pill{display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:10px;font-size:11px;font-weight:600;color:white}
+.kat-pct{opacity:.75;font-size:10px}
+/* Wochentag Balken */
+.wd-section{margin-bottom:6px}
+.wd-label{font-size:10px;color:#999;text-transform:uppercase;letter-spacing:.3px;margin-bottom:3px}
+.wd-bars{display:flex;gap:2px;align-items:flex-end;height:22px}
 .wd-col{display:flex;flex-direction:column;align-items:center;flex:1;gap:1px}
-.wd-bar{width:100%;border-radius:1px 1px 0 0;min-height:2px;background:#e0e0e0}
-.wd-bar.is-mo{background:var(--red)}.wd-bar.is-wknd{background:#7b3fa0}.wd-bar.is-norm{background:#aac4e8}
-.wd-lbl{font-size:8px;color:#bbb;font-weight:600}
+.wd-bar{width:100%;border-radius:1px 1px 0 0;min-height:2px;background:#e8e8e8}
+.wd-bar.is-mo{background:var(--red)}.wd-bar.is-wknd{background:#7b3fa0}.wd-bar.is-norm{background:#99b8d8}
+.wd-lbl{font-size:8px;color:#ccc;font-weight:600}
 .wd-lbl.mo{color:var(--red)}.wd-lbl.wknd{color:#7b3fa0}
-.pattern-tag{display:inline-block;font-size:9px;font-weight:700;padding:1px 6px;border-radius:8px;margin-bottom:4px}
-.pt-montag{background:#e8f0ff;color:#0033aa}.pt-wochenende{background:#f0e8ff;color:#660099}
 /* Auffälligkeiten */
-.auf-box{background:#fff3f3;border-left:3px solid var(--red);padding:5px 8px;border-radius:0 2px 2px 0;margin-top:4px}
-.auf-item{font-size:11px;color:#8c0000;line-height:1.5}
-.auf-item+.auf-item{border-top:1px solid #ffd0d0;margin-top:3px;padding-top:3px}
-.sbar{height:2px;border-radius:1px;background:#eee;margin-top:5px}
-.sfill{height:100%;border-radius:1px}
+.auf-section{margin-top:4px}
+.auf-label{font-size:10px;color:#999;text-transform:uppercase;letter-spacing:.3px;margin-bottom:4px}
+.auf-item{font-size:11px;color:#555;line-height:1.5;padding:3px 0;border-bottom:1px solid #f0f0f0}
+.auf-item:last-child{border-bottom:none}
+/* Score bar */
+.sbar{height:2px;background:#eee;margin-top:6px}
+.sfill{height:100%}
 /* BEZIRK */
-.blist{padding:7px;display:flex;flex-direction:column;gap:5px}
+.blist{padding:7px;display:flex;flex-direction:column;gap:4px}
 .bcard{background:white;border:1px solid var(--border);border-radius:2px;padding:10px 12px}
 .bc-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
 .bc-name{font-size:13px;font-weight:700}
 .bc-score{font-size:10px;font-weight:700;padding:1px 6px;border-radius:2px;color:white}
 .bc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-bottom:5px}
 .bc-i{text-align:center}.bc-v{font-size:15px;font-weight:700}.bc-l{font-size:9px;color:#aaa;text-transform:uppercase}
-.bc-bar{height:3px;background:#eee;border-radius:1px}.bc-fill{height:100%;border-radius:1px}
+.bc-bar{height:3px;background:#eee}.bc-fill{height:100%}
 /* INFO */
 .isec{padding:12px 14px;border-bottom:1px solid var(--border)}
 .isec h3{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--red);margin-bottom:7px}
@@ -119,9 +126,6 @@ select.fs:focus{outline:2px solid var(--red);border-color:var(--red)}
 .pop-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:8px}
 .pop-l{font-size:10px;color:#999;text-transform:uppercase;letter-spacing:.3px}
 .pop-v{font-size:13px;font-weight:700}
-.pop-kats{margin-bottom:7px}
-.pop-kats-title{font-size:10px;color:#999;text-transform:uppercase;letter-spacing:.3px;margin-bottom:4px}
-.pop-auf{background:#fff3f3;border-left:3px solid var(--red);padding:5px 8px;font-size:11px;color:#8c0000;line-height:1.5}
 .leaflet-popup-tip{display:none}
 .leaflet-container{background:#e8e0d8!important}
 .leaflet-control-zoom{border:1px solid var(--border)!important;border-radius:2px!important}
@@ -140,16 +144,11 @@ select.fs:focus{outline:2px solid var(--red);border-color:var(--red)}
 <body>
 <div class="header">
   <div class="header-left">
-    <!-- Custom Mülleimer Icon SVG -->
     <svg class="app-icon" viewBox="0 0 34 34" xmlns="http://www.w3.org/2000/svg">
       <rect x="2" y="2" width="30" height="30" rx="5" fill="white"/>
-      <!-- Mülleimer Körper -->
       <rect x="9" y="14" width="16" height="13" rx="2" fill="#be0000"/>
-      <!-- Deckel -->
       <rect x="7" y="11" width="20" height="4" rx="2" fill="#8c0000"/>
-      <!-- Griff am Deckel -->
       <rect x="13" y="9" width="8" height="3" rx="1.5" fill="#8c0000"/>
-      <!-- Linien auf dem Eimer -->
       <line x1="13" y1="16" x2="13" y2="25" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
       <line x1="17" y1="16" x2="17" y2="25" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
       <line x1="21" y1="16" x2="21" y2="25" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
@@ -167,8 +166,8 @@ select.fs:focus{outline:2px solid var(--red);border-color:var(--red)}
         <select class="fs" id="fBezirk" onchange="applyFilters()"><option value="">Alle Bezirke</option></select>
       </div>
       <div class="fr">
-        <span class="fl">Stufe</span>
-        <div class="lbtns">
+        <span class="fl">Einstufung</span>
+        <div class="btns">
           <button class="lbtn on" data-l="all" onclick="setLevel('all')">Alle</button>
           <button class="lbtn" data-l="kritisch" onclick="setLevel('kritisch')">Kritisch</button>
           <button class="lbtn" data-l="hoch" onclick="setLevel('hoch')">Hoch</button>
@@ -177,56 +176,55 @@ select.fs:focus{outline:2px solid var(--red);border-color:var(--red)}
         </div>
       </div>
       <div class="fr">
-        <span class="fl">Müllart</span>
-        <div class="katbtns" id="katBtns"></div>
+        <span class="fl">Abfallart</span>
+        <div class="btns" id="katBtns"></div>
       </div>
       <div class="fr">
         <span class="fl">Sortierung</span>
-        <div class="sbtns">
-          <button class="sbtn on" data-s="score_desc" onclick="setSort('score_desc')">▼ Score</button>
-          <button class="sbtn" data-s="score_asc" onclick="setSort('score_asc')">▲ Score</button>
+        <div class="btns">
+          <button class="sbtn on" data-s="score_desc" onclick="setSort('score_desc')">▼ Bewertung</button>
+          <button class="sbtn" data-s="score_asc" onclick="setSort('score_asc')">▲ Bewertung</button>
           <button class="sbtn" data-s="meldungen" onclick="setSort('meldungen')">Meldungen</button>
-          <button class="sbtn" data-s="datum" onclick="setSort('datum')">Neueste</button>
+          <button class="sbtn" data-s="datum" onclick="setSort('datum')">Aktuellste</button>
         </div>
       </div>
       <div class="rcount" id="rCount"></div>
     </div>
     <div class="tabs">
-      <div class="tab on" onclick="switchTab('hotspots')">Hotspots</div>
+      <div class="tab on" onclick="switchTab('hotspots')">Standorte</div>
       <div class="tab" onclick="switchTab('bezirke')">Bezirke</div>
       <div class="tab" onclick="switchTab('info')">Legende</div>
     </div>
     <div class="panel on" id="panel-hotspots"><div class="hlist" id="hList"></div></div>
     <div class="panel" id="panel-bezirke"><div class="blist" id="bList"></div></div>
     <div class="panel" id="panel-info">
-      <div class="isec"><h3>Farbsystem</h3>
-        <div class="leg-row"><div class="leg-dot" style="background:var(--c-niedrig)"></div><strong style="color:var(--c-niedrig)">Niedrig (0–3)</strong> — Einzelmeldung</div>
+      <div class="isec"><h3>Einstufungssystem</h3>
+        <div class="leg-row"><div class="leg-dot" style="background:var(--c-niedrig)"></div><strong style="color:var(--c-niedrig)">Niedrig (0–3)</strong> — Einzelmeldung, kein Muster</div>
         <div class="leg-row"><div class="leg-dot" style="background:var(--c-mittel)"></div><strong style="color:var(--c-mittel)">Mittel (4–7)</strong> — Gelegentliche Häufung</div>
-        <div class="leg-row"><div class="leg-dot" style="background:var(--c-hoch)"></div><strong style="color:var(--c-hoch)">Hoch (8–12)</strong> — Wiederholungsmuster</div>
-        <div class="leg-row"><div class="leg-dot" style="background:var(--c-kritisch)"></div><strong style="color:var(--c-kritisch)">Kritisch (13+)</strong> — Chronischer Ablagerungsort</div>
+        <div class="leg-row"><div class="leg-dot" style="background:var(--c-hoch)"></div><strong style="color:var(--c-hoch)">Hoch (8–12)</strong> — Wiederholungsmuster erkannt</div>
+        <div class="leg-row"><div class="leg-dot" style="background:var(--c-kritisch)"></div><strong style="color:var(--c-kritisch)">Kritisch (13+)</strong> — Dauerhafter Problemstandort</div>
       </div>
-      <div class="isec"><h3>Müllarten &amp; Ursachen</h3>
-        <div class="logic-item"><span class="logic-n">🏗</span>Bauschutt → Gewerbetreibende/Bauherren</div>
-        <div class="logic-item"><span class="logic-n">🌿</span>Gartenabfall → Kleingärten/Privatgärten</div>
-        <div class="logic-item"><span class="logic-n">🚗</span>Schrott-KFZ → Organisierte Ablagerung</div>
-        <div class="logic-item"><span class="logic-n">🛋</span>Sperrmüll → Sperrmülltermin umgangen</div>
-        <div class="logic-item"><span class="logic-n">⚡</span>Elektroschrott → Rückgabepflicht ignoriert</div>
-        <div class="logic-item"><span class="logic-n">🚮</span>Müllablagerung / Illegale Entsorgung</div>
+      <div class="isec"><h3>Abfallarten</h3>
+        <div class="logic-item"><span class="logic-n">🏗</span>Bauschutt — gewerbliche Herkunft wahrscheinlich</div>
+        <div class="logic-item"><span class="logic-n">🌿</span>Grünschnitt/Gartenabfall — Garten- oder Kleingartenanlagen</div>
+        <div class="logic-item"><span class="logic-n">🚗</span>Schrottfahrzeug — Verstoß gegen FZV</div>
+        <div class="logic-item"><span class="logic-n">🛋</span>Sperrmüll — Umgehung regulärer Entsorgungswege</div>
+        <div class="logic-item"><span class="logic-n">⚡</span>Elektroschrott — Verstoß gegen ElektroG</div>
+        <div class="logic-item"><span class="logic-n">🚮</span>Illegale Entsorgung — Ordnungswidrigkeit §61 KrWG</div>
       </div>
-      <div class="isec"><h3>Zeitliche Logik</h3>
-        <div class="logic-item"><span class="logic-n" style="color:var(--red)">Mo</span>Montags-Häufung → Wochenend-Ablagerungen</div>
-        <div class="logic-item"><span class="logic-n" style="color:#7b3fa0">Sa/So</span>Wochenend-Häufung → außerhalb Geschäftszeiten</div>
-        <div class="logic-item"><span class="logic-n">📅</span>Monatsende → Hinweis auf Umzüge</div>
-        <div class="logic-item"><span class="logic-n">🌸</span>Saisonale Häufung → Frühjahr/Herbst/Winter</div>
-        <div class="logic-item"><span class="logic-n">🚨</span>Viele Müllarten → bekannter Schmuggelpunkt</div>
+      <div class="isec"><h3>Zeitliche Auswertung</h3>
+        <div class="logic-item"><span class="logic-n" style="color:var(--red)">Mo</span>Erhöhtes Aufkommen montags → Ablagerung am Wochenende</div>
+        <div class="logic-item"><span class="logic-n" style="color:#7b3fa0">Sa/So</span>Erhöhtes Aufkommen Wochenende → außerhalb der Werktage</div>
+        <div class="logic-item"><span class="logic-n">📅</span>Monatsendhäufung → Zusammenhang mit Wohnungswechseln</div>
+        <div class="logic-item"><span class="logic-n">🌸</span>Saisonale Häufung → jahreszeittypisches Muster</div>
       </div>
-      <div class="isec"><h3>Score-Berechnung</h3>
+      <div class="isec"><h3>Bewertungsberechnung</h3>
         <div class="logic-item"><span class="logic-n">+1</span>Pro Meldung an diesem Standort</div>
-        <div class="logic-item"><span class="logic-n">+3</span>Wiederkehr innerhalb 21 Tagen nach Entsorgung</div>
-        <div class="logic-item"><span class="logic-n">×</span>Zeitfaktor: aktive Spots höher gewichtet</div>
+        <div class="logic-item"><span class="logic-n">+3</span>Folgemeldung innerhalb 21 Tagen nach Beseitigung</div>
+        <div class="logic-item"><span class="logic-n">×</span>Zeitfaktor: aktuellere Standorte werden höher gewichtet</div>
       </div>
-      <div class="isec"><h3>Datenquelle</h3>
-        <p style="font-size:12px;color:#666;line-height:1.6">Ordnungsamt Online API · Berlin Open Data<br>Datenlizenz Deutschland BY 2.0<br>Täglich automatisch aktualisiert.</p>
+      <div class="isec"><h3>Datengrundlage</h3>
+        <p style="font-size:12px;color:#666;line-height:1.6">Ordnungsamt Online API · Berlin Open Data<br>Datenlizenz Deutschland – Namensnennung 2.0<br>Tagesaktuelle Aktualisierung</p>
       </div>
     </div>
   </div>
@@ -235,7 +233,7 @@ select.fs:focus{outline:2px solid var(--red);border-color:var(--red)}
 const D=__APP_DATA_PLACEHOLDER__;
 const DAYS=['Mo','Di','Mi','Do','Fr','Sa','So'];
 const COLORS={niedrig:'#2d7d2d',mittel:'#b8860b',hoch:'#cc5500',kritisch:'#be0000'};
-let fBezirk='',fLevel='all',fKat='',fSort='score_desc',markers=[],map,selCluster=null;
+let fBezirk='',fLevel='all',fKat='',fSort='score_desc',markers=[],map;
 
 function initMap(){
   map=L.map('map',{center:[52.52,13.405],zoom:11});
@@ -245,8 +243,7 @@ function initMap(){
 function makeIcon(level){
   const c=COLORS[level],r={niedrig:8,mittel:11,hoch:15,kritisch:20}[level],sz=r*2+10,cx=sz/2;
   const pulse=level==='kritisch'?`<circle cx="${cx}" cy="${cx}" r="${r+5}" fill="none" stroke="${c}" stroke-width="1" opacity="0.3"><animate attributeName="r" values="${r+2};${r+9};${r+2}" dur="2.5s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.4;0;0.4" dur="2.5s" repeatCount="indefinite"/></circle>`:'';
-  const svg=`<svg width="${sz}" height="${sz}" xmlns="http://www.w3.org/2000/svg">${pulse}<circle cx="${cx}" cy="${cx}" r="${r}" fill="${c}" fill-opacity=".85" stroke="white" stroke-width="1.5"/></svg>`;
-  return L.divIcon({html:svg,className:'',iconSize:[sz,sz],iconAnchor:[cx,cx],popupAnchor:[0,-cx]});
+  return L.divIcon({html:`<svg width="${sz}" height="${sz}" xmlns="http://www.w3.org/2000/svg">${pulse}<circle cx="${cx}" cy="${cx}" r="${r}" fill="${c}" fill-opacity=".85" stroke="white" stroke-width="1.5"/></svg>`,className:'',iconSize:[sz,sz],iconAnchor:[cx,cx],popupAnchor:[0,-cx]});
 }
 function renderMarkers(){
   markers.forEach(m=>map.removeLayer(m));markers=[];
@@ -256,27 +253,32 @@ function renderMarkers(){
   });
 }
 function makePopup(h){
-  const kats=(h.kategorie_mix||[]).map(k=>`<span style="display:inline-flex;align-items:center;gap:3px;background:${k.color};color:white;padding:2px 7px;border-radius:8px;font-size:11px;font-weight:600;margin:1px 1px 2px">${k.label} <span style="opacity:.75;font-size:10px">${k.pct}%</span></span>`).join('');
-  const auf=(h.auffaelligkeiten||[]).map(a=>`<div style="margin-bottom:2px">${a}</div>`).join('');
-  return `<div class="pop-head"><div class="pop-title">${h.bezirk||'Unbekannt'}</div><div class="pop-sub">${h.score_label.toUpperCase()} · Score ${h.score}</div></div>
+  const kats=(h.kategorie_mix||[]).map(k=>`<span style="display:inline-flex;gap:3px;background:${k.color};color:white;padding:2px 7px;border-radius:8px;font-size:11px;font-weight:600;margin:1px">${k.label} <span style="opacity:.7;font-size:10px">${k.pct}%</span></span>`).join('');
+  return `<div class="pop-head"><div class="pop-title">${h.bezirk||'Unbekannt'}</div><div class="pop-sub">${h.score_label.charAt(0).toUpperCase()+h.score_label.slice(1)} · Bewertung ${h.score}</div></div>
   <div class="pop-body">
   <div class="pop-grid">
     <div><div class="pop-l">Meldungen</div><div class="pop-v">${h.meldungen_count}</div></div>
     <div><div class="pop-l">Wiederkehr</div><div class="pop-v">${h.recurrence_count}×</div></div>
-    <div><div class="pop-l">Erste Meldung</div><div class="pop-v" style="font-size:11px">${h.first_seen}</div></div>
+    <div><div class="pop-l">Erstmeldung</div><div class="pop-v" style="font-size:11px">${h.first_seen}</div></div>
     <div><div class="pop-l">Letzte Meldung</div><div class="pop-v" style="font-size:11px">${h.last_seen}</div></div>
   </div>
-  ${kats?`<div class="pop-kats"><div class="pop-kats-title">Müllarten</div><div style="display:flex;flex-wrap:wrap;gap:2px">${kats}</div></div>`:''}
-  ${auf?`<div class="pop-auf">${auf}</div>`:''}
+  ${kats?`<div style="margin-bottom:0"><div class="pop-l" style="margin-bottom:4px">Abfallarten</div><div style="display:flex;flex-wrap:wrap;gap:2px">${kats}</div></div>`:''}
   </div>`;
 }
 function selectHotspot(cid,fromMap){
-  selCluster=cid;const h=D.hotspots.find(x=>x.cluster_id===cid);if(!h)return;
-  document.querySelectorAll('.hcard').forEach(el=>el.classList.toggle('sel',el.dataset.cid===cid));
+  const h=D.hotspots.find(x=>x.cluster_id===cid);if(!h)return;
+  document.querySelectorAll('.hcard').forEach(el=>{
+    if(el.dataset.cid===cid){el.classList.add('sel');if(!fromMap){el.classList.add('open');}}
+    else el.classList.remove('sel');
+  });
   const card=document.querySelector(`.hcard[data-cid="${cid}"]`);
   if(card)card.scrollIntoView({behavior:'smooth',block:'nearest'});
   if(!fromMap)map.flyTo([h.lat_center,h.lon_center],14,{duration:.8});
   markers.forEach(m=>{if(m._cid===cid)m.bindPopup(makePopup(h),{maxWidth:290,className:''}).openPopup();});
+}
+function toggleCard(cid){
+  const card=document.querySelector(`.hcard[data-cid="${cid}"]`);
+  if(card){card.classList.toggle('open');selectHotspot(cid,false);}
 }
 function filteredHotspots(){
   let hs=D.hotspots.slice();
@@ -293,14 +295,10 @@ function filteredHotspots(){
 function applyFilters(){fBezirk=document.getElementById('fBezirk').value;renderMarkers();renderHList();}
 function setLevel(l){fLevel=l;document.querySelectorAll('.lbtn').forEach(b=>b.classList.toggle('on',b.dataset.l===l));renderMarkers();renderHList();}
 function setSort(s){fSort=s;document.querySelectorAll('.sbtn').forEach(b=>b.classList.toggle('on',b.dataset.s===s));renderHList();}
-function setKat(k){
-  fKat=fKat===k?'':k;
-  document.querySelectorAll('.katbtn').forEach(b=>b.classList.toggle('on',b.dataset.k===fKat&&fKat!==''));
-  renderMarkers();renderHList();
-}
+function setKat(k){fKat=fKat===k?'':k;document.querySelectorAll('.katbtn').forEach(b=>b.classList.toggle('on',b.dataset.k===fKat&&fKat!==''));renderMarkers();renderHList();}
 function renderStats(){
   const hs=D.hotspots,krit=hs.filter(h=>h.score_label==='kritisch').length,hoch=hs.filter(h=>h.score_label==='hoch').length,total=hs.reduce((s,h)=>s+h.meldungen_count,0);
-  document.getElementById('hStats').innerHTML=`<div class="hst dark"><div class="hst-v">${krit}</div><div class="hst-l">Kritisch</div></div><div class="hst dark"><div class="hst-v">${hoch}</div><div class="hst-l">Hoch</div></div><div class="hst"><div class="hst-v">${hs.length}</div><div class="hst-l">Hotspots</div></div><div class="hst"><div class="hst-v">${total}</div><div class="hst-l">Meldungen</div></div>`;
+  document.getElementById('hStats').innerHTML=`<div class="hst dark"><div class="hst-v">${krit}</div><div class="hst-l">Kritisch</div></div><div class="hst dark"><div class="hst-v">${hoch}</div><div class="hst-l">Hoch</div></div><div class="hst"><div class="hst-v">${hs.length}</div><div class="hst-l">Standorte</div></div><div class="hst"><div class="hst-v">${total}</div><div class="hst-l">Meldungen</div></div>`;
 }
 function renderKatBtns(){
   const kk=D.kat_keys||{};
@@ -308,28 +306,55 @@ function renderKatBtns(){
 }
 function renderHList(){
   const hs=filteredHotspots();
-  document.getElementById('rCount').textContent=`${hs.length} Hotspot${hs.length!==1?'s':''} gefunden`;
+  document.getElementById('rCount').textContent=`${hs.length} Standort${hs.length!==1?'e':''} gefunden`;
   const maxScore=Math.max(...D.hotspots.map(h=>h.score),1);
   document.getElementById('hList').innerHTML=hs.map(h=>{
     const c=COLORS[h.score_label],pct=((h.score/maxScore)*100).toFixed(0);
-    const katHtml=(h.kategorie_mix||[]).slice(0,4).map(k=>`<span class="kat-pill" style="background:${k.color}">${k.label}<span class="kat-pct">${k.pct}%</span></span>`).join('');
+    // Basisinfo: top-2 Abfallarten als kleine Badges
+    const topKats=(h.kategorie_mix||[]).slice(0,2).map(k=>`<span style="font-size:10px;color:${k.color};font-weight:600">${k.label}</span>`).join('<span style="color:#ccc;margin:0 2px">·</span>');
+    const hasAuf=(h.auffaelligkeiten||[]).length>0;
+    // Detail: volle Kategorie-Pills
+    const katPills=(h.kategorie_mix||[]).map(k=>`<span class="kat-pill" style="background:${k.color}">${k.label}<span class="kat-pct">${k.pct}%</span></span>`).join('');
+    // Wochentag
     const wd=h.weekday_dist||{},maxWd=Math.max(...Object.values(wd),1);
-    const wdHtml=DAYS.map((d,i)=>{
+    const wdBars=DAYS.map((d,i)=>{
       const val=wd[d]||0,hp=Math.max(2,Math.round((val/maxWd)*20));
       const cls=d==='Mo'?'is-mo':(d==='Sa'||d==='So'?'is-wknd':'is-norm');
       const lc=d==='Mo'?'mo':(d==='Sa'||d==='So'?'wknd':'');
-      return `<div class="wd-col"><div class="wd-bar ${cls}" style="height:${hp}px" title="${d}: ${val}"></div><span class="wd-lbl ${lc}">${d}</span></div>`;
+      return `<div class="wd-col"><div class="wd-bar ${cls}" style="height:${hp}px"></div><span class="wd-lbl ${lc}">${d}</span></div>`;
     }).join('');
-    const patHtml=h.pattern&&h.pattern!=='normal'?`<span class="pattern-tag pt-${h.pattern}">${h.pattern==='montag'?'📅 Montags-Muster':'📅 Wochenend-Muster'} · ${h.pattern_label}</span><br>`:'';
-    const aufHtml=(h.auffaelligkeiten||[]).length?`<div class="auf-box">${h.auffaelligkeiten.map(a=>`<div class="auf-item">${a}</div>`).join('')}</div>`:'';
-    return `<div class="hcard" data-l="${h.score_label}" data-cid="${h.cluster_id}" onclick="selectHotspot('${h.cluster_id}',false)">
-      <div class="hc-row1"><div class="hc-bez">${h.bezirk||'Unbekannt'}</div><div class="hc-badge bg-${h.score_label}">${h.score_label}</div></div>
-      <div class="hc-meta"><div class="hc-s"><strong>${h.meldungen_count}</strong> Meldungen</div><div class="hc-s"><strong>${h.recurrence_count}×</strong> Wiederkehr</div><div class="hc-s">Score <strong style="color:${c}">${h.score}</strong></div></div>
-      ${katHtml?`<div class="kat-strip">${katHtml}</div>`:'<div style="font-size:11px;color:#bbb;margin-bottom:5px">Keine Kategorie</div>'}
-      ${patHtml}
-      <div class="wd-bars">${wdHtml}</div>
-      ${aufHtml}
-      <div class="sbar"><div class="sfill" style="width:${pct}%;background:${c}"></div></div>
+    // Muster-Tag
+    const patTag=h.pattern&&h.pattern!=='normal'?`<div style="font-size:10px;font-weight:700;padding:1px 6px;border-radius:8px;display:inline-block;margin-bottom:5px;${h.pattern==='montag'?'background:#e8f0ff;color:#0033aa':'background:#f0e8ff;color:#660099'}">${h.pattern==='montag'?'Montags-Schwerpunkt':'Wochenend-Schwerpunkt'} · ${h.pattern_label}</div>`:'';
+    // Auffälligkeiten
+    const aufItems=(h.auffaelligkeiten||[]).map(a=>`<div class="auf-item">· ${a}</div>`).join('');
+
+    return `<div class="hcard" data-l="${h.score_label}" data-cid="${h.cluster_id}" onclick="toggleCard('${h.cluster_id}')">
+      <div class="hc-head">
+        <div class="hc-left">
+          <div class="hc-bez">${h.bezirk||'Unbekannt'}</div>
+          <div class="hc-meta">
+            <span class="hc-s"><strong>${h.meldungen_count}</strong> Meld.</span>
+            <span class="hc-s"><strong>${h.recurrence_count}×</strong> Wiederk.</span>
+            ${topKats?`<span style="font-size:10px;color:#bbb">|</span>${topKats}`:''}
+          </div>
+        </div>
+        <div class="hc-right">
+          <div class="hc-badge bg-${h.score_label}">${h.score_label}</div>
+          ${hasAuf?'<span style="font-size:9px;color:var(--red);font-weight:700">⚑ Auffällig</span>':''}
+          <div class="hc-chevron">▼</div>
+        </div>
+      </div>
+      <div class="hc-detail">
+        ${katPills?`<div class="kat-strip">${katPills}</div>`:''}
+        <div class="wd-section">
+          <div class="wd-label">Meldeverteilung nach Wochentag</div>
+          <div class="wd-bars">${wdBars}</div>
+        </div>
+        ${patTag}
+        ${aufItems?`<div class="auf-section"><div class="auf-label">Feststellungen</div>${aufItems}</div>`:''}
+        <div class="sbar"><div class="sfill" style="width:${pct}%;background:${c}"></div></div>
+        <div style="font-size:10px;color:#bbb;margin-top:4px">Erstmeldung: ${h.first_seen} · Letzte Meldung: ${h.last_seen}</div>
+      </div>
     </div>`;
   }).join('');
 }
@@ -338,8 +363,8 @@ function renderBList(){
   document.getElementById('bList').innerHTML=D.bezirk_stats.map(b=>{
     const pct=((b.max_score/maxScore)*100).toFixed(0);
     let col='#2d7d2d';if(b.max_score>=13)col='#be0000';else if(b.max_score>=8)col='#cc5500';else if(b.max_score>=4)col='#b8860b';
-    return `<div class="bcard"><div class="bc-top"><div class="bc-name">${b.bezirk}</div><div class="bc-score" style="background:${col}">Score ${b.max_score}</div></div>
-    <div class="bc-grid"><div class="bc-i"><div class="bc-v">${b.total_meldungen}</div><div class="bc-l">Meldungen</div></div><div class="bc-i"><div class="bc-v">${b.total_hotspots}</div><div class="bc-l">Hotspots</div></div><div class="bc-i"><div class="bc-v" style="color:#be0000">${b.krit||0}</div><div class="bc-l">Kritisch</div></div><div class="bc-i"><div class="bc-v" style="color:#cc5500">${b.hoch||0}</div><div class="bc-l">Hoch</div></div></div>
+    return `<div class="bcard"><div class="bc-top"><div class="bc-name">${b.bezirk}</div><div class="bc-score" style="background:${col}">Bewertung ${b.max_score}</div></div>
+    <div class="bc-grid"><div class="bc-i"><div class="bc-v">${b.total_meldungen}</div><div class="bc-l">Meldungen</div></div><div class="bc-i"><div class="bc-v">${b.total_hotspots}</div><div class="bc-l">Standorte</div></div><div class="bc-i"><div class="bc-v" style="color:#be0000">${b.krit||0}</div><div class="bc-l">Kritisch</div></div><div class="bc-i"><div class="bc-v" style="color:#cc5500">${b.hoch||0}</div><div class="bc-l">Hoch</div></div></div>
     <div class="bc-bar"><div class="bc-fill" style="width:${pct}%;background:${col}"></div></div></div>`;
   }).join('');
 }
