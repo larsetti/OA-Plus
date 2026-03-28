@@ -58,8 +58,12 @@ def init_db(conn: sqlite3.Connection):
             lon         REAL,
             status      TEXT,
             is_muell    INTEGER DEFAULT 0,
-            raw_json    TEXT
+            raw_json    TEXT,
+            strasse     TEXT DEFAULT '',
+            plz         TEXT DEFAULT ''
         );
+        -- Spalten nachrüsten falls DB bereits existiert
+        CREATE INDEX IF NOT EXISTS idx_latlon  ON meldungen(lat, lon);
 
         CREATE TABLE IF NOT EXISTS hotspots (
             cluster_id      TEXT PRIMARY KEY,
@@ -205,10 +209,15 @@ def run():
         if existing:
             continue  # bereits in DB
 
+        # Adresse aus verschiedenen möglichen API-Feldern extrahieren
+        strasse = (m.get("strasse") or m.get("street") or m.get("strasseOrt") or
+                   m.get("adresse") or m.get("address") or m.get("ort") or "")
+        plz_val = m.get("plz") or m.get("postleitzahl") or m.get("zip") or ""
+
         conn.execute("""
             INSERT INTO meldungen
-                (id, fetched_at, datum, kategorie, betreff, bezirk, lat, lon, status, is_muell, raw_json)
-            VALUES (?,?,?,?,?,?,?,?,?,?,?)
+                (id, fetched_at, datum, kategorie, betreff, bezirk, lat, lon, status, is_muell, raw_json, strasse, plz)
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)
         """, (
             mid, now, datum,
             m.get("kategorie") or m.get("category", ""),
@@ -217,7 +226,8 @@ def run():
             lat, lon,
             m.get("status", ""),
             1 if muell else 0,
-            json.dumps(m, ensure_ascii=False)
+            json.dumps(m, ensure_ascii=False),
+            strasse, str(plz_val)
         ))
         count_new += 1
         if muell:
