@@ -92,10 +92,10 @@ select.fs:focus{outline:2px solid var(--red)}
 .kat-strip{display:flex;gap:3px;flex-wrap:wrap;margin:6px 0}
 .kat-pill{display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:10px;font-size:11px;font-weight:600;color:white}
 .kat-pct{opacity:.75;font-size:10px}
-.wd-section{margin-bottom:6px}
+.wd-section{margin-bottom:8px;overflow:hidden}
 .wd-label{font-size:10px;color:#999;text-transform:uppercase;letter-spacing:.3px;margin-bottom:3px}
-.wd-bars{display:flex;gap:2px;align-items:flex-end;height:22px}
-.wd-col{display:flex;flex-direction:column;align-items:center;flex:1;gap:1px}
+.wd-bars{display:flex;gap:2px;align-items:flex-end;height:22px;overflow:visible}
+.wd-col{display:flex;flex-direction:column;align-items:center;flex:1;gap:1px;min-width:0}
 .wd-bar{width:100%;border-radius:1px 1px 0 0;min-height:2px;background:#e8e8e8}
 .wd-bar.is-mo{background:var(--red)}.wd-bar.is-wknd{background:#7b3fa0}.wd-bar.is-norm{background:#99b8d8}
 .wd-lbl{font-size:8px;color:#ccc;font-weight:600}
@@ -394,14 +394,16 @@ function makePopup(h){
 }
 function selectHotspot(cid,fromMap){
   const h=D.hotspots.find(x=>x.cluster_id===cid);if(!h)return;
+  // Sidebar: nur markieren (sel), NICHT aufklappen — nur scrollIntoView
   document.querySelectorAll('.hcard').forEach(el=>{
-    if(el.dataset.cid===cid){el.classList.add('sel');if(!fromMap)el.classList.add('open');}
-    else el.classList.remove('sel');
+    el.classList.toggle('sel', el.dataset.cid===cid);
+    if(el.dataset.cid===cid && !fromMap) el.classList.add('open'); // Sidebar-Klick öffnet
   });
   const card=document.querySelector(`.hcard[data-cid="${cid}"]`);
   if(card)card.scrollIntoView({behavior:'smooth',block:'nearest'});
   if(!fromMap)map.flyTo([h.lat_center,h.lon_center],14,{duration:.8});
-  markers.forEach(m=>{if(m._cid===cid)m.bindPopup(makePopup(h),{maxWidth:290,className:''}).openPopup();});
+  // Popup immer anzeigen (mit vollen Details)
+  markers.forEach(m=>{if(m._cid===cid)m.bindPopup(makePopup(h),{maxWidth:300,className:''}).openPopup();});
 }
 function toggleCard(cid){
   const card=document.querySelector(`.hcard[data-cid="${cid}"]`);
@@ -443,10 +445,10 @@ function renderHList(){
     const katPills=(h.kategorie_mix||[]).map(k=>`<span class="kat-pill" style="background:${k.color}">${k.label}<span class="kat-pct">${k.pct}%</span></span>`).join('');
     const wd=h.weekday_dist||{},maxWd=Math.max(...Object.values(wd),1);
     const wdBars=DAYS.map((d,i)=>{
-      const val=wd[d]||0,hp=Math.max(2,Math.round((val/maxWd)*20));
-      const cls=d==='Mo'?'is-mo':(d==='Sa'||d==='So'?'is-wknd':'is-norm');
-      const lc=d==='Mo'?'mo':(d==='Sa'||d==='So'?'wknd':'');
-      return `<div class="wd-col"><div class="wd-bar ${cls}" style="height:${hp}px"></div><span class="wd-lbl ${lc}">${d}</span></div>`;
+      const val=wd[d]||0,hp=Math.max(2,Math.round((val/maxWd)*18));
+      const bc=d==='Mo'?'var(--red)':(d==='Sa'||d==='So'?'#7b3fa0':'#99b8d8');
+      const lc=d==='Mo'?'color:var(--red)':(d==='Sa'||d==='So'?'color:#7b3fa0':'color:#ccc');
+      return `<div style="display:flex;flex-direction:column;align-items:center;flex:1;min-width:0;gap:1px;height:32px;justify-content:flex-end"><div style="width:100%;background:${bc};height:${hp}px;border-radius:1px 1px 0 0;flex-shrink:0"></div><span style="font-size:8px;font-weight:600;${lc};white-space:nowrap;flex-shrink:0;line-height:1.2">${d}</span></div>`;
     }).join('');
     const patTag=h.pattern&&h.pattern!=='normal'?`<div style="font-size:10px;font-weight:700;padding:1px 6px;border-radius:8px;display:inline-block;margin-bottom:5px;${h.pattern==='montag'?'background:#e8f0ff;color:#0033aa':'background:#f0e8ff;color:#660099'}">${h.pattern==='montag'?'Montags-Schwerpunkt':'Wochenend-Schwerpunkt'} · ${h.pattern_label}</div>`:'';
     const aufItems=(h.auffaelligkeiten||[]).map(a=>`<div class="auf-item">· ${a}</div>`).join('');
@@ -454,6 +456,7 @@ function renderHList(){
       <div class="hc-head">
         <div class="hc-left">
           <div class="hc-bez">${h.bezirk||'Unbekannt'}</div>
+          ${h.strasse?`<div style="font-size:11px;color:#888;margin-bottom:1px">📍 ${h.strasse}${h.plz?' · '+h.plz:''}</div>`:''}
           <div class="hc-meta">
             <span class="hc-s"><strong>${h.meldungen_count}</strong> Meld.</span>
             <span class="hc-s"><strong>${h.recurrence_count}×</strong> Wiederk.</span>
@@ -468,7 +471,7 @@ function renderHList(){
       </div>
       <div class="hc-detail">
         ${katPills?`<div class="kat-strip">${katPills}</div>`:''}
-        <div class="wd-section"><div class="wd-label">Meldeverteilung nach Wochentag</div><div class="wd-bars">${wdBars}</div></div>
+        <div class="wd-section"><div class="wd-label">Meldeverteilung nach Wochentag</div><div style="display:flex;gap:2px;align-items:flex-end;height:32px">${wdBars}</div></div>
         ${patTag}
         ${aufItems?`<div class="auf-section"><div class="auf-label">Feststellungen</div>${aufItems}</div>`:''}
         <div class="sbar"><div class="sfill" style="width:${pct}%;background:${c}"></div></div>
