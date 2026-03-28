@@ -194,6 +194,55 @@
   .leaflet-control-zoom a:hover { background: var(--surface2) !important; }
   .leaflet-control-attribution { background: rgba(11,14,20,0.8) !important; color: var(--text-muted) !important; font-size: 9px !important; }
   .leaflet-control-attribution a { color: var(--text-dim) !important; }
+
+  /* ── Mobile ── */
+  @media (max-width: 768px) {
+    .header { padding: 0 12px; height: 52px; }
+    .header-divider { display: none; }
+    .live-badge { display: none; }
+    .header-stats { gap: 12px; }
+    .hstat-val { font-size: 15px; }
+    .hstat-lbl { font-size: 9px; }
+    .logo-sub { display: none; }
+
+    .main { flex-direction: column; }
+    #map { flex: none; height: 52vh; width: 100%; }
+
+    .sidebar {
+      width: 100%; border-left: none;
+      border-top: 1px solid var(--border);
+      height: 48vh; flex-shrink: 0;
+    }
+
+    .tab { font-size: 11px; padding: 10px 4px; }
+    .filter-bar { padding: 8px 10px; gap: 4px; }
+    .filter-btn { padding: 3px 8px; font-size: 10px; }
+    .hotspot-list { padding: 8px; gap: 5px; }
+    .hotspot-card { padding: 10px; }
+    .hc-bezirk { font-size: 12px; }
+    .hc-meta { gap: 10px; }
+    .hc-stat { font-size: 10px; }
+    .bezirk-list { padding: 8px; }
+    .bc-val { font-size: 14px; }
+    .info-section { padding: 12px; }
+
+    /* Bottom sheet handle für bessere UX */
+    .sidebar::before {
+      content: '';
+      display: block;
+      width: 36px; height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      margin: 8px auto 0;
+    }
+  }
+
+  @media (max-width: 400px) {
+    .hstat:nth-child(3), .hstat:nth-child(4) { display: none; }
+    #map { height: 55vh; }
+    .sidebar { height: 45vh; }
+  }
+
 </style>
 </head>
 <body>
