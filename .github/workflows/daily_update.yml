@@ -5,6 +5,9 @@ on:
     - cron: '0 6 * * *'
   workflow_dispatch:
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 permissions:
   contents: write
 
@@ -13,23 +16,32 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+
       - run: pip install requests
+
       - uses: actions/download-artifact@v4
         with:
           name: ordnungsamt-db
           path: .
         continue-on-error: true
+
       - run: python tracker.py
         continue-on-error: true
-      - run: python export_html.py
+
+      - name: Fallback - index.html unveraendert lassen falls export fehlschlaegt
+        run: python export_html.py || echo "export_html.py fehlgeschlagen, index.html bleibt wie sie ist"
+
       - uses: actions/upload-artifact@v4
         with:
           name: ordnungsamt-db
           path: ordnungsamt.db
+          if-no-files-found: ignore
           retention-days: 90
+
       - run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Actions Bot"
