@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Berlin Müll-Hotspot Monitor</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0b0e14;
+    --surface: #13181f;
+    --surface2: #1a2130;
+    --border: #252d3d;
+    --text: #e2e8f0;
+    --text-dim: #64748b;
+    --text-muted: #3d4f6b;
+    --accent: #3b82f6;
+    --c-niedrig: #22c55e;
+    --c-mittel: #eab308;
+    --c-hoch: #f97316;
+    --c-kritisch: #dc2626;
+    --c-krit-glow: rgba(220,38,38,0.35);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Space Grotesk', sans-serif; background: var(--bg); color: var(--text); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+
+  /* ── Header ── */
+  .header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 20px;
+    height: 56px;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-shrink: 0; z-index: 1000; position: relative;
+  }
+  .header-left { display: flex; align-items: center; gap: 14px; }
+  .logo { display: flex; align-items: center; gap: 10px; }
+  .logo-icon {
+    width: 34px; height: 34px; background: var(--c-kritisch);
+    border-radius: 8px; display: flex; align-items: center; justify-content: center;
+    font-size: 18px; box-shadow: 0 0 16px var(--c-krit-glow);
+  }
+  .logo-text { font-size: 15px; font-weight: 700; letter-spacing: -0.3px; }
+  .logo-sub { font-size: 11px; color: var(--text-dim); font-weight: 400; }
+  .header-divider { width: 1px; height: 28px; background: var(--border); }
+  .live-badge {
+    display: flex; align-items: center; gap: 6px;
+    background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.3);
+    border-radius: 20px; padding: 3px 10px; font-size: 11px; color: #22c55e; font-weight: 600;
+  }
+  .live-dot { width: 6px; height: 6px; border-radius: 50%; background: #22c55e; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(1.4)} }
+  .header-stats { display: flex; gap: 20px; }
+  .hstat { text-align: right; }
+  .hstat-val { font-size: 18px; font-weight: 700; font-family: 'JetBrains Mono', monospace; line-height: 1; }
+  .hstat-lbl { font-size: 10px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; }
+  .hstat.red .hstat-val { color: var(--c-kritisch); }
+  .hstat.orange .hstat-val { color: var(--c-hoch); }
+
+  /* ── Layout ── */
+  .main { display: flex; flex: 1; overflow: hidden; }
+  #map { flex: 1; background: #0d1117; }
+  .sidebar {
+    width: 340px; background: var(--surface); border-left: 1px solid var(--border);
+    display: flex; flex-direction: column; overflow: hidden; flex-shrink: 0;
+  }
+
+  /* ── Tabs ── */
+  .tabs {
+    display: flex; border-bottom: 1px solid var(--border); flex-shrink: 0;
+  }
+  .tab {
+    flex: 1; padding: 12px 8px; text-align: center; font-size: 12px; font-weight: 600;
+    cursor: pointer; color: var(--text-dim); transition: all 0.2s;
+    border-bottom: 2px solid transparent; letter-spacing: 0.3px;
+    text-transform: uppercase;
+  }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .tab:hover:not(.active) { color: var(--text); background: var(--surface2); }
+
+  /* ── Panels ── */
+  .panel { display: none; flex: 1; overflow-y: auto; flex-direction: column; }
+  .panel.active { display: flex; }
+  .panel::-webkit-scrollbar { width: 4px; }
+  .panel::-webkit-scrollbar-track { background: transparent; }
+  .panel::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  /* ── Filter bar ── */
+  .filter-bar {
+    padding: 12px 16px; border-bottom: 1px solid var(--border);
+    display: flex; gap: 6px; flex-wrap: wrap; flex-shrink: 0;
+    background: var(--surface);
+  }
+  .filter-btn {
+    padding: 4px 10px; border-radius: 14px; font-size: 11px; font-weight: 600;
+    cursor: pointer; border: 1px solid transparent; transition: all 0.15s;
+    font-family: 'Space Grotesk', sans-serif;
+  }
+  .filter-btn[data-level="all"]      { border-color: var(--border); color: var(--text-dim); background: transparent; }
+  .filter-btn[data-level="niedrig"]  { border-color: var(--c-niedrig); color: var(--c-niedrig); background: transparent; }
+  .filter-btn[data-level="mittel"]   { border-color: var(--c-mittel); color: var(--c-mittel); background: transparent; }
+  .filter-btn[data-level="hoch"]     { border-color: var(--c-hoch); color: var(--c-hoch); background: transparent; }
+  .filter-btn[data-level="kritisch"] { border-color: var(--c-kritisch); color: var(--c-kritisch); background: transparent; }
+  .filter-btn.active[data-level="all"]      { background: var(--border); color: var(--text); }
+  .filter-btn.active[data-level="niedrig"]  { background: rgba(34,197,94,0.15); }
+  .filter-btn.active[data-level="mittel"]   { background: rgba(234,179,8,0.15); }
+  .filter-btn.active[data-level="hoch"]     { background: rgba(249,115,22,0.15); }
+  .filter-btn.active[data-level="kritisch"] { background: rgba(220,38,38,0.15); }
+
+  /* ── Hotspot cards ── */
+  .hotspot-list { padding: 10px; display: flex; flex-direction: column; gap: 6px; }
+  .hotspot-card {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 12px; cursor: pointer;
+    transition: all 0.15s; position: relative; overflow: hidden;
+  }
+  .hotspot-card::before {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+  }
+  .hotspot-card[data-level="niedrig"]::before  { background: var(--c-niedrig); }
+  .hotspot-card[data-level="mittel"]::before   { background: var(--c-mittel); }
+  .hotspot-card[data-level="hoch"]::before     { background: var(--c-hoch); }
+  .hotspot-card[data-level="kritisch"]::before { background: var(--c-kritisch); }
+  .hotspot-card:hover { border-color: var(--accent); transform: translateX(2px); }
+  .hotspot-card.selected { border-color: var(--accent); background: rgba(59,130,246,0.08); }
+  .hc-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
+  .hc-bezirk { font-size: 13px; font-weight: 600; }
+  .hc-badge {
+    font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 10px;
+    text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .badge-niedrig  { background: rgba(34,197,94,0.15);  color: var(--c-niedrig); }
+  .badge-mittel   { background: rgba(234,179,8,0.15);  color: var(--c-mittel); }
+  .badge-hoch     { background: rgba(249,115,22,0.15); color: var(--c-hoch); }
+  .badge-kritisch { background: rgba(220,38,38,0.15);  color: var(--c-kritisch); }
+  .hc-meta { display: flex; gap: 14px; }
+  .hc-stat { font-size: 11px; color: var(--text-dim); }
+  .hc-stat strong { color: var(--text); font-family: 'JetBrains Mono', monospace; font-size: 13px; }
+  .hc-recurrence {
+    margin-top: 6px; padding: 5px 8px; border-radius: 6px;
+    background: rgba(220,38,38,0.08); border: 1px solid rgba(220,38,38,0.2);
+    font-size: 11px; color: #f87171; display: none;
+  }
+  .hc-recurrence.show { display: block; }
+  .score-bar { margin-top: 8px; height: 3px; border-radius: 2px; background: var(--border); }
+  .score-fill { height: 100%; border-radius: 2px; transition: width 0.3s; }
+
+  /* ── Bezirk stats panel ── */
+  .bezirk-list { padding: 10px; display: flex; flex-direction: column; gap: 6px; }
+  .bezirk-card {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 12px;
+  }
+  .bc-name { font-size: 13px; font-weight: 600; margin-bottom: 8px; }
+  .bc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+  .bc-item { text-align: center; }
+  .bc-val { font-size: 16px; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+  .bc-lbl { font-size: 9px; color: var(--text-dim); text-transform: uppercase; }
+  .bc-bar { margin-top: 8px; height: 2px; background: var(--border); border-radius: 1px; }
+  .bc-fill { height: 100%; border-radius: 1px; }
+
+  /* ── Info panel ── */
+  .info-section { padding: 16px; border-bottom: 1px solid var(--border); }
+  .info-title { font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-dim); margin-bottom: 10px; font-weight: 600; }
+  .legend-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .legend-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+  .legend-text { font-size: 12px; color: var(--text-dim); }
+  .logic-card {
+    background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 12px; margin-top: 6px;
+  }
+  .logic-step { display: flex; gap: 10px; margin-bottom: 10px; font-size: 12px; color: var(--text-dim); }
+  .logic-num { color: var(--accent); font-weight: 700; font-family: 'JetBrains Mono'; flex-shrink: 0; }
+
+  /* ── Leaflet overrides ── */
+  .leaflet-container { background: #0d1117 !important; }
+  .leaflet-tile-pane { filter: brightness(0.8) saturate(0.6) hue-rotate(180deg) invert(1); }
+  .leaflet-popup-content-wrapper {
+    background: var(--surface) !important; color: var(--text) !important;
+    border: 1px solid var(--border) !important; border-radius: 10px !important;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5) !important;
+  }
+  .leaflet-popup-tip { background: var(--surface) !important; }
+  .popup-title { font-size: 14px; font-weight: 700; margin-bottom: 8px; }
+  .popup-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .popup-item { }
+  .popup-lbl { font-size: 10px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; }
+  .popup-val { font-size: 13px; font-weight: 600; font-family: 'JetBrains Mono', monospace; }
+  .popup-warn { margin-top: 8px; padding: 6px 10px; background: rgba(220,38,38,0.1); border: 1px solid rgba(220,38,38,0.3); border-radius: 6px; font-size: 11px; color: #f87171; }
+  .leaflet-control-zoom { border: 1px solid var(--border) !important; }
+  .leaflet-control-zoom a { background: var(--surface) !important; color: var(--text) !important; border-bottom: 1px solid var(--border) !important; }
+  .leaflet-control-zoom a:hover { background: var(--surface2) !important; }
+  .leaflet-control-attribution { background: rgba(11,14,20,0.8) !important; color: var(--text-muted) !important; font-size: 9px !important; }
+  .leaflet-control-attribution a { color: var(--text-dim) !important; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <div class="logo">
+      <div class="logo-icon">🗑️</div>
+      <div>
+        <div class="logo-text">Müll-Hotspot Monitor</div>
+        <div class="logo-sub">Berlin · Ordnungsamt Online · Stand: __LAST_UPDATE__</div>
+      </div>
+    </div>
+    <div class="header-divider"></div>
+    <div class="live-badge">
+      <div class="live-dot"></div>
+      Live-Daten
+    </div>
+  </div>
+  <div class="header-stats" id="headerStats"></div>
+</div>
+
+<div class="main">
+  <div id="map"></div>
+
+  <div class="sidebar">
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('hotspots')">Hotspots</div>
+      <div class="tab" onclick="switchTab('bezirke')">Bezirke</div>
+      <div class="tab" onclick="switchTab('info')">Logik</div>
+    </div>
+
+    <!-- Panel: Hotspots -->
+    <div class="panel active" id="panel-hotspots">
+      <div class="filter-bar">
+        <button class="filter-btn active" data-level="all" onclick="setFilter('all')">Alle</button>
+        <button class="filter-btn" data-level="kritisch" onclick="setFilter('kritisch')">⚠ Kritisch</button>
+        <button class="filter-btn" data-level="hoch" onclick="setFilter('hoch')">Hoch</button>
+        <button class="filter-btn" data-level="mittel" onclick="setFilter('mittel')">Mittel</button>
+        <button class="filter-btn" data-level="niedrig" onclick="setFilter('niedrig')">Niedrig</button>
+      </div>
+      <div class="hotspot-list" id="hotspotList"></div>
+    </div>
+
+    <!-- Panel: Bezirke -->
+    <div class="panel" id="panel-bezirke">
+      <div class="bezirk-list" id="bezirkList"></div>
+    </div>
+
+    <!-- Panel: Info/Logik -->
+    <div class="panel" id="panel-info">
+      <div class="info-section">
+        <div class="info-title">Score-Farbsystem</div>
+        <div class="legend-row"><div class="legend-dot" style="background:#22c55e"></div><div class="legend-text"><strong style="color:#22c55e">Niedrig (0–3)</strong> — Einzelmeldung, kein Muster</div></div>
+        <div class="legend-row"><div class="legend-dot" style="background:#eab308"></div><div class="legend-text"><strong style="color:#eab308">Mittel (4–7)</strong> — Gelegentliche Häufung</div></div>
+        <div class="legend-row"><div class="legend-dot" style="background:#f97316"></div><div class="legend-text"><strong style="color:#f97316">Hoch (8–12)</strong> — Wiederholungsmuster erkannt</div></div>
+        <div class="legend-row"><div class="legend-dot" style="background:#dc2626"></div><div class="legend-text"><strong style="color:#dc2626">Kritisch (13+)</strong> — Chronischer Schwarzer Fleck</div></div>
+      </div>
+      <div class="info-section">
+        <div class="info-title">Score-Berechnung</div>
+        <div class="logic-card">
+          <div class="logic-step"><span class="logic-num">+1</span><span>Pro Müll-Meldung an diesem Standort</span></div>
+          <div class="logic-step"><span class="logic-num">+3</span><span>Wenn Folgemeldung innerhalb von 21 Tagen kommt <em>(Wiederkehr-Bonus)</em></span></div>
+          <div class="logic-step"><span class="logic-num">×</span><span>Zeitfaktor: Aktive Spots werden höher gewichtet als ältere inaktive</span></div>
+        </div>
+      </div>
+      <div class="info-section">
+        <div class="info-title">Wiederkehr-Logik</div>
+        <div class="logic-card">
+          <div class="logic-step"><span class="logic-num">①</span><span>Meldung eingeht → reguläre Entsorgung in ~14 Tagen</span></div>
+          <div class="logic-step"><span class="logic-num">②</span><span>Neue Meldung selber Stelle &lt; 21 Tage später → Müll wurde neu abgelegt</span></div>
+          <div class="logic-step"><span class="logic-num">③</span><span>Wiederholte Wiederkehr = illegaler Dauerdeponiepunkt</span></div>
+        </div>
+      </div>
+      <div class="info-section">
+        <div class="info-title">Datenquelle</div>
+        <div class="logic-card">
+          <div style="font-size:12px;color:var(--text-dim);line-height:1.6">
+            <strong style="color:var(--text)">Ordnungsamt Online API</strong><br>
+            ordnungsamt.berlin.de · Open Data<br>
+            Datenlizenz Deutschland BY 2.0<br><br>
+            Täglich per Cron-Job aktualisiert.<br>
+            Erledigte Meldungen nach 30 Tagen aus API entfernt — lokale DB archiviert dauerhaft.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const APP_DATA = __APP_DATA_PLACEHOLDER__;
+
+// ── State ─────────────────────────────────────────────────────────────────
+let currentFilter = 'all';
+let selectedCluster = null;
+let markers = [];
+let map;
+
+// ── Colors ────────────────────────────────────────────────────────────────
+const COLORS = {
+  niedrig:  { fill: '#22c55e', glow: 'rgba(34,197,94,0.4)'  },
+  mittel:   { fill: '#eab308', glow: 'rgba(234,179,8,0.4)'  },
+  hoch:     { fill: '#f97316', glow: 'rgba(249,115,22,0.45)' },
+  kritisch: { fill: '#dc2626', glow: 'rgba(220,38,38,0.5)'  },
+};
+const RADIUS = { niedrig: 8, mittel: 12, hoch: 16, kritisch: 22 };
+
+function getColor(label) { return COLORS[label] || COLORS.niedrig; }
+
+// ── Map init ──────────────────────────────────────────────────────────────
+function initMap() {
+  map = L.map('map', { center: [52.52, 13.405], zoom: 11, zoomControl: true });
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors', maxZoom: 19
+  }).addTo(map);
+  renderMarkers();
+}
+
+// ── Marker SVG ────────────────────────────────────────────────────────────
+function makeIcon(label, score, highlighted) {
+  const c = getColor(label);
+  const r = RADIUS[label];
+  const size = r * 2 + 10;
+  const cx = size / 2;
+  const opacity = highlighted ? 1 : 0.82;
+  const strokeW = highlighted ? 2.5 : 1.5;
+  const pulsing = label === 'kritisch' ? `
+    <circle cx="${cx}" cy="${cx}" r="${r+5}" fill="none" stroke="${c.fill}" stroke-width="1" opacity="0.3">
+      <animate attributeName="r" values="${r+2};${r+9};${r+2}" dur="2.5s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.4;0;0.4" dur="2.5s" repeatCount="indefinite"/>
+    </circle>` : '';
+  const svg = `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <filter id="glow_${label}">
+        <feGaussianBlur stdDeviation="3" result="blur"/>
+        <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+    </defs>
+    ${pulsing}
+    <circle cx="${cx}" cy="${cx}" r="${r}" fill="${c.fill}" fill-opacity="${opacity}"
+      stroke="white" stroke-width="${strokeW}" filter="url(#glow_${label})"/>
+  </svg>`;
+  return L.divIcon({
+    html: svg, className: '', iconSize: [size, size],
+    iconAnchor: [size/2, size/2], popupAnchor: [0, -(size/2)]
+  });
+}
+
+// ── Render markers ────────────────────────────────────────────────────────
+function renderMarkers() {
+  markers.forEach(m => map.removeLayer(m));
+  markers = [];
+  const data = APP_DATA.hotspots.filter(h => currentFilter === 'all' || h.score_label === currentFilter);
+  data.forEach(h => {
+    const icon = makeIcon(h.score_label, h.score, false);
+    const m = L.marker([h.lat_center, h.lon_center], { icon })
+      .addTo(map)
+      .on('click', () => selectHotspot(h.cluster_id, true));
+    m._clusterId = h.cluster_id;
+    markers.push(m);
+  });
+}
+
+// ── Popup content ─────────────────────────────────────────────────────────
+function makePopup(h) {
+  const c = getColor(h.score_label);
+  const warn = h.recurrence_count >= 2
+    ? `<div class="popup-warn">⚠ ${h.recurrence_count}× Wiederkehr erkannt — chronischer Ablagerungs&shy;punkt</div>` : '';
+  const maxScore = 30;
+  const pct = Math.min(100, (h.score / maxScore) * 100).toFixed(0);
+  return `<div style="min-width:220px">
+    <div class="popup-title">${h.bezirk || 'Unbekannt'}</div>
+    <div class="popup-grid">
+      <div class="popup-item"><div class="popup-lbl">Score</div><div class="popup-val" style="color:${c.fill}">${h.score}</div></div>
+      <div class="popup-item"><div class="popup-lbl">Stufe</div><div class="popup-val" style="color:${c.fill}">${h.score_label.toUpperCase()}</div></div>
+      <div class="popup-item"><div class="popup-lbl">Meldungen</div><div class="popup-val">${h.meldungen_count}</div></div>
+      <div class="popup-item"><div class="popup-lbl">Wiederkehr</div><div class="popup-val">${h.recurrence_count}×</div></div>
+      <div class="popup-item"><div class="popup-lbl">Erste Meldung</div><div class="popup-val" style="font-size:11px">${h.first_seen}</div></div>
+      <div class="popup-item"><div class="popup-lbl">Letzte Meldung</div><div class="popup-val" style="font-size:11px">${h.last_seen}</div></div>
+    </div>
+    <div style="margin-top:8px;height:4px;background:#252d3d;border-radius:2px">
+      <div style="width:${pct}%;height:100%;background:${c.fill};border-radius:2px"></div>
+    </div>
+    ${warn}
+  </div>`;
+}
+
+// ── Select hotspot ────────────────────────────────────────────────────────
+function selectHotspot(clusterId, fromMap) {
+  selectedCluster = clusterId;
+  const h = APP_DATA.hotspots.find(x => x.cluster_id === clusterId);
+  if (!h) return;
+
+  // Update sidebar
+  document.querySelectorAll('.hotspot-card').forEach(el => {
+    el.classList.toggle('selected', el.dataset.cid === clusterId);
+  });
+  // Scroll card into view
+  const card = document.querySelector(`.hotspot-card[data-cid="${clusterId}"]`);
+  if (card) card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+  // Fly to and popup
+  if (!fromMap) {
+    map.flyTo([h.lat_center, h.lon_center], 14, { duration: 0.8 });
+  }
+  // Find and open marker popup
+  markers.forEach(m => {
+    if (m._clusterId === clusterId) {
+      m.bindPopup(makePopup(h), { maxWidth: 280 }).openPopup();
+    }
+  });
+}
+
+// ── Header stats ──────────────────────────────────────────────────────────
+function renderHeaderStats() {
+  const hs = APP_DATA.hotspots;
+  const krit = hs.filter(h => h.score_label === 'kritisch').length;
+  const hoch = hs.filter(h => h.score_label === 'hoch').length;
+  const total = hs.reduce((s, h) => s + h.meldungen_count, 0);
+  document.getElementById('headerStats').innerHTML = `
+    <div class="hstat red"><div class="hstat-val">${krit}</div><div class="hstat-lbl">Kritisch</div></div>
+    <div class="hstat orange"><div class="hstat-val">${hoch}</div><div class="hstat-lbl">Hoch</div></div>
+    <div class="hstat"><div class="hstat-val">${hs.length}</div><div class="hstat-lbl">Hotspots</div></div>
+    <div class="hstat"><div class="hstat-val">${total}</div><div class="hstat-lbl">Meldungen</div></div>
+  `;
+}
+
+// ── Hotspot list ──────────────────────────────────────────────────────────
+function renderHotspotList() {
+  const data = APP_DATA.hotspots.filter(h => currentFilter === 'all' || h.score_label === currentFilter);
+  const maxScore = Math.max(...APP_DATA.hotspots.map(h => h.score), 1);
+  const list = document.getElementById('hotspotList');
+  list.innerHTML = data.map(h => {
+    const c = getColor(h.score_label);
+    const pct = ((h.score / maxScore) * 100).toFixed(0);
+    const warn = h.recurrence_count >= 2
+      ? `<div class="hc-recurrence show">⚠ ${h.recurrence_count}× Wiederkehr — dauerhafter Ablagerungsort</div>` : '';
+    return `<div class="hotspot-card" data-level="${h.score_label}" data-cid="${h.cluster_id}"
+      onclick="selectHotspot('${h.cluster_id}', false)">
+      <div class="hc-top">
+        <div class="hc-bezirk">${h.bezirk || 'Unbekannt'}</div>
+        <div class="hc-badge badge-${h.score_label}">${h.score_label}</div>
+      </div>
+      <div class="hc-meta">
+        <div class="hc-stat"><strong>${h.meldungen_count}</strong> Meldungen</div>
+        <div class="hc-stat"><strong>${h.recurrence_count}×</strong> Wiederkehr</div>
+        <div class="hc-stat">Score <strong style="color:${c.fill}">${h.score}</strong></div>
+      </div>
+      ${warn}
+      <div class="score-bar"><div class="score-fill" style="width:${pct}%;background:${c.fill}"></div></div>
+    </div>`;
+  }).join('');
+}
+
+// ── Bezirk list ───────────────────────────────────────────────────────────
+function renderBezirkList() {
+  const maxScore = Math.max(...APP_DATA.bezirk_stats.map(b => b.max_score || 0), 1);
+  const list = document.getElementById('bezirkList');
+  list.innerHTML = APP_DATA.bezirk_stats.map(b => {
+    const pct = ((b.max_score / maxScore) * 100).toFixed(0);
+    let barColor = '#22c55e';
+    if (b.max_score >= 13) barColor = '#dc2626';
+    else if (b.max_score >= 8) barColor = '#f97316';
+    else if (b.max_score >= 4) barColor = '#eab308';
+    return `<div class="bezirk-card">
+      <div class="bc-name">${b.bezirk}</div>
+      <div class="bc-grid">
+        <div class="bc-item"><div class="bc-val">${b.total_meldungen}</div><div class="bc-lbl">Meldungen</div></div>
+        <div class="bc-item"><div class="bc-val">${b.total_hotspots}</div><div class="bc-lbl">Hotspots</div></div>
+        <div class="bc-item"><div class="bc-val" style="color:#dc2626">${b.krit||0}</div><div class="bc-lbl">Kritisch</div></div>
+        <div class="bc-item"><div class="bc-val" style="color:#f97316">${b.hoch||0}</div><div class="bc-lbl">Hoch</div></div>
+      </div>
+      <div class="bc-bar"><div class="bc-fill" style="width:${pct}%;background:${barColor}"></div></div>
+    </div>`;
+  }).join('');
+}
+
+// ── Filter ────────────────────────────────────────────────────────────────
+function setFilter(level) {
+  currentFilter = level;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.toggle('active', b.dataset.level === level));
+  renderMarkers();
+  renderHotspotList();
+}
+
+// ── Tab switch ────────────────────────────────────────────────────────────
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach((t, i) => {
+    t.classList.toggle('active', ['hotspots','bezirke','info'][i] === name);
+  });
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById(`panel-${name}`).classList.add('active');
+}
+
+// ── Boot ──────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  initMap();
+  renderHeaderStats();
+  renderHotspotList();
+  renderBezirkList();
+});
+</script>
+</body>
+</html>
