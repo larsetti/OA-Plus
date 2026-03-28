@@ -94,13 +94,21 @@ def init_db(conn: sqlite3.Connection):
 # ── API-Abruf ─────────────────────────────────────────────────────────────────
 def fetch_meldungen() -> list[dict]:
     log.info("Abrufe API: %s", API_URL)
-    resp = requests.get(API_URL, timeout=30, headers={"Accept": "application/json"})
-    resp.raise_for_status()
-    data = resp.json()
-    # API gibt entweder Liste direkt oder Dict mit 'meldungen' key
-    if isinstance(data, list):
-        return data
-    return data.get("meldungen", data.get("data", []))
+    import time
+    for attempt in range(3):
+        try:
+            resp = requests.get(API_URL, timeout=60, headers={"Accept": "application/json"})
+            resp.raise_for_status()
+            data = resp.json()
+            if isinstance(data, list):
+                return data
+            return data.get("meldungen", data.get("data", []))
+        except Exception as e:
+            log.warning("API-Versuch %d fehlgeschlagen: %s", attempt + 1, e)
+            if attempt < 2:
+                time.sleep(10)
+    log.warning("API nicht erreichbar nach 3 Versuchen - ueberspringe Fetch")
+    return []
 
 
 # ── Hilfsfunktionen ───────────────────────────────────────────────────────────
