@@ -1,0 +1,44 @@
+2026-03-29 09:09:42,813 [INFO] Datenbank initialisiert: C:\Users\larsw\OneDrive\OA+\muell-monitor\ordnungsamt.db
+2026-03-29 09:09:42,813 [INFO] Versuche API-Endpunkt: https://ordnungsamt.berlin.de/frontend.webservice.opendata/api/meldungen
+2026-03-29 09:11:12,890 [WARNING] Timeout bei https://ordnungsamt.berlin.de/frontend.webservice.opendata/api/meldungen (Versuch 1/3)
+2026-03-29 09:13:02,936 [WARNING] Timeout bei https://ordnungsamt.berlin.de/frontend.webservice.opendata/api/meldungen (Versuch 2/3)
+2026-03-29 09:14:53,000 [WARNING] Timeout bei https://ordnungsamt.berlin.de/frontend.webservice.opendata/api/meldungen (Versuch 3/3)
+2026-03-29 09:14:53,000 [INFO] Versuche API-Endpunkt: https://ordnungsamt.berlin.de/frontend/dynamic/api/meldungen
+2026-03-29 09:14:53,284 [WARNING] HTTP 404 von https://ordnungsamt.berlin.de/frontend/dynamic/api/meldungen
+2026-03-29 09:14:53,284 [WARNING] Alle API-Endpunkte nicht erreichbar — ueberspringe Datenabruf
+2026-03-29 09:14:53,284 [INFO] 0 Meldungen von API erhalten
+2026-03-29 09:14:53,293 [INFO] Fertig: 0 neu, 0 Müll-Meldungen, 192 Hotspots berechnet
+2026-03-29 10:58:03,047 [INFO] Datenbank initialisiert: C:\Users\larsw\OneDrive\OA+\muell-monitor\ordnungsamt.db
+2026-03-29 10:58:03,048 [INFO] Versuche API-Endpunkt: https://ordnungsamt.berlin.de/frontend.webservice.opendata/api/meldungen
+2026-03-29 10:59:33,135 [WARNING] Timeout bei https://ordnungsamt.berlin.de/frontend.webservice.opendata/api/meldungen (Versuch 1/3)
+2026-03-29 11:01:23,208 [WARNING] Timeout bei https://ordnungsamt.berlin.de/frontend.webservice.opendata/api/meldungen (Versuch 2/3)
+2026-03-29 11:06:32,462 [INFO] Datenbank initialisiert: C:\Users\larsw\OneDrive\OA+\muell-monitor\ordnungsamt.db
+2026-03-29 11:06:32,463 [INFO] Versuche API-Endpunkt: https://ordnungsamt.berlin.de/frontend.webservice.opendata/api/meldungen
+2026-03-29 11:08:02,546 [WARNING] Timeout bei https://ordnungsamt.berlin.de/frontend.webservice.opendata/api/meldungen (Versuch 1/3)
+2026-03-29 11:14:39,013 [INFO] Datenbank initialisiert: C:\Users\larsw\OneDrive\OA+\muell-monitor\ordnungsamt.db
+2026-03-29 11:14:39,014 [INFO] Versuche API-Endpunkt: https://ordnungsamt.berlin.de/frontend.webservice.opendata/api/meldungen
+2026-03-29 11:16:09,090 [WARNING] Timeout bei https://ordnungsamt.berlin.de/frontend.webservice.opendata/api/meldungen (Versuch 1/3)
+2026-03-29 11:16:22,373 [INFO] Datenbank initialisiert: C:\Users\larsw\OneDrive\OA+\muell-monitor\ordnungsamt.db
+2026-03-29 11:16:22,373 [INFO] Lese lokale Datei: C:\Users\larsw\OneDrive\OA+\muell-monitor\meldungen.json (25.4 MB)
+2026-03-29 11:16:22,668 [INFO] Erfolg: 105456 Meldungen aus lokaler Datei
+2026-03-29 11:16:22,668 [INFO] 105456 Meldungen von API erhalten
+2026-03-29 11:18:49,001 [INFO] Datenbank initialisiert: C:\Users\larsw\OneDrive\OA+\muell-monitor\ordnungsamt.db
+2026-03-29 11:18:49,003 [INFO] Lese lokale Datei: C:\Users\larsw\OneDrive\OA+\muell-monitor\meldungen.json (25.4 MB)
+2026-03-29 11:18:49,304 [INFO] Erfolg: 105456 Meldungen aus lokaler Datei
+2026-03-29 11:18:49,304 [INFO] 105456 Meldungen von API erhalten
+2026-03-29 11:18:51,362 [INFO] Fertig: 105456 neu, 79779 Müll-Meldungen, 192 Hotspots berechnet
+2026-03-29 11:19:41,512 [INFO] Datenbank initialisiert: C:\Users\larsw\OneDrive\OA+\muell-monitor\ordnungsamt.db
+2026-03-29 11:19:41,513 [INFO] Lese lokale Datei: C:\Users\larsw\OneDrive\OA+\muell-monitor\meldungen.json (25.4 MB)
+2026-03-29 11:19:41,807 [INFO] Erfolg: 105456 Meldungen aus lokaler Datei
+2026-03-29 11:19:41,807 [INFO] 105456 Meldungen von API erhalten
+2026-03-29 11:19:47,617 [INFO] Fertig: 0 neu, 0 Müll-Meldungen, 192 Hotspots berechnet
+2026-03-29 11:20:00,875 [INFO] Datenbank initialisiert: C:\Users\larsw\OneDrive\OA+\muell-monitor\ordnungsamt.db
+2026-03-29 11:20:00,877 [INFO] Lese lokale Datei: C:\Users\larsw\OneDrive\OA+\muell-monitor\meldungen.json (25.4 MB)
+2026-03-29 11:20:01,175 [INFO] Erfolg: 105456 Meldungen aus lokaler Datei
+2026-03-29 11:20:01,176 [INFO] 105456 Meldungen von API erhalten
+2026-03-29 11:20:06,906 [INFO] Fertig: 0 neu, 0 Müll-Meldungen, 192 Hotspots berechnet
+2026-03-29 12:34:38,462 [INFO] Datenbank initialisiert: C:\Users\larsw\OneDrive\OA+\muell-monitor\ordnungsamt.db
+2026-03-29 12:34:38,463 [INFO] Lese lokale Datei: C:\Users\larsw\OneDrive\OA+\muell-monitor\meldungen.json (25.4 MB)
+2026-03-29 12:34:38,763 [INFO] Erfolg: 105456 Meldungen aus lokaler Datei
+2026-03-29 12:34:38,764 [INFO] 105456 Meldungen von API erhalten
+2026-03-29 12:34:44,706 [INFO] Fertig: 0 neu, 0 Müll-Meldungen, 192 Hotspots berechnet

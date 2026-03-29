@@ -14,7 +14,7 @@ permissions:
 jobs:
   update:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
 
     steps:
       - uses: actions/checkout@v4
@@ -25,13 +25,20 @@ jobs:
 
       - run: pip install requests
 
-      - name: Tracker ausführen (API holen + DB befüllen)
+      - name: API-Daten herunterladen (curl)
+        run: |
+          curl -L --max-time 300 --retry 3 --retry-delay 30 \
+            -H "User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" \
+            -H "Accept: application/json, text/plain, */*" \
+            -o meldungen.json \
+            "https://ordnungsamt.berlin.de/frontend.webservice.opendata/api/meldungen"
+          echo "Download abgeschlossen: $(du -sh meldungen.json)"
+
+      - name: Tracker ausführen (lokale JSON verarbeiten)
         run: python tracker.py
-        continue-on-error: true
 
       - name: HTML regenerieren
         run: python export_html.py
-        continue-on-error: true
 
       - name: DB und index.html committen
         run: |
