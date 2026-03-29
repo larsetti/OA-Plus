@@ -92,30 +92,77 @@ def init_db(conn: sqlite3.Connection):
         );
     """)
     conn.commit()
+
+    # Spalten nachrüsten falls DB bereits existiert
+    for col, typedef in [("strasse", "TEXT DEFAULT ''"), ("plz", "TEXT DEFAULT ''")]:
+        try:
+            conn.execute(f"ALTER TABLE meldungen ADD COLUMN {col} {typedef}")
+            conn.commit()
+            log.info("Spalte '%s' hinzugefügt", col)
+        except sqlite3.OperationalError:
+            pass  # Spalte existiert bereits
+
     log.info("Datenbank initialisiert: %s", DB_PATH)
 
 
 # ── API-Abruf ─────────────────────────────────────────────────────────────────
-# Mehrere bekannte Endpunkte als Fallback
 API_URLS = [
     "https://ordnungsamt.berlin.de/frontend.webservice.opendata/api/meldungen",
-    "https://ordnungsamt.berlin.de/frontend/dynamic/api/meldungen",
 ]
+
+def _parse_response(data) -> list[dict]:
+    """Extrahiert die Meldungsliste aus verschiedenen API-Antwortstrukturen."""
+    return (
+        data if isinstance(data, list)
+        else data.get("index",
+             data.get("meldungen",
+             data.get("data", [])))
+    )
+
 
 def fetch_meldungen() -> list[dict]:
     import time
+
+    # ── Lokale Datei verwenden falls vorhanden ────────────────────────────────
+    # Download via PowerShell: Invoke-WebRequest -Uri "https://ordnungsamt.berlin.de/frontend.webservice.opendata/api/meldungen" -OutFile "meldungen.json"
+    local = Path(__file__).parent / "meldungen.json"
+    if local.exists():
+        log.info("Lese lokale Datei: %s (%.1f MB)", local, local.stat().st_size / 1024 / 1024)
+        data = json.loads(local.read_text(encoding="utf-8"))
+        meldungen = _parse_response(data)
+        if meldungen:
+            log.info("Erfolg: %d Meldungen aus lokaler Datei", len(meldungen))
+            return meldungen
+        log.warning("Lokale Datei leer oder unbekanntes Format")
+
+    # ── API-Fallback ──────────────────────────────────────────────────────────
     headers = {
         "Accept": "application/json, text/plain, */*",
-        "User-Agent": "Mozilla/5.0 (compatible; BerlinMuellMonitor/1.0)",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "Accept-Encoding": "gzip, deflate, br",
+        "Connection": "keep-alive",
     }
     for url in API_URLS:
         log.info("Versuche API-Endpunkt: %s", url)
         for attempt in range(3):
             try:
-                resp = requests.get(url, timeout=90, headers=headers)
+                log.info("Starte Download (die Antwort ist ~26MB, bitte warten)...")
+                # (connect_timeout, read_timeout) — 30s verbinden, 600s lesen
+                resp = requests.get(url, timeout=(30, 600), headers=headers, stream=True)
                 if resp.status_code == 200:
-                    data = resp.json()
-                    meldungen = data if isinstance(data, list) else data.get("meldungen", data.get("data", []))
+                    log.info("HTTP 200 — lese Antwort...")
+                    chunks = []
+                    total = 0
+                    for chunk in resp.iter_content(chunk_size=65536):
+                        if chunk:
+                            chunks.append(chunk)
+                            total += len(chunk)
+                            if total % (1024 * 1024) < 65536:
+                                log.info("  %.1f MB geladen...", total / 1024 / 1024)
+                    raw = b"".join(chunks)
+                    log.info("Download abgeschlossen: %.1f MB", len(raw) / 1024 / 1024)
+                    data = json.loads(raw.decode("utf-8"))
+                    meldungen = _parse_response(data)
                     if meldungen:
                         log.info("Erfolg: %d Meldungen erhalten", len(meldungen))
                         return meldungen
@@ -126,7 +173,8 @@ def fetch_meldungen() -> list[dict]:
             except requests.exceptions.Timeout:
                 log.warning("Timeout bei %s (Versuch %d/3)", url, attempt + 1)
                 if attempt < 2:
-                    time.sleep(20)
+                    log.info("Warte 30s vor erneutem Versuch...")
+                    time.sleep(30)
             except Exception as e:
                 log.warning("Fehler bei %s (Versuch %d): %s", url, attempt + 1, e)
                 break
@@ -156,6 +204,10 @@ def extract_coords(m: dict) -> tuple[float | None, float | None]:
     if not lat and "koordinaten" in m:
         lat = m["koordinaten"].get("lat")
         lon = m["koordinaten"].get("lon")
+    # Variante 3: geoPosition (aus echtem API-Response)
+    if not lat and "geoPosition" in m:
+        lat = m["geoPosition"].get("lat") or m["geoPosition"].get("latitude")
+        lon = m["geoPosition"].get("lon") or m["geoPosition"].get("lng")
     try:
         return float(lat), float(lon)
     except (TypeError, ValueError):
@@ -183,7 +235,7 @@ def compute_score(count: int, recurrence: int, days_since_first: int) -> tuple[f
     """
     Score-Logik:
     - Jede Meldung: +1 Basispunkt
-    - Wiederkehrende Meldung (< DISPOSAL_DAYS+7 nach letzter): +3 Punkte (Indikator für chronischen Hotspot)
+    - Wiederkehrende Meldung (< DISPOSAL_DAYS+7 nach letzter): +3 Punkte
     - Zeitfaktor: schnelle Wiederkehr erhöht Score
     - Alter dämpft Score leicht (alte inaktive Spots fallen ab)
 
@@ -274,7 +326,7 @@ def run():
         c["lons"].append(row["lon"])
         c["dates"].append(row["datum"])
 
-    # Wiederkehr-Erkennung: Meldung < DISPOSAL_DAYS+7 nach vorheriger → Hotspot-Indikator
+    # Wiederkehr-Erkennung
     for cid, c in clusters.items():
         dates_sorted = sorted(c["dates"])
         for i in range(1, len(dates_sorted)):
