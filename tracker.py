@@ -96,24 +96,42 @@ def init_db(conn: sqlite3.Connection):
 
 
 # ── API-Abruf ─────────────────────────────────────────────────────────────────
-def fetch_meldungen() -> list[dict]:
-    log.info("Abrufe API: %s", API_URL)
-    import time
-    for attempt in range(5):
-        try:
-            resp = requests.get(API_URL, timeout=90, headers={"Accept": "application/json"})
-            resp.raise_for_status()
-            data = resp.json()
-            if isinstance(data, list):
-                return data
-            return data.get("meldungen", data.get("data", []))
-        except Exception as e:
-            log.warning("API-Versuch %d fehlgeschlagen: %s", attempt + 1, e)
-            if attempt < 2:
-                time.sleep(10)
-    log.warning("API nicht erreichbar nach 3 Versuchen - ueberspringe Fetch")
-    return []
+# Mehrere bekannte Endpunkte als Fallback
+API_URLS = [
+    "https://ordnungsamt.berlin.de/frontend.webservice.opendata/api/meldungen",
+    "https://ordnungsamt.berlin.de/frontend/dynamic/api/meldungen",
+]
 
+def fetch_meldungen() -> list[dict]:
+    import time
+    headers = {
+        "Accept": "application/json, text/plain, */*",
+        "User-Agent": "Mozilla/5.0 (compatible; BerlinMuellMonitor/1.0)",
+    }
+    for url in API_URLS:
+        log.info("Versuche API-Endpunkt: %s", url)
+        for attempt in range(3):
+            try:
+                resp = requests.get(url, timeout=90, headers=headers)
+                if resp.status_code == 200:
+                    data = resp.json()
+                    meldungen = data if isinstance(data, list) else data.get("meldungen", data.get("data", []))
+                    if meldungen:
+                        log.info("Erfolg: %d Meldungen erhalten", len(meldungen))
+                        return meldungen
+                    log.warning("Leere Antwort von %s", url)
+                else:
+                    log.warning("HTTP %d von %s", resp.status_code, url)
+                    break
+            except requests.exceptions.Timeout:
+                log.warning("Timeout bei %s (Versuch %d/3)", url, attempt + 1)
+                if attempt < 2:
+                    time.sleep(20)
+            except Exception as e:
+                log.warning("Fehler bei %s (Versuch %d): %s", url, attempt + 1, e)
+                break
+    log.warning("Alle API-Endpunkte nicht erreichbar — ueberspringe Datenabruf")
+    return []
 
 # ── Hilfsfunktionen ───────────────────────────────────────────────────────────
 def is_muell(m: dict) -> bool:
