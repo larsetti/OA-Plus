@@ -5,50 +5,38 @@ on:
     - cron: '0 6 * * *'
   workflow_dispatch:
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 permissions:
   contents: write
 
 jobs:
   update:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
 
     steps:
-      - name: Repository auschecken
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      - name: Python einrichten
-        uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      - name: Abhängigkeiten installieren
-        run: pip install requests
+      - run: pip install requests
 
-      - name: Datenbank aus Artifact laden (falls vorhanden)
-        uses: actions/download-artifact@v3
-        with:
-          name: ordnungsamt-db
-          path: .
-        continue-on-error: true
-
-      - name: Tracker ausführen
+      - name: Tracker ausführen (API holen + DB befüllen)
         run: python tracker.py
         continue-on-error: true
 
-      - name: App-HTML regenerieren
+      - name: HTML regenerieren
         run: python export_html.py
+        continue-on-error: true
 
-      - name: Datenbank als Artifact speichern
-        uses: actions/upload-artifact@v3
-        with:
-          name: ordnungsamt-db
-          path: ordnungsamt.db
-          retention-days: 90
-
-      - name: index.html committen und pushen
+      - name: DB und index.html committen
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Actions Bot"
-          git add index.html
+          git add index.html ordnungsamt.db
           git diff --staged --quiet || git commit -m "Auto-Update: $(date '+%Y-%m-%d')"
           git push
