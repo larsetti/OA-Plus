@@ -99,9 +99,9 @@ def init_db(conn: sqlite3.Connection):
 def fetch_meldungen() -> list[dict]:
     log.info("Abrufe API: %s", API_URL)
     import time
-    for attempt in range(3):
+    for attempt in range(5):
         try:
-            resp = requests.get(API_URL, timeout=60, headers={"Accept": "application/json"})
+            resp = requests.get(API_URL, timeout=90, headers={"Accept": "application/json"})
             resp.raise_for_status()
             data = resp.json()
             if isinstance(data, list):
