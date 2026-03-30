@@ -6,6 +6,9 @@
 <title>Müll-Hotspot Monitor Berlin</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.css"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.Default.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@300;400;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -399,6 +402,8 @@ function clearFilters(){
 }
 
 // ── Map ────────────────────────────────────────────────────────────────
+let clusterGroup = null;
+
 function initMap(){
   map = L.map('map',{center:[52.52,13.405],zoom:11});
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
@@ -425,20 +430,53 @@ function makeIcon(level){
 }
 
 function renderMarkers(){
-  markers.forEach(m=>map.removeLayer(m));
+  // Alten Cluster-Layer entfernen
+  if(clusterGroup) { map.removeLayer(clusterGroup); }
   markers = [];
-  filteredHotspots().forEach(h=>{
-    const m = L.marker([h.lat_center,h.lon_center],{icon:makeIcon(h.score_label)})
-      .addTo(map)
-      .on('click', ()=>{
-        // Karten-Klick: Popup mit vollen Details öffnen + Karte in Liste markieren
-        showPopup(h);
-        highlightCard(h.cluster_id);
-        if(isMobile()) setSheet('mid');
+
+  clusterGroup = L.markerClusterGroup({
+    maxClusterRadius: 50,
+    spiderfyOnMaxZoom: true,
+    showCoverageOnHover: false,
+    zoomToBoundsOnClick: true,
+    iconCreateFunction: function(cluster) {
+      const children = cluster.getAllChildMarkers();
+      // Höchste Einstufung im Cluster bestimmen
+      const levels = ['kritisch','hoch','mittel','niedrig'];
+      let topLevel = 'niedrig';
+      for(const m of children){
+        const lvl = m._level || 'niedrig';
+        if(levels.indexOf(lvl) < levels.indexOf(topLevel)) topLevel = lvl;
+      }
+      const c = COLORS[topLevel];
+      const count = cluster.getChildCount();
+      const size = count > 100 ? 44 : count > 20 ? 36 : 28;
+      return L.divIcon({
+        html: `<div style="width:${size}px;height:${size}px;border-radius:50%;
+          background:${c};color:white;display:flex;align-items:center;
+          justify-content:center;font-weight:700;font-size:${size>36?13:11}px;
+          border:2px solid white;box-shadow:0 2px 6px rgba(0,0,0,.3)">${count}</div>`,
+        className: '',
+        iconSize: [size, size],
+        iconAnchor: [size/2, size/2]
       });
-    m._cid = h.cluster_id;
-    markers.push(m);
+    }
   });
+
+  filteredHotspots().forEach(h=>{
+    const m = L.marker([h.lat_center,h.lon_center],{icon:makeIcon(h.score_label)});
+    m._cid = h.cluster_id;
+    m._level = h.score_label;
+    m.on('click', ()=>{
+      showPopup(h);
+      highlightCard(h.cluster_id);
+      if(isMobile()) setSheet('mid');
+    });
+    markers.push(m);
+    clusterGroup.addLayer(m);
+  });
+
+  map.addLayer(clusterGroup);
 }
 
 // ── Popup (volle Details) ──────────────────────────────────────────────
