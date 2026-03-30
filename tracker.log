@@ -47,3 +47,14 @@
 2026-03-29 14:03:55,414 [INFO] Erfolg: 105456 Meldungen aus lokaler Datei
 2026-03-29 14:03:55,415 [INFO] 105456 Meldungen von API erhalten
 2026-03-29 14:04:01,749 [INFO] Fertig: 0 neu, 0 Müll-Meldungen, 192 Hotspots berechnet
+2026-03-29 14:05:38,820 [INFO] Datenbank initialisiert: C:\Users\larsw\OneDrive\OA+\muell-monitor\ordnungsamt.db
+2026-03-29 14:05:38,820 [INFO] Lese lokale Datei: C:\Users\larsw\OneDrive\OA+\muell-monitor\meldungen.json (25.4 MB)
+2026-03-29 14:05:39,136 [INFO] Erfolg: 105456 Meldungen aus lokaler Datei
+2026-03-29 14:05:39,138 [INFO] 105456 Meldungen von API erhalten
+2026-03-29 14:05:41,290 [INFO] Fertig: 105456 neu, 79779 Müll-Meldungen, 0 Hotspots berechnet
+2026-03-30 14:39:20,241 [INFO] Datenbank initialisiert: C:\Users\larsw\OneDrive\OA+\muell-monitor\ordnungsamt.db
+2026-03-30 14:39:20,244 [INFO] Lese lokale Datei: C:\Users\larsw\OneDrive\OA+\muell-monitor\meldungen.json (25.4 MB)
+2026-03-30 14:39:20,565 [INFO] Erfolg: 105456 Meldungen aus lokaler Datei
+2026-03-30 14:39:20,565 [INFO] 105456 Meldungen von API erhalten
+2026-03-30 14:39:25,516 [INFO] Neu gespeichert: 0 Meldungen (0 Mull)
+2026-03-30 14:39:25,889 [INFO] Fertig: 0 neu, 0 Mull, 7745 Hotspots
