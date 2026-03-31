@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
 """
-Berlin Ordnungsamt Mull-Tracker
+Berlin Ordnungsamt Müll-Tracker
 ================================
-Taglich ausfuhren via GitHub Actions (06:00 UTC).
-- Ladt alle Meldungen von der API
-- Speichert neue Meldungen in der DB
-- Ruft fuer neue Mull-Meldungen den Detail-Endpunkt ab (Koordinaten!)
-- Berechnet Hotspot-Scores
+Täglich ausführen via Cron: 0 6 * * * /usr/bin/python3 /pfad/zu/tracker.py
+
+Legt alle Meldungen in einer SQLite-Datenbank ab und berechnet
+Hotspot-Scores für wiederkehrende Müllmeldungen.
 """
 
 import sqlite3
@@ -14,28 +13,24 @@ import json
 import requests
 import hashlib
 import logging
-import time
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 
-# Konfiguration
+# ── Konfiguration ─────────────────────────────────────────────────────────────
 DB_PATH = Path(__file__).parent / "ordnungsamt.db"
-API_URL = "https://ordnungsamt.berlin.de/frontend.webservice.opendata/api/meldungen"
-API_DETAIL = "https://ordnungsamt.berlin.de/frontend.webservice.opendata/api/meldungen/{}"
+API_URL  = "https://ordnungsamt.berlin.de/frontend.webservice.opendata/api/meldungen"
 
-# Alle Mull-Kategorien aus der Ordnungsamt-App
+# Kategorien, die als "Müll" gewertet werden (Schlüsselwörter im Betreff/Kategorie)
 MUELL_KEYWORDS = [
-    "abfall", "autowrack", "bauabfalle", "bauschutt", "bioabfalle",
-    "elektroschrott", "mullablagerung", "mull", "papierkorbe",
-    "schrottfahrrader", "sperrm", "tierkadaver", "tote tiere",
-    "unrat", "weihnachtsbaume", "gewerbebetrieb", "flaschen",
-    "abgelagert", "fasser", "grunanlage", "kfz-teile", "betriebsstoffe",
-    "kanister", "entsorgung", "ablagerung", "deponie", "sondermu",
-    "grunschnitt", "schrottauto", "sperrm\u00fcll", "m\u00fcll",
-    "abf\u00e4lle", "gr\u00fcnschnitt", "gr\u00fcnanlage",
+    "müll", "abfall", "sperrmüll", "entsorgung", "ablagerung",
+    "illegal", "deponie", "schutt", "bauschutt", "schrottauto",
+    "sondermüll", "elektroschrott", "grünschnitt"
 ]
 
+# Radius in Grad (~150m) für Geo-Clustering
 GEO_RADIUS = 0.0015
+
+# Tage bis zur "regulären" Entsorgung (Berliner Realität)
 DISPOSAL_DAYS = 14
 
 logging.basicConfig(
@@ -48,49 +43,45 @@ logging.basicConfig(
 )
 log = logging.getLogger(__name__)
 
-HEADERS = {
-    "Accept": "application/json, text/plain, */*",
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-    "Accept-Encoding": "gzip, deflate, br",
-    "Connection": "keep-alive",
-}
 
-
-def init_db(conn):
+# ── Datenbank-Setup ───────────────────────────────────────────────────────────
+def init_db(conn: sqlite3.Connection):
     conn.executescript("""
         CREATE TABLE IF NOT EXISTS meldungen (
-            id           TEXT PRIMARY KEY,
-            fetched_at   TEXT NOT NULL,
-            datum        TEXT,
-            kategorie    TEXT,
-            betreff      TEXT,
-            bezirk       TEXT,
-            lat          REAL,
-            lon          REAL,
-            status       TEXT,
-            is_muell     INTEGER DEFAULT 0,
-            strasse      TEXT DEFAULT '',
-            hausNummer   TEXT DEFAULT '',
-            plz          TEXT DEFAULT '',
-            enriched     INTEGER DEFAULT 0
+            id          TEXT PRIMARY KEY,
+            fetched_at  TEXT NOT NULL,
+            datum       TEXT,
+            kategorie   TEXT,
+            betreff     TEXT,
+            bezirk      TEXT,
+            lat         REAL,
+            lon         REAL,
+            status      TEXT,
+            is_muell    INTEGER DEFAULT 0,
+            raw_json    TEXT,
+            strasse     TEXT DEFAULT '',
+            plz         TEXT DEFAULT ''
         );
+        -- Spalten nachrüsten falls DB bereits existiert
+        CREATE INDEX IF NOT EXISTS idx_latlon  ON meldungen(lat, lon);
+
+        CREATE TABLE IF NOT EXISTS hotspots (
+            cluster_id      TEXT PRIMARY KEY,
+            lat_center      REAL,
+            lon_center      REAL,
+            bezirk          TEXT,
+            meldungen_count INTEGER DEFAULT 0,
+            recurrence_count INTEGER DEFAULT 0,
+            last_seen       TEXT,
+            first_seen      TEXT,
+            score           REAL DEFAULT 0.0,
+            score_label     TEXT DEFAULT 'niedrig'
+        );
+
         CREATE INDEX IF NOT EXISTS idx_latlon  ON meldungen(lat, lon);
         CREATE INDEX IF NOT EXISTS idx_datum   ON meldungen(datum);
         CREATE INDEX IF NOT EXISTS idx_bezirk  ON meldungen(bezirk);
         CREATE INDEX IF NOT EXISTS idx_ismuell ON meldungen(is_muell);
-
-        CREATE TABLE IF NOT EXISTS hotspots (
-            cluster_id       TEXT PRIMARY KEY,
-            lat_center       REAL,
-            lon_center       REAL,
-            bezirk           TEXT,
-            meldungen_count  INTEGER DEFAULT 0,
-            recurrence_count INTEGER DEFAULT 0,
-            last_seen        TEXT,
-            first_seen       TEXT,
-            score            REAL DEFAULT 0.0,
-            score_label      TEXT DEFAULT 'niedrig'
-        );
 
         CREATE TABLE IF NOT EXISTS fetch_log (
             id          INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -102,190 +93,221 @@ def init_db(conn):
     """)
     conn.commit()
 
-    # Spalten nachrüsten falls DB älter
-    for col, typedef in [
-        ("strasse",    "TEXT DEFAULT ''"),
-        ("hausNummer", "TEXT DEFAULT ''"),
-        ("plz",        "TEXT DEFAULT ''"),
-        ("enriched",   "INTEGER DEFAULT 0"),
-    ]:
+    # Spalten nachrüsten falls DB bereits existiert
+    for col, typedef in [("strasse", "TEXT DEFAULT ''"), ("plz", "TEXT DEFAULT ''")]:
         try:
             conn.execute(f"ALTER TABLE meldungen ADD COLUMN {col} {typedef}")
             conn.commit()
+            log.info("Spalte '%s' hinzugefügt", col)
         except sqlite3.OperationalError:
-            pass
+            pass  # Spalte existiert bereits
 
     log.info("Datenbank initialisiert: %s", DB_PATH)
 
 
-def fetch_all_meldungen():
-    """Ladt alle Meldungen von der Ubersichts-API (~26MB)."""
+# ── API-Abruf ─────────────────────────────────────────────────────────────────
+API_URLS = [
+    "https://ordnungsamt.berlin.de/frontend.webservice.opendata/api/meldungen",
+]
+
+def _parse_response(data) -> list[dict]:
+    """Extrahiert die Meldungsliste aus verschiedenen API-Antwortstrukturen."""
+    return (
+        data if isinstance(data, list)
+        else data.get("index",
+             data.get("meldungen",
+             data.get("data", [])))
+    )
+
+
+def fetch_meldungen() -> list[dict]:
+    import time
+
+    # ── Lokale Datei verwenden falls vorhanden ────────────────────────────────
+    # Download via PowerShell: Invoke-WebRequest -Uri "https://ordnungsamt.berlin.de/frontend.webservice.opendata/api/meldungen" -OutFile "meldungen.json"
     local = Path(__file__).parent / "meldungen.json"
     if local.exists():
         log.info("Lese lokale Datei: %s (%.1f MB)", local, local.stat().st_size / 1024 / 1024)
         data = json.loads(local.read_text(encoding="utf-8"))
-        meldungen = data if isinstance(data, list) else data.get("index", data.get("meldungen", []))
+        meldungen = _parse_response(data)
         if meldungen:
             log.info("Erfolg: %d Meldungen aus lokaler Datei", len(meldungen))
             return meldungen
+        log.warning("Lokale Datei leer oder unbekanntes Format")
 
-    log.info("Starte Download (~26MB, bitte warten)...")
-    for attempt in range(3):
-        try:
-            resp = requests.get(API_URL, timeout=(30, 600), headers=HEADERS, stream=True)
-            if resp.status_code == 200:
-                chunks = []
-                total = 0
-                for chunk in resp.iter_content(chunk_size=65536):
-                    if chunk:
-                        chunks.append(chunk)
-                        total += len(chunk)
-                        if total % (1024 * 1024) < 65536:
-                            log.info("  %.1f MB geladen...", total / 1024 / 1024)
-                raw = b"".join(chunks)
-                data = json.loads(raw.decode("utf-8"))
-                meldungen = data if isinstance(data, list) else data.get("index", data.get("meldungen", []))
-                if meldungen:
-                    log.info("Erfolg: %d Meldungen erhalten", len(meldungen))
-                    return meldungen
-            else:
-                log.warning("HTTP %d", resp.status_code)
-        except Exception as e:
-            log.warning("Fehler (Versuch %d/3): %s", attempt + 1, e)
-            if attempt < 2:
-                time.sleep(30)
+    # ── API-Fallback ──────────────────────────────────────────────────────────
+    headers = {
+        "Accept": "application/json, text/plain, */*",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "Accept-Encoding": "gzip, deflate, br",
+        "Connection": "keep-alive",
+    }
+    for url in API_URLS:
+        log.info("Versuche API-Endpunkt: %s", url)
+        for attempt in range(3):
+            try:
+                log.info("Starte Download (die Antwort ist ~26MB, bitte warten)...")
+                # (connect_timeout, read_timeout) — 30s verbinden, 600s lesen
+                resp = requests.get(url, timeout=(30, 600), headers=headers, stream=True)
+                if resp.status_code == 200:
+                    log.info("HTTP 200 — lese Antwort...")
+                    chunks = []
+                    total = 0
+                    for chunk in resp.iter_content(chunk_size=65536):
+                        if chunk:
+                            chunks.append(chunk)
+                            total += len(chunk)
+                            if total % (1024 * 1024) < 65536:
+                                log.info("  %.1f MB geladen...", total / 1024 / 1024)
+                    raw = b"".join(chunks)
+                    log.info("Download abgeschlossen: %.1f MB", len(raw) / 1024 / 1024)
+                    data = json.loads(raw.decode("utf-8"))
+                    meldungen = _parse_response(data)
+                    if meldungen:
+                        log.info("Erfolg: %d Meldungen erhalten", len(meldungen))
+                        return meldungen
+                    log.warning("Leere Antwort von %s", url)
+                else:
+                    log.warning("HTTP %d von %s", resp.status_code, url)
+                    break
+            except requests.exceptions.Timeout:
+                log.warning("Timeout bei %s (Versuch %d/3)", url, attempt + 1)
+                if attempt < 2:
+                    log.info("Warte 30s vor erneutem Versuch...")
+                    time.sleep(30)
+            except Exception as e:
+                log.warning("Fehler bei %s (Versuch %d): %s", url, attempt + 1, e)
+                break
+    log.warning("Alle API-Endpunkte nicht erreichbar — ueberspringe Datenabruf")
     return []
 
-
-def fetch_detail(session, meldung_id):
-    """Detail-Endpunkt fuer eine Meldung — liefert Koordinaten und Adresse."""
-    url = API_DETAIL.format(meldung_id)
-    for attempt in range(3):
-        try:
-            resp = session.get(url, timeout=15, headers=HEADERS)
-            if resp.status_code == 200:
-                data = resp.json()
-                items = data.get("index", data.get("meldungen", []))
-                if items:
-                    return items[0]
-                return {}
-            elif resp.status_code == 404:
-                return {}
-            elif resp.status_code == 503:
-                wait = 60 * (attempt + 1)
-                log.warning("HTTP 503 - warte %ds", wait)
-                time.sleep(wait)
-            else:
-                log.warning("HTTP %d fuer ID %s", resp.status_code, meldung_id)
-                return None
-        except requests.exceptions.Timeout:
-            log.warning("Timeout fuer ID %s", meldung_id)
-            time.sleep(30)
-        except Exception as e:
-            log.warning("Fehler fuer ID %s: %s", meldung_id, e)
-            return None
-    return None
-
-
-def is_muell(m):
+# ── Hilfsfunktionen ───────────────────────────────────────────────────────────
+def is_muell(m: dict) -> bool:
     text = " ".join([
-        str(m.get("betreff", "")),
         str(m.get("kategorie", "")),
-        str(m.get("sachverhalt", "")),
+        str(m.get("betreff",   "")),
+        str(m.get("bereich",   "")),
+        str(m.get("beschreibung", ""))
     ]).lower()
     return any(kw in text for kw in MUELL_KEYWORDS)
 
 
-def make_id(m):
-    raw_id = m.get("id") or m.get("meldungsId")
+def extract_coords(m: dict) -> tuple[float | None, float | None]:
+    """Koordinaten aus verschiedenen möglichen API-Strukturen extrahieren."""
+    # Variante 1: flach
+    lat = m.get("lat") or m.get("latitude") or m.get("breitengrad")
+    lon = m.get("lon") or m.get("lng") or m.get("longitude") or m.get("laengengrad")
+    # Variante 2: verschachtelt
+    if not lat and "position" in m:
+        lat = m["position"].get("lat") or m["position"].get("latitude")
+        lon = m["position"].get("lon") or m["position"].get("lng")
+    if not lat and "koordinaten" in m:
+        lat = m["koordinaten"].get("lat")
+        lon = m["koordinaten"].get("lon")
+    # Variante 3: geoPosition (aus echtem API-Response)
+    if not lat and "geoPosition" in m:
+        lat = m["geoPosition"].get("lat") or m["geoPosition"].get("latitude")
+        lon = m["geoPosition"].get("lon") or m["geoPosition"].get("lng")
+    try:
+        return float(lat), float(lon)
+    except (TypeError, ValueError):
+        return None, None
+
+
+def make_id(m: dict) -> str:
+    """Stabiles ID aus API-Feldern oder Hash des Inhalts."""
+    raw_id = m.get("id") or m.get("meldungsId") or m.get("meldung_id")
     if raw_id:
         return str(raw_id)
-    return "hash_" + hashlib.md5(json.dumps(m, sort_keys=True).encode()).hexdigest()[:16]
+    digest = hashlib.md5(json.dumps(m, sort_keys=True).encode()).hexdigest()
+    return f"hash_{digest[:16]}"
 
 
-def cluster_id(lat, lon):
+def cluster_id(lat: float, lon: float) -> str:
+    """Geo-Zelle als Cluster-Schlüssel (~150m Raster)."""
     cell_lat = round(lat / GEO_RADIUS) * GEO_RADIUS
     cell_lon = round(lon / GEO_RADIUS) * GEO_RADIUS
     return f"{cell_lat:.5f}_{cell_lon:.5f}"
 
 
-def compute_score(count, recurrence, days_since_first):
+# ── Hotspot-Score-Berechnung ──────────────────────────────────────────────────
+def compute_score(count: int, recurrence: int, days_since_first: int) -> tuple[float, str]:
+    """
+    Score-Logik:
+    - Jede Meldung: +1 Basispunkt
+    - Wiederkehrende Meldung (< DISPOSAL_DAYS+7 nach letzter): +3 Punkte
+    - Zeitfaktor: schnelle Wiederkehr erhöht Score
+    - Alter dämpft Score leicht (alte inaktive Spots fallen ab)
+
+    Labels: niedrig (0-3) | mittel (4-7) | hoch (8-12) | kritisch (13+)
+    """
     base = count + recurrence * 3
     time_factor = max(0.5, 1 - (days_since_first / 365) * 0.3)
     score = round(base * time_factor, 2)
-    if score < 4:    label = "niedrig"
-    elif score < 8:  label = "mittel"
-    elif score < 13: label = "hoch"
-    else:            label = "kritisch"
+
+    # Schwellen: ~3 Meldungen=niedrig, ~5=mittel, ~10=hoch, ~20+=kritisch
+    if score < 5:
+        label = "niedrig"
+    elif score < 10:
+        label = "mittel"
+    elif score < 20:
+        label = "hoch"
+    else:
+        label = "kritisch"
     return score, label
 
 
+# ── Hauptlogik ────────────────────────────────────────────────────────────────
 def run():
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     init_db(conn)
 
     now = datetime.utcnow().isoformat()
-    meldungen = fetch_all_meldungen()
+    meldungen = fetch_meldungen()
     log.info("%d Meldungen von API erhalten", len(meldungen))
 
     count_new = 0
     count_muell = 0
-    new_ids = []
 
     for m in meldungen:
-        mid = make_id(m)
-
-        if conn.execute("SELECT id FROM meldungen WHERE id=?", (mid,)).fetchone():
-            continue
-
+        mid  = make_id(m)
+        lat, lon = extract_coords(m)
         muell = is_muell(m)
-        datum = m.get("erstellungsDatum") or m.get("datum") or now[:10]
+# Datum-Feld
+datum = m.get("erstellungsDatum") or m.get("datum") or now[:10]
+
+        existing = conn.execute("SELECT id FROM meldungen WHERE id=?", (mid,)).fetchone()
+        if existing:
+            continue  # bereits in DB
+
+        # Adresse aus verschiedenen möglichen API-Feldern extrahieren
+        strasse = (m.get("strasse") or m.get("street") or m.get("strasseOrt") or
+                   m.get("adresse") or m.get("address") or m.get("ort") or "")
+        plz_val = m.get("plz") or m.get("postleitzahl") or m.get("zip") or ""
 
         conn.execute("""
             INSERT INTO meldungen
-                (id, fetched_at, datum, kategorie, betreff, bezirk, status, is_muell, enriched)
-            VALUES (?,?,?,?,?,?,?,?,0)
+                (id, fetched_at, datum, kategorie, betreff, bezirk, lat, lon, status, is_muell, raw_json, strasse, plz)
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)
         """, (
             mid, now, datum,
-            m.get("kategorie", ""),
-            m.get("betreff", ""),
-            m.get("bezirk", ""),
+            m.get("kategorie") or m.get("category", ""),
+            m.get("betreff")   or m.get("subject",  ""),
+            m.get("bezirk")    or m.get("district",  ""),
+            lat, lon,
             m.get("status", ""),
             1 if muell else 0,
+            json.dumps(m, ensure_ascii=False),
+            strasse, str(plz_val)
         ))
         count_new += 1
         if muell:
             count_muell += 1
-            new_ids.append(mid)
 
     conn.commit()
-    log.info("Neu gespeichert: %d Meldungen (%d Mull)", count_new, count_muell)
 
-    # Detail-Abruf fuer neue Mull-Meldungen (Koordinaten!)
-    if new_ids:
-        log.info("Hole Koordinaten fuer %d neue Mull-Meldungen...", len(new_ids))
-        session = requests.Session()
-        enriched = 0
-        for mid in new_ids:
-            detail = fetch_detail(session, mid)
-            if detail:
-                lat = detail.get("lat")
-                lng = detail.get("lng") or detail.get("lon")
-                strasse = detail.get("strasse", "")
-                haus = detail.get("hausNummer", "")
-                plz = detail.get("plz", "")
-                conn.execute("""
-                    UPDATE meldungen
-                    SET lat=?, lon=?, strasse=?, hausNummer=?, plz=?, enriched=1
-                    WHERE id=?
-                """, (lat, lng, strasse, haus, plz, mid))
-                enriched += 1
-            time.sleep(0.5)
-        conn.commit()
-        log.info("Koordinaten geholt fuer %d Meldungen", enriched)
-
-    # Hotspot-Berechnung
+    # ── Hotspot-Berechnung (nur Müll-Meldungen mit Koordinaten) ──────────────
     muell_rows = conn.execute("""
         SELECT id, datum, lat, lon, bezirk
         FROM meldungen
@@ -293,32 +315,39 @@ def run():
         ORDER BY datum ASC
     """).fetchall()
 
-    clusters = {}
+    clusters: dict[str, dict] = {}
     for row in muell_rows:
         cid = cluster_id(row["lat"], row["lon"])
         if cid not in clusters:
-            clusters[cid] = {"lats": [], "lons": [], "dates": [], "bezirk": row["bezirk"], "recurrence": 0}
-        clusters[cid]["lats"].append(row["lat"])
-        clusters[cid]["lons"].append(row["lon"])
-        clusters[cid]["dates"].append(row["datum"] or "")
+            clusters[cid] = {
+                "lats": [], "lons": [], "dates": [],
+                "bezirk": row["bezirk"], "recurrence": 0
+            }
+        c = clusters[cid]
+        c["lats"].append(row["lat"])
+        c["lons"].append(row["lon"])
+        c["dates"].append(row["datum"])
 
+    # Wiederkehr-Erkennung
     for cid, c in clusters.items():
-        dates_sorted = sorted(d for d in c["dates"] if d)
+        dates_sorted = sorted(c["dates"])
         for i in range(1, len(dates_sorted)):
             try:
                 d1 = datetime.fromisoformat(dates_sorted[i-1][:10])
                 d2 = datetime.fromisoformat(dates_sorted[i][:10])
-                if 0 < (d2 - d1).days <= (DISPOSAL_DAYS + 7):
+                gap = (d2 - d1).days
+                if 0 < gap <= (DISPOSAL_DAYS + 7):
                     c["recurrence"] += 1
             except Exception:
                 pass
 
+    # Hotspots in DB schreiben
     for cid, c in clusters.items():
         lat_c = sum(c["lats"]) / len(c["lats"])
         lon_c = sum(c["lons"]) / len(c["lons"])
-        dates_sorted = sorted(d for d in c["dates"] if d)
-        first = dates_sorted[0] if dates_sorted else ""
-        last = dates_sorted[-1] if dates_sorted else ""
+        dates_sorted = sorted(c["dates"])
+        first = dates_sorted[0]
+        last  = dates_sorted[-1]
         try:
             days_age = (datetime.utcnow() - datetime.fromisoformat(first[:10])).days
         except Exception:
@@ -348,7 +377,8 @@ def run():
     """, (now, len(meldungen), count_new, count_muell))
     conn.commit()
 
-    log.info("Fertig: %d neu, %d Mull, %d Hotspots", count_new, count_muell, len(clusters))
+    log.info("Fertig: %d neu, %d Müll-Meldungen, %d Hotspots berechnet",
+             count_new, count_muell, len(clusters))
     conn.close()
 
 

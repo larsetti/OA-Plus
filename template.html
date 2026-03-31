@@ -13,7 +13,7 @@
 <style>
 :root{
   --red:#be0000;--gray:#404040;--light:#f4f4f4;--border:#d0d0d0;--white:#fff;
-  --c-niedrig:#2d7d2d;--c-mittel:#b8860b;--c-hoch:#cc5500;--c-kritisch:#be0000;
+  --c-niedrig:#2d9d2d;--c-mittel:#e07b00;--c-hoch:#cc0000;--c-kritisch:#7b0000;
   --header-h:52px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
@@ -377,7 +377,7 @@ select.fs:focus{outline:2px solid var(--red)}
 <script>
 const D = __APP_DATA_PLACEHOLDER__;
 const DAYS = ['Mo','Di','Mi','Do','Fr','Sa','So'];
-const COLORS = {niedrig:'#2d7d2d',mittel:'#b8860b',hoch:'#cc5500',kritisch:'#be0000'};
+const COLORS = {niedrig:'#2d9d2d',mittel:'#e07b00',hoch:'#cc0000',kritisch:'#7b0000'};
 
 // ── Filter State ───────────────────────────────────────────────────────
 // Alle Filter sind MULTI-SELECT Arrays, leeres Array = kein Filter
@@ -452,7 +452,7 @@ function initMap(){
 function isMobile(){ return window.innerWidth <= 768; }
 
 function makeIcon(level){
-  const c=COLORS[level], r={niedrig:8,mittel:11,hoch:15,kritisch:20}[level];
+  const c=COLORS[level], r={niedrig:7,mittel:10,hoch:14,kritisch:18}[level];
   const sz=r*2+10, cx=sz/2;
   const pulse = level==='kritisch'
     ? `<circle cx="${cx}" cy="${cx}" r="${r+5}" fill="none" stroke="${c}" stroke-width="1" opacity="0.3">
@@ -763,7 +763,7 @@ function renderPrognose(tab){
   const P = D.prognose;
   if(!P) return;
   const items = P[tab] || [];
-  const COLORS = {niedrig:'#2d7d2d',mittel:'#b8860b',hoch:'#cc5500',kritisch:'#be0000'};
+  const COLORS = {niedrig:'#2d9d2d',mittel:'#e07b00',hoch:'#cc0000',kritisch:'#7b0000'};
 
   // Info-Text
   const infoMap = {
@@ -801,9 +801,16 @@ function renderPrognose(tab){
 function flyToHotspot(cid){
   const h = D.hotspots.find(x=>x.cluster_id===cid);
   if(!h) return;
-  map.flyTo([h.lat_center, h.lon_center], 15, {duration:0.8});
-  showPopup(h);
+  // Erst zur Hotspot-Tab wechseln
   switchTab('hotspots');
+  // Karte zentrieren
+  map.flyTo([h.lat_center, h.lon_center], 16, {duration:0.8});
+  // Popup nach Flug öffnen
+  setTimeout(()=>{
+    showPopup(h);
+    highlightCard(h.cluster_id);
+    if(isMobile()) setSheet('peek');
+  }, 900);
 }
 
 // ── Mobile Bottom Sheet ────────────────────────────────────────────────
