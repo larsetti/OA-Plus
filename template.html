@@ -13,7 +13,7 @@
 <style>
 :root{
   --red:#be0000;--gray:#404040;--light:#f4f4f4;--border:#d0d0d0;--white:#fff;
-  --c-niedrig:#2d9d2d;--c-mittel:#e07b00;--c-hoch:#cc0000;--c-kritisch:#7b0000;
+  --c-niedrig:#2d7d2d;--c-mittel:#b8860b;--c-hoch:#cc5500;--c-kritisch:#be0000;
   --header-h:52px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
@@ -377,7 +377,7 @@ select.fs:focus{outline:2px solid var(--red)}
 <script>
 const D = __APP_DATA_PLACEHOLDER__;
 const DAYS = ['Mo','Di','Mi','Do','Fr','Sa','So'];
-const COLORS = {niedrig:'#2d9d2d',mittel:'#e07b00',hoch:'#cc0000',kritisch:'#7b0000'};
+const COLORS = {niedrig:'#2d7d2d',mittel:'#b8860b',hoch:'#cc5500',kritisch:'#be0000'};
 
 // ── Filter State ───────────────────────────────────────────────────────
 // Alle Filter sind MULTI-SELECT Arrays, leeres Array = kein Filter
@@ -440,6 +440,8 @@ function clearFilters(){
 
 // ── Map ────────────────────────────────────────────────────────────────
 let clusterGroup = null;
+let progClusterGroup = null;
+let progMode = false;
 
 function initMap(){
   map = L.map('map',{center:[52.52,13.405],zoom:11});
@@ -452,7 +454,7 @@ function initMap(){
 function isMobile(){ return window.innerWidth <= 768; }
 
 function makeIcon(level){
-  const c=COLORS[level], r={niedrig:7,mittel:10,hoch:14,kritisch:18}[level];
+  const c=COLORS[level], r={niedrig:8,mittel:11,hoch:15,kritisch:20}[level];
   const sz=r*2+10, cx=sz/2;
   const pulse = level==='kritisch'
     ? `<circle cx="${cx}" cy="${cx}" r="${r+5}" fill="none" stroke="${c}" stroke-width="1" opacity="0.3">
@@ -748,7 +750,15 @@ function switchTab(name){
     t.classList.toggle('on',['hotspots','bezirke','prognose','info'][i]===name));
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
   document.getElementById('panel-'+name).classList.add('on');
-  if(name==='prognose') renderPrognose('heute');
+  if(name==='prognose'){
+    progMode = true;
+    renderPrognose(progTab);
+    renderMarkersProgMode();
+  } else {
+    progMode = false;
+    removeProg();
+    renderMarkers();
+  }
 }
 
 let progTab = 'heute';
@@ -757,20 +767,20 @@ function switchProgTab(tab){
   document.querySelectorAll('.prog-tab').forEach((t,i)=>
     t.classList.toggle('on',['heute','woche','monat'][i]===tab));
   renderPrognose(tab);
+  renderMarkersProgMode();
 }
 
 function renderPrognose(tab){
   const P = D.prognose;
   if(!P) return;
   const items = P[tab] || [];
-  const COLORS = {niedrig:'#2d9d2d',mittel:'#e07b00',hoch:'#cc0000',kritisch:'#7b0000'};
+  const COLORS = {niedrig:'#2d7d2d',mittel:'#b8860b',hoch:'#cc5500',kritisch:'#be0000'};
 
   // Info-Text
-  const monIdx = new Date().getMonth();
   const infoMap = {
     heute: `${P.wochentag}, ${P.datum}`,
     woche: `KW ${P.kw}`,
-    monat: MONATE[monIdx],
+    monat: P.monat_name,
   };
   document.getElementById('progInfo').textContent =
     items.length + ' Standorte mit erhöhtem Risiko · ' + infoMap[tab];
@@ -799,30 +809,125 @@ function renderPrognose(tab){
   }).join('');
 }
 
-// Deutsche Monatsnamen
-const MONATE = ['Januar','Februar','März','April','Mai','Juni',
-                'Juli','August','September','Oktober','November','Dezember'];
+// ── Prognose-Karten-Modus ─────────────────────────────────────────────
+function makeGrayIcon(level){
+  // Graustufen je nach Score-Level
+  const grays = {niedrig:'#d0d0d0', mittel:'#b0b0b0', hoch:'#888888', kritisch:'#606060'};
+  const c = grays[level] || '#c0c0c0';
+  const r = {niedrig:5, mittel:7, hoch:9, kritisch:11}[level] || 6;
+  const sz = r*2+6, cx = sz/2;
+  const svg = `<svg width="${sz}" height="${sz}" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="${cx}" cy="${cx}" r="${r}" fill="${c}" fill-opacity=".5" stroke="white" stroke-width="1" stroke-opacity=".4"/>
+  </svg>`;
+  return L.divIcon({html:svg, className:'', iconSize:[sz,sz], iconAnchor:[cx,cx]});
+}
+
+function makeProgIcon(prob, color){
+  // Prognose-Marker: leuchtend, Größe nach Wahrscheinlichkeit
+  const r = prob >= 60 ? 18 : prob >= 40 ? 14 : prob >= 25 ? 11 : 9;
+  const sz = r*2+14, cx = sz/2;
+  const pulse = `
+    <circle cx="${cx}" cy="${cx}" r="${r+4}" fill="none" stroke="${color}" stroke-width="1.5" opacity="0.4">
+      <animate attributeName="r" values="${r+2};${r+10};${r+2}" dur="2s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.5;0;0.5" dur="2s" repeatCount="indefinite"/>
+    </circle>`;
+  const svg = `<svg width="${sz}" height="${sz}" xmlns="http://www.w3.org/2000/svg">
+    ${pulse}
+    <circle cx="${cx}" cy="${cx}" r="${r}" fill="${color}" fill-opacity=".95" stroke="white" stroke-width="2"/>
+    <text x="${cx}" y="${cx+4}" text-anchor="middle" fill="white" font-size="${r>14?11:9}" font-weight="700" font-family="Arial">${prob}%</text>
+  </svg>`;
+  return L.divIcon({html:svg, className:'', iconSize:[sz,sz], iconAnchor:[cx,cx], popupAnchor:[0,-cx]});
+}
+
+function removeProg(){
+  if(progClusterGroup){ map.removeLayer(progClusterGroup); progClusterGroup = null; }
+}
+
+function renderMarkersProgMode(){
+  // Normale Marker als Grau-Version
+  if(clusterGroup) map.removeLayer(clusterGroup);
+  markers = [];
+  clusterGroup = L.markerClusterGroup({
+    maxClusterRadius: 60,
+    showCoverageOnHover: false,
+    iconCreateFunction: function(cluster){
+      const count = cluster.getChildCount();
+      const size = count > 50 ? 32 : 24;
+      return L.divIcon({
+        html:`<div style="width:${size}px;height:${size}px;border-radius:50%;
+          background:#aaa;color:white;display:flex;align-items:center;
+          justify-content:center;font-weight:700;font-size:10px;
+          border:1px solid #ccc;opacity:0.5">${count}</div>`,
+        className:'', iconSize:[size,size], iconAnchor:[size/2,size/2]
+      });
+    }
+  });
+  D.hotspots.filter(h=>h.meldungen_count>=3).forEach(h=>{
+    const m = L.marker([h.lat_center, h.lon_center], {icon:makeGrayIcon(h.score_label)});
+    m._cid = h.cluster_id;
+    clusterGroup.addLayer(m);
+  });
+  map.addLayer(clusterGroup);
+
+  // Prognose-Marker leuchtend oben drauf
+  removeProg();
+  const P = D.prognose;
+  if(!P) return;
+  const items = P[progTab] || [];
+
+  progClusterGroup = L.markerClusterGroup({
+    maxClusterRadius: 40,
+    showCoverageOnHover: false,
+    disableClusteringAtZoom: 14,
+    iconCreateFunction: function(cluster){
+      const children = cluster.getAllChildMarkers();
+      const avgProb = Math.round(children.reduce((s,m)=>s+(m._prob||0),0)/children.length);
+      const size = 40;
+      return L.divIcon({
+        html:`<div style="width:${size}px;height:${size}px;border-radius:50%;
+          background:#be0000;color:white;display:flex;align-items:center;
+          justify-content:center;font-weight:700;font-size:11px;
+          border:2px solid white;box-shadow:0 0 8px rgba(190,0,0,0.6)">${avgProb}%</div>`,
+        className:'', iconSize:[size,size], iconAnchor:[size/2,size/2]
+      });
+    }
+  });
+
+  // Farbe nach Wahrscheinlichkeit
+  const progColors = {hoch:'#be0000', mittel:'#e07b00', niedrig:'#2d9d2d', kritisch:'#7b0000'};
+
+  items.forEach(p=>{
+    const color = p.prob >= 50 ? '#be0000' : p.prob >= 35 ? '#e07b00' : '#2d9d2d';
+    const m = L.marker([p.lat_center, p.lon_center], {
+      icon: makeProgIcon(p.prob, color),
+      zIndexOffset: 1000
+    });
+    m._prob = p.prob;
+    m._cid = p.cluster_id;
+    m.on('click', ()=>{
+      // Popup mit Prognose-Info
+      const fullH = D.hotspots.find(x=>x.cluster_id===p.cluster_id);
+      if(fullH) showPopup(fullH);
+    });
+    progClusterGroup.addLayer(m);
+  });
+  map.addLayer(progClusterGroup);
+}
 
 function flyToHotspot(cid){
-  // Suche in hotspots UND in prognose-Daten
-  let h = D.hotspots.find(x=>x.cluster_id===cid);
-  if(!h){
-    // Fallback: aus Prognose-Daten Koordinaten holen
-    const p = [...(D.prognose.heute||[]),...(D.prognose.woche||[]),...(D.prognose.monat||[])]
-      .find(x=>x.cluster_id===cid);
-    if(p){ h = p; }
-  }
-  if(!h) return;
-  // Karte zentrieren
-  map.flyTo([h.lat_center, h.lon_center], 16, {duration:0.8});
-  // Hotspot-Tab öffnen und Popup nach Flug zeigen
-  switchTab('hotspots');
+  // Finde Koordinaten aus Prognose-Daten
+  const P = D.prognose;
+  const items = [...(P.heute||[]),...(P.woche||[]),...(P.monat||[])];
+  const p = items.find(x=>x.cluster_id===cid);
+  if(!p) return;
+
+  // Zur Position fliegen — Tab bleibt auf Prognose!
+  map.flyTo([p.lat_center, p.lon_center], 16, {duration:0.8});
+
+  // Nach Flug Popup öffnen
   setTimeout(()=>{
     const fullH = D.hotspots.find(x=>x.cluster_id===cid);
-    if(fullH){
-      showPopup(fullH);
-      highlightCard(fullH.cluster_id);
-    }
+    if(fullH) showPopup(fullH);
     if(isMobile()) setSheet('peek');
   }, 900);
 }
