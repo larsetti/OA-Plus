@@ -352,6 +352,8 @@ let markers = [], map, openCard = null;
 // ── Filter Logik ───────────────────────────────────────────────────────
 function filteredHotspots(){
   let hs = D.hotspots.slice();
+  // Nur echte Hotspots anzeigen (mind. 3 Meldungen)
+  hs = hs.filter(h => h.meldungen_count >= 3);
   if(F.bezirk) hs = hs.filter(h => h.bezirk === F.bezirk);
   if(F.levels.length) hs = hs.filter(h => F.levels.includes(h.score_label));
   if(F.kats.length) hs = hs.filter(h => (h.kategorie_mix||[]).some(k => F.kats.includes(k.key)));
@@ -470,7 +472,7 @@ function renderMarkers(){
     m.on('click', ()=>{
       showPopup(h);
       highlightCard(h.cluster_id);
-      if(isMobile()) setSheet('mid');
+      // Sheet bei Marker-Klick NICHT hochziehen — Nutzer soll Karte sehen
     });
     markers.push(m);
     clusterGroup.addLayer(m);
@@ -571,8 +573,8 @@ function toggleCard(cid){
   map.flyTo([h.lat_center, h.lon_center], 14, {duration:0.8});
   showPopup(h);
 
-  // Mobile: Sheet auf mid
-  if(isMobile()) setSheet('mid');
+  // Mobile: Sheet auf peek damit Karte sichtbar bleibt
+  if(isMobile()) setSheet('peek');
 }
 
 // ── Render Header Stats ────────────────────────────────────────────────
