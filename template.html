@@ -531,19 +531,6 @@ function setSetting(key, val){
   applySettings();
 }
 
-function setMinMeldungen(val){
-  SETTINGS.minMeldungen = val;
-  const slider = document.getElementById('minMeldungen');
-  const label = document.getElementById('minMeldungenVal');
-  if(slider) { slider.value = val; }
-  if(label) { label.textContent = val; }
-  if(progMode) renderMarkersProgMode();
-  else renderMarkers();
-  renderHList();
-  renderBList();
-  renderStats();
-}
-
 function applySettings(){
   SETTINGS.scoreMode = document.querySelector('input[name="scoreMode"]:checked')?.value || 'bezirk';
   SETTINGS.minMeldungen = parseInt(document.getElementById('minMeldungen').value);
