@@ -1223,8 +1223,14 @@ shHandle.addEventListener('click',()=>{
 // ── Init ───────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded',()=>{
   // Bezirk Dropdown
+  // Alle 12 Berliner Bezirke immer anzeigen
+  const ALLE_BEZIRKE = [
+    'Charlottenburg-Wilmersdorf','Friedrichshain-Kreuzberg','Lichtenberg',
+    'Marzahn-Hellersdorf','Mitte','Neukölln','Pankow','Reinickendorf',
+    'Spandau','Steglitz-Zehlendorf','Tempelhof-Schöneberg','Treptow-Köpenick'
+  ];
   const sel=document.getElementById('fBezirk');
-  (D.bezirke||[]).forEach(b=>{
+  ALLE_BEZIRKE.forEach(b=>{
     const o=document.createElement('option');o.value=b;o.textContent=b;sel.appendChild(o);
   });
 
