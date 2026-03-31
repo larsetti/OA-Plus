@@ -793,8 +793,10 @@ function renderHList(){
 
 // ── Render Bezirk List ─────────────────────────────────────────────────
 function renderBList(){
-  const maxScore = Math.max(...D.bezirk_stats.map(b=>b.max_score||0),1);
-  document.getElementById('bList').innerHTML = D.bezirk_stats.map(b=>{
+  let stats = D.bezirk_stats;
+  if(F.bezirk) stats = stats.filter(b=>b.bezirk===F.bezirk);
+  const maxScore = Math.max(...stats.map(b=>b.max_score||0),1);
+  document.getElementById('bList').innerHTML = stats.map(b=>{
     const pct = ((b.max_score/maxScore)*100).toFixed(0);
     let col='#2d7d2d';
     if(b.max_score>=13) col='#be0000';
@@ -845,7 +847,7 @@ function switchProgTab(tab){
 function renderPrognose(tab){
   const P = D.prognose;
   if(!P) return;
-  const items = P[tab] || [];
+  const items = (P[tab] || []).filter(p => p.meldungen_count >= 8);
   const COLORS = {niedrig:'#2d7d2d',mittel:'#b8860b',hoch:'#cc5500',kritisch:'#be0000'};
 
   // Info-Text
@@ -942,7 +944,7 @@ function renderMarkersProgMode(){
   removeProg();
   const P = D.prognose;
   if(!P) return;
-  const items = P[progTab] || [];
+  const items = (P[progTab] || []).filter(p => p.meldungen_count >= 8);
 
   progClusterGroup = L.markerClusterGroup({
     maxClusterRadius: 40,
