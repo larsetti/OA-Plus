@@ -562,16 +562,17 @@ const COLORS = {niedrig:'#2d7d2d',mittel:'#b8860b',hoch:'#cc5500',kritisch:'#be0
 
 // ── Filter State ───────────────────────────────────────────────────────
 // Alle Filter sind MULTI-SELECT Arrays, leeres Array = kein Filter
-let F = { bezirk:'', levels:[], kats:[], sort:'score_desc' };
+let F = { bezirk:'', plz:'', levels:[], kats:[], sort:'score_desc' };
 let markers = [], map, openCard = null;
 
 // ── Filter Logik ───────────────────────────────────────────────────────
 function filteredHotspots(){
   let hs = D.hotspots.slice();
-  // Nur echte Hotspots anzeigen (mind. 3 Meldungen)
-  hs = hs.filter(h => h.meldungen_count >= 3);
+  const minM = (typeof SETTINGS !== 'undefined') ? SETTINGS.minMeldungen : 3;
+  hs = hs.filter(h => h.meldungen_count >= minM);
   if(F.bezirk) hs = hs.filter(h => h.bezirk === F.bezirk);
-  if(F.levels.length) hs = hs.filter(h => F.levels.includes(h.score_label));
+  if(F.plz) hs = hs.filter(h => (h.plz||'').startsWith(F.plz));
+  if(F.levels.length) hs = hs.filter(h => F.levels.includes(getLabel ? getLabel(h) : h.score_label));
   if(F.kats.length) hs = hs.filter(h => (h.kategorie_mix||[]).some(k => F.kats.includes(k.key)));
   hs.sort((a,b)=>{
     if(F.sort==='score_desc') return b.score-a.score;
@@ -585,8 +586,15 @@ function filteredHotspots(){
 
 function applyFilters(){
   F.bezirk = document.getElementById('fBezirk').value;
-  renderMarkers();
+  F.plz = (document.getElementById('fPlz') || {value:''}).value;
+  if(progMode){
+    renderMarkersProgMode();
+    renderPrognose(progTab);
+  } else {
+    renderMarkers();
+  }
   renderHList();
+  renderBList();
 }
 
 function toggleChip(el){
@@ -610,7 +618,7 @@ function setSort(el){
 }
 
 function clearFilters(){
-  F = { bezirk:'', levels:[], kats:[], sort:'score_desc' };
+  F = { bezirk:'', plz:'', levels:[], kats:[], sort:'score_desc' };
   document.getElementById('fBezirk').value = '';
   document.querySelectorAll('.chip[data-t="lvl"], .chip[data-t="kat"]').forEach(c=>c.classList.remove('on'));
   document.querySelectorAll('.chip[data-t="srt"]').forEach(c=>c.classList.remove('on'));
@@ -978,18 +986,38 @@ function renderPrognose(tab){
     return;
   }
 
-  document.getElementById('progList').innerHTML = items.map(p => {
-    const c = COLORS[p.score_label] || '#888';
-    return `<div class="pcard" data-l="${p.score_label}"
-      onclick="flyToHotspot('${p.cluster_id}')">
+  // Bezirk/PLZ Filter auf Liste anwenden
+  const filteredItems = items.filter(p => {
+    if(F.bezirk && p.bezirk !== F.bezirk) return false;
+    if(F.plz && !(p.plz||'').startsWith(F.plz)) return false;
+    return true;
+  });
+
+  document.getElementById('progInfo').textContent =
+    filteredItems.length + ' Standorte mit erhöhtem Risiko · ' + infoMap[tab];
+
+  if(filteredItems.length === 0){
+    document.getElementById('progList').innerHTML =
+      '<div style="padding:20px;text-align:center;color:#aaa;font-size:12px">Keine Prognose-Daten für diesen Filter verfügbar</div>';
+    return;
+  }
+
+  document.getElementById('progList').innerHTML = filteredItems.map(p => {
+    const dynLbl = (typeof getLabel !== 'undefined')
+      ? getLabel(D.hotspots.find(h=>h.cluster_id===p.cluster_id)||{score:p.prob,bezirk:p.bezirk,score_label:p.score_label})
+      : p.score_label;
+    const c = COLORS[dynLbl] || '#888';
+    return `<div class="pcard" data-l="${dynLbl}"
+      onclick="flyToHotspot('${p.cluster_id}')" style="cursor:pointer">
       <div class="pc-top">
         <div style="flex:1;min-width:0">
           <div class="pc-bez">${p.bezirk}</div>
-          ${p.strasse ? `<div class="pc-addr">📍 ${p.strasse}</div>` : ''}
+          ${p.strasse ? `<div class="pc-addr">📍 ${p.strasse}${p.plz?' · '+p.plz:''}</div>` : ''}
           <div class="pc-grund">${p.grund}</div>
           ${p.top_kat_label ? `<span class="pc-kat" style="background:${p.top_kat_color}">${p.top_kat_label}</span>` : ''}
+          <div style="font-size:10px;color:#aaa;margin-top:2px">📊 ${p.meldungen_count} Meldungen · Klicken für Details</div>
         </div>
-        <div class="prob-badge">${p.prob}%</div>
+        <div class="prob-badge" style="font-size:14px">${p.prob}%</div>
       </div>
       <div class="prob-bar"><div class="prob-fill" style="width:${p.prob}%;background:${c}"></div></div>
     </div>`;
@@ -1083,8 +1111,15 @@ function renderMarkersProgMode(){
   // Farbe nach Wahrscheinlichkeit
   const progColors = {hoch:'#be0000', mittel:'#e07b00', niedrig:'#2d9d2d', kritisch:'#7b0000'};
 
-  items.forEach(p=>{
-    const color = p.prob >= 50 ? '#be0000' : p.prob >= 35 ? '#e07b00' : '#2d9d2d';
+  // Bezirk/PLZ Filter auf Karten-Marker anwenden
+  const mapItems = items.filter(p=>{
+    if(F.bezirk && p.bezirk !== F.bezirk) return false;
+    if(F.plz && !(p.plz||'').startsWith(F.plz)) return false;
+    return true;
+  });
+
+  mapItems.forEach(p=>{
+    const color = p.prob >= 50 ? '#be0000' : p.prob >= 35 ? '#e07b00' : '#1a7a1a';
     const m = L.marker([p.lat_center, p.lon_center], {
       icon: makeProgIcon(p.prob, color),
       zIndexOffset: 1000
@@ -1092,9 +1127,7 @@ function renderMarkersProgMode(){
     m._prob = p.prob;
     m._cid = p.cluster_id;
     m.on('click', ()=>{
-      // Popup mit Prognose-Info
-      const fullH = D.hotspots.find(x=>x.cluster_id===p.cluster_id);
-      if(fullH) showPopup(fullH);
+      flyToHotspot(p.cluster_id);
     });
     progClusterGroup.addLayer(m);
   });
@@ -1102,19 +1135,38 @@ function renderMarkersProgMode(){
 }
 
 function flyToHotspot(cid){
-  // Finde Koordinaten aus Prognose-Daten
   const P = D.prognose;
-  const items = [...(P.heute||[]),...(P.woche||[]),...(P.monat||[])];
-  const p = items.find(x=>x.cluster_id===cid);
-  if(!p) return;
+  const allItems = [...(P.heute||[]),...(P.woche||[]),...(P.monat||[])];
+  const p = allItems.find(x=>x.cluster_id===cid);
+  const fullH = D.hotspots.find(x=>x.cluster_id===cid);
+  if(!p && !fullH) return;
 
-  // Zur Position fliegen — Tab bleibt auf Prognose!
-  map.flyTo([p.lat_center, p.lon_center], 16, {duration:0.8});
+  const lat = p ? p.lat_center : fullH.lat_center;
+  const lon = p ? p.lon_center : fullH.lon_center;
 
-  // Nach Flug Popup öffnen
+  // Karte zentrieren — Tab bleibt auf Prognose
+  map.flyTo([lat, lon], 16, {duration:0.8});
+
+  // Popup nach Flug öffnen
   setTimeout(()=>{
-    const fullH = D.hotspots.find(x=>x.cluster_id===cid);
-    if(fullH) showPopup(fullH);
+    if(fullH){
+      showPopup(fullH);
+    } else if(p) {
+      // Prognose-Popup wenn kein voller Hotspot gefunden
+      L.popup({maxWidth:300})
+        .setLatLng([lat, lon])
+        .setContent(`<div class="pop-hd" style="background:#e07b00">
+          <div class="pop-ti">${p.bezirk} · Prognose</div>
+          <div class="pop-su">${p.prob}% Wahrscheinlichkeit</div>
+        </div>
+        <div class="pop-bd">
+          ${p.strasse ? `<div class="pop-addr">📍 ${p.strasse}</div>` : ''}
+          <div style="font-size:12px;margin-bottom:6px">${p.grund}</div>
+          ${p.top_kat_label ? `<span style="background:${p.top_kat_color};color:white;padding:2px 8px;border-radius:8px;font-size:11px">${p.top_kat_label}</span>` : ''}
+          <div style="margin-top:8px;font-size:11px;color:#999">📊 ${p.meldungen_count} historische Meldungen</div>
+        </div>`)
+        .openOn(map);
+    }
     if(isMobile()) setSheet('peek');
   }, 900);
 }
