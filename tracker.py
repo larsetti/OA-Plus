@@ -245,12 +245,12 @@ def compute_score(count: int, recurrence: int, days_since_first: int) -> tuple[f
     time_factor = max(0.5, 1 - (days_since_first / 365) * 0.3)
     score = round(base * time_factor, 2)
 
-    # Schwellen: ~3 Meldungen=niedrig, ~5=mittel, ~10=hoch, ~20+=kritisch
-    if score < 5:
+    # Schwellen basierend auf echter Score-Verteilung (Top 10% = kritisch)
+    if score < 10:
         label = "niedrig"
-    elif score < 10:
+    elif score < 28:
         label = "mittel"
-    elif score < 20:
+    elif score < 63:
         label = "hoch"
     else:
         label = "kritisch"

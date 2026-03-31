@@ -766,10 +766,11 @@ function renderPrognose(tab){
   const COLORS = {niedrig:'#2d9d2d',mittel:'#e07b00',hoch:'#cc0000',kritisch:'#7b0000'};
 
   // Info-Text
+  const monIdx = new Date().getMonth();
   const infoMap = {
     heute: `${P.wochentag}, ${P.datum}`,
     woche: `KW ${P.kw}`,
-    monat: P.monat_name,
+    monat: MONATE[monIdx],
   };
   document.getElementById('progInfo').textContent =
     items.length + ' Standorte mit erhöhtem Risiko · ' + infoMap[tab];
@@ -798,17 +799,30 @@ function renderPrognose(tab){
   }).join('');
 }
 
+// Deutsche Monatsnamen
+const MONATE = ['Januar','Februar','März','April','Mai','Juni',
+                'Juli','August','September','Oktober','November','Dezember'];
+
 function flyToHotspot(cid){
-  const h = D.hotspots.find(x=>x.cluster_id===cid);
+  // Suche in hotspots UND in prognose-Daten
+  let h = D.hotspots.find(x=>x.cluster_id===cid);
+  if(!h){
+    // Fallback: aus Prognose-Daten Koordinaten holen
+    const p = [...(D.prognose.heute||[]),...(D.prognose.woche||[]),...(D.prognose.monat||[])]
+      .find(x=>x.cluster_id===cid);
+    if(p){ h = p; }
+  }
   if(!h) return;
-  // Erst zur Hotspot-Tab wechseln
-  switchTab('hotspots');
   // Karte zentrieren
   map.flyTo([h.lat_center, h.lon_center], 16, {duration:0.8});
-  // Popup nach Flug öffnen
+  // Hotspot-Tab öffnen und Popup nach Flug zeigen
+  switchTab('hotspots');
   setTimeout(()=>{
-    showPopup(h);
-    highlightCard(h.cluster_id);
+    const fullH = D.hotspots.find(x=>x.cluster_id===cid);
+    if(fullH){
+      showPopup(fullH);
+      highlightCard(fullH.cluster_id);
+    }
     if(isMobile()) setSheet('peek');
   }, 900);
 }

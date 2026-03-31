@@ -207,7 +207,7 @@ def load_data():
             prognose_heute.append({**base, 'prob': wd_prob, 'grund': f"Wochentag-Muster: {wd_prob}% aller Meldungen an {WEEKDAYS_SHORT[today_wd]}"})
 
         if month_prob >= 15:
-            prognose_monat.append({**base, 'prob': month_prob, 'grund': f"Monats-Muster: {month_prob}% aller Meldungen im {today.strftime('%B')}"})
+            prognose_monat.append({**base, 'prob': month_prob, 'grund': f"Monats-Muster: {month_prob}% aller Meldungen im {MONAT_NAMEN[today_month-1]}"})
 
         if kw_prob >= 15:
             prognose_woche.append({**base, 'prob': kw_prob, 'grund': f"KW-Muster: Erhöhte Aktivität in KW {today_kw}"})
@@ -217,6 +217,9 @@ def load_data():
     prognose_woche.sort(key=lambda x: (-x['prob'], -x['meldungen_count']))
     prognose_monat.sort(key=lambda x: (-x['prob'], -x['meldungen_count']))
 
+    MONAT_NAMEN = ['Januar','Februar','März','April','Mai','Juni',
+                    'Juli','August','September','Oktober','November','Dezember']
+
     prognose = {
         'heute': prognose_heute[:50],
         'woche': prognose_woche[:50],
@@ -224,7 +227,7 @@ def load_data():
         'datum': today.strftime('%d.%m.%Y'),
         'wochentag': WEEKDAYS_SHORT[today_wd],
         'kw': today_kw,
-        'monat_name': today.strftime('%B'),
+        'monat_name': MONAT_NAMEN[today_month - 1],
     }
 
     return {
