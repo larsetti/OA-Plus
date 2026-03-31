@@ -531,6 +531,19 @@ function setSetting(key, val){
   applySettings();
 }
 
+function setMinMeldungen(val){
+  SETTINGS.minMeldungen = val;
+  const slider = document.getElementById('minMeldungen');
+  const label = document.getElementById('minMeldungenVal');
+  if(slider) { slider.value = val; }
+  if(label) { label.textContent = val; }
+  if(progMode) renderMarkersProgMode();
+  else renderMarkers();
+  renderHList();
+  renderBList();
+  renderStats();
+}
+
 function applySettings(){
   SETTINGS.scoreMode = document.querySelector('input[name="scoreMode"]:checked')?.value || 'bezirk';
   SETTINGS.minMeldungen = parseInt(document.getElementById('minMeldungen').value);
@@ -835,32 +848,6 @@ function renderHList(){
   const hs = filteredHotspots();
   document.getElementById('rCount').textContent =
     `${hs.length} Standort${hs.length!==1?'e':''} gefunden`;
-
-  // Hinweis wenn Bezirk gewählt aber keine Daten
-  if(hs.length === 0 && F.bezirk){
-    const allInBezirk = D.hotspots.filter(h=>h.bezirk===F.bezirk);
-    const msg = allInBezirk.length === 0
-      ? `<div style="padding:20px;text-align:center;color:#888;font-size:13px;line-height:1.6">
-          <div style="font-size:24px;margin-bottom:8px">📭</div>
-          <strong>${F.bezirk}</strong><br>
-          Keine Hotspots mit mind. ${SETTINGS.minMeldungen} Meldungen gefunden.<br><br>
-          <button onclick="document.getElementById('minMeldungen').value=1;document.getElementById('minMeldungenVal').textContent='1';applySettings()"
-            style="background:#be0000;color:white;border:none;padding:6px 16px;border-radius:3px;cursor:pointer;font-size:12px;font-family:inherit">
-            Alle Einzelmeldungen anzeigen
-          </button>
-        </div>`
-      : `<div style="padding:20px;text-align:center;color:#888;font-size:13px;line-height:1.6">
-          <div style="font-size:24px;margin-bottom:8px">🔍</div>
-          <strong>${F.bezirk}</strong><br>
-          ${allInBezirk.length} Standort${allInBezirk.length!==1?'e':''} vorhanden, aber unter dem Mindest-Filter (${SETTINGS.minMeldungen} Meldungen).<br><br>
-          <button onclick="document.getElementById('minMeldungen').value=1;document.getElementById('minMeldungenVal').textContent='1';applySettings()"
-            style="background:#be0000;color:white;border:none;padding:6px 16px;border-radius:3px;cursor:pointer;font-size:12px;font-family:inherit">
-            Alle ${allInBezirk.length} Standorte anzeigen
-          </button>
-        </div>`;
-    document.getElementById('hList').innerHTML = msg;
-    return;
-  }
 
   const maxScore = Math.max(...D.hotspots.map(h=>h.score),1);
 
