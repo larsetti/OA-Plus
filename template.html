@@ -1134,6 +1134,14 @@ function renderMarkersProgMode(){
   map.addLayer(progClusterGroup);
 }
 
+function showPopupAtCoords(lat, lon, html){
+  // Öffnet Popup direkt an Koordinaten — funktioniert auch im Cluster-Modus
+  L.popup({maxWidth:300, className:''})
+    .setLatLng([lat, lon])
+    .setContent(html)
+    .openOn(map);
+}
+
 function flyToHotspot(cid){
   const P = D.prognose;
   const allItems = [...(P.heute||[]),...(P.woche||[]),...(P.monat||[])];
@@ -1144,18 +1152,15 @@ function flyToHotspot(cid){
   const lat = p ? p.lat_center : fullH.lat_center;
   const lon = p ? p.lon_center : fullH.lon_center;
 
-  // Karte zentrieren — Tab bleibt auf Prognose
   map.flyTo([lat, lon], 16, {duration:0.8});
 
-  // Popup nach Flug öffnen
   setTimeout(()=>{
     if(fullH){
-      showPopup(fullH);
-    } else if(p) {
-      // Prognose-Popup wenn kein voller Hotspot gefunden
-      L.popup({maxWidth:300})
-        .setLatLng([lat, lon])
-        .setContent(`<div class="pop-hd" style="background:#e07b00">
+      // Voller Hotspot-Popup direkt an Koordinaten
+      showPopupAtCoords(lat, lon, makePopupHTML(fullH));
+    } else if(p){
+      // Prognose-Popup
+      const html = `<div class="pop-hd" style="background:#e07b00">
           <div class="pop-ti">${p.bezirk} · Prognose</div>
           <div class="pop-su">${p.prob}% Wahrscheinlichkeit</div>
         </div>
@@ -1164,8 +1169,8 @@ function flyToHotspot(cid){
           <div style="font-size:12px;margin-bottom:6px">${p.grund}</div>
           ${p.top_kat_label ? `<span style="background:${p.top_kat_color};color:white;padding:2px 8px;border-radius:8px;font-size:11px">${p.top_kat_label}</span>` : ''}
           <div style="margin-top:8px;font-size:11px;color:#999">📊 ${p.meldungen_count} historische Meldungen</div>
-        </div>`)
-        .openOn(map);
+        </div>`;
+      showPopupAtCoords(lat, lon, html);
     }
     if(isMobile()) setSheet('peek');
   }, 900);
@@ -1223,14 +1228,8 @@ shHandle.addEventListener('click',()=>{
 // ── Init ───────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded',()=>{
   // Bezirk Dropdown
-  // Alle 12 Berliner Bezirke immer anzeigen
-  const ALLE_BEZIRKE = [
-    'Charlottenburg-Wilmersdorf','Friedrichshain-Kreuzberg','Lichtenberg',
-    'Marzahn-Hellersdorf','Mitte','Neukölln','Pankow','Reinickendorf',
-    'Spandau','Steglitz-Zehlendorf','Tempelhof-Schöneberg','Treptow-Köpenick'
-  ];
   const sel=document.getElementById('fBezirk');
-  ALLE_BEZIRKE.forEach(b=>{
+  (D.bezirke||[]).forEach(b=>{
     const o=document.createElement('option');o.value=b;o.textContent=b;sel.appendChild(o);
   });
 
