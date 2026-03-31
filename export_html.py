@@ -74,7 +74,7 @@ def load_data():
         })
 
     hotspots = [dict(r) for r in conn.execute(
-        "SELECT * FROM hotspots WHERE meldungen_count >= 3 ORDER BY score DESC"
+        "SELECT * FROM hotspots ORDER BY score DESC"
     ).fetchall()]
 
     for h in hotspots:
@@ -182,7 +182,7 @@ def load_data():
                SUM(recurrence_count) as total_recurrence, ROUND(MAX(score),1) as max_score,
                SUM(CASE WHEN score_label='kritisch' THEN 1 ELSE 0 END) as krit,
                SUM(CASE WHEN score_label='hoch' THEN 1 ELSE 0 END) as hoch
-        FROM hotspots WHERE meldungen_count >= 3
+        FROM hotspots
         GROUP BY bezirk ORDER BY max_score DESC
     """).fetchall()]
     conn.close()
