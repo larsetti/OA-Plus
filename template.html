@@ -253,6 +253,12 @@ select.fs:focus{outline:2px solid var(--red)}
 .prob-bar{height:4px;background:#eee;border-radius:2px;margin-top:5px}
 .prob-fill{height:100%;border-radius:2px;background:var(--red)}
 .prob-badge{font-size:11px;font-weight:700;color:var(--red);white-space:nowrap}
+
+/* SETTINGS */
+.set-btn{padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600;
+  cursor:pointer;border:1.5px solid #ddd;background:white;color:#666;
+  font-family:inherit;transition:all .12s}
+.set-btn.on{background:#be0000;color:white;border-color:#be0000}
 </style>
 </head>
 <body>
@@ -270,6 +276,93 @@ select.fs:focus{outline:2px solid var(--red)}
     <div class="hdr-title">Müll-Hotspot Monitor · Berlin</div>
   </div>
   <div class="hdr-stats" id="hStats"></div>
+  <button id="settingsBtn" onclick="toggleSettings()" style="
+    background:rgba(255,255,255,.15);border:none;color:white;cursor:pointer;
+    padding:4px 10px;border-radius:3px;font-size:13px;margin-left:8px;
+    font-family:inherit;font-weight:600">⚙️</button>
+</div>
+
+<!-- EINSTELLUNGS-PANEL -->
+<div id="settingsPanel" style="display:none;position:absolute;top:52px;right:0;
+  width:320px;background:white;border:1px solid #ddd;border-top:none;
+  box-shadow:0 4px 16px rgba(0,0,0,.15);z-index:500;padding:14px 16px;
+  font-size:13px;max-height:80vh;overflow-y:auto">
+  <div style="font-weight:700;font-size:12px;text-transform:uppercase;
+    letter-spacing:.5px;color:#be0000;margin-bottom:10px">Einstellungen</div>
+
+  <!-- Score-Modus -->
+  <div style="margin-bottom:12px">
+    <div style="font-weight:600;margin-bottom:5px">📊 Bewertungs-Modus</div>
+    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:4px">
+      <input type="radio" name="scoreMode" value="bezirk" checked onchange="applySettings()">
+      <span>Bezirksrelativ <span style="color:#aaa;font-size:11px">(Standard — Top 10% im Bezirk = kritisch)</span></span>
+    </label>
+    <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+      <input type="radio" name="scoreMode" value="stadt" onchange="applySettings()">
+      <span>Stadtweit <span style="color:#aaa;font-size:11px">(Einheitliche Schwellen für ganz Berlin)</span></span>
+    </label>
+  </div>
+
+  <!-- Min. Meldungen -->
+  <div style="margin-bottom:12px">
+    <div style="font-weight:600;margin-bottom:5px">🔢 Mindest-Meldungen anzeigen</div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <input type="range" id="minMeldungen" min="1" max="20" value="3"
+        oninput="document.getElementById('minMeldungenVal').textContent=this.value;applySettings()"
+        style="flex:1">
+      <span id="minMeldungenVal" style="font-weight:700;min-width:20px">3</span>
+    </div>
+  </div>
+
+  <!-- Cluster-Radius -->
+  <div style="margin-bottom:12px">
+    <div style="font-weight:600;margin-bottom:5px">🗺️ Cluster-Radius</div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <input type="range" id="clusterRadius" min="20" max="120" value="50"
+        oninput="document.getElementById('clusterRadiusVal').textContent=this.value+'px';applySettings()"
+        style="flex:1">
+      <span id="clusterRadiusVal" style="font-weight:700;min-width:40px">50px</span>
+    </div>
+  </div>
+
+  <!-- Marker-Größe -->
+  <div style="margin-bottom:12px">
+    <div style="font-weight:600;margin-bottom:5px">⭕ Marker-Größe</div>
+    <div style="display:flex;gap:6px">
+      <button onclick="setSetting('markerSize','klein')" class="set-btn" data-s="markerSize" data-v="klein">Klein</button>
+      <button onclick="setSetting('markerSize','normal')" class="set-btn on" data-s="markerSize" data-v="normal">Normal</button>
+      <button onclick="setSetting('markerSize','groß')" class="set-btn" data-s="markerSize" data-v="groß">Groß</button>
+    </div>
+  </div>
+
+  <!-- Prognose Min Meldungen -->
+  <div style="margin-bottom:12px">
+    <div style="font-weight:600;margin-bottom:5px">📅 Prognose — Mindest-Meldungen</div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <input type="range" id="progMinMeldungen" min="3" max="30" value="8"
+        oninput="document.getElementById('progMinVal').textContent=this.value;applySettings()"
+        style="flex:1">
+      <span id="progMinVal" style="font-weight:700;min-width:20px">8</span>
+    </div>
+  </div>
+
+  <!-- Nur aktive Standorte -->
+  <div style="margin-bottom:12px">
+    <div style="font-weight:600;margin-bottom:5px">📍 Standort-Filter</div>
+    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:4px">
+      <input type="checkbox" id="onlyRecurring" onchange="applySettings()">
+      <span>Nur Wiederkehr-Standorte <span style="color:#aaa;font-size:11px">(recurrence > 0)</span></span>
+    </label>
+    <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+      <input type="checkbox" id="onlyRecent" onchange="applySettings()">
+      <span>Nur aktuelle Meldungen <span style="color:#aaa;font-size:11px">(letzte 365 Tage)</span></span>
+    </label>
+  </div>
+
+  <button onclick="resetSettings()" style="width:100%;padding:6px;background:#f5f5f5;
+    border:1px solid #ddd;border-radius:3px;cursor:pointer;font-family:inherit;font-size:12px">
+    Einstellungen zurücksetzen
+  </button>
 </div>
 
 <div class="main">
@@ -284,14 +377,6 @@ select.fs:focus{outline:2px solid var(--red)}
         <div class="fr-right">
           <select class="fs" id="fBezirk" onchange="applyFilters()">
             <option value="">Alle Bezirke</option>
-          </select>
-        </div>
-      </div>
-      <div class="fr">
-        <span class="fl">PLZ</span>
-        <div class="fr-right">
-          <select class="fs" id="fPlz" onchange="applyFilters()">
-            <option value="">Alle PLZ</option>
           </select>
         </div>
       </div>
@@ -384,12 +469,100 @@ select.fs:focus{outline:2px solid var(--red)}
 
 <script>
 const D = __APP_DATA_PLACEHOLDER__;
+
+// Bezirksrelativer Score — Schwellen pro Bezirk berechnen
+const BEZIRK_THRESHOLDS = {};
+(function(){
+  const byBezirk = {};
+  D.hotspots.forEach(h=>{
+    if(!byBezirk[h.bezirk]) byBezirk[h.bezirk]=[];
+    byBezirk[h.bezirk].push(h.score);
+  });
+  Object.entries(byBezirk).forEach(([b, scores])=>{
+    scores.sort((a,b)=>a-b);
+    const n = scores.length;
+    BEZIRK_THRESHOLDS[b] = {
+      mittel: scores[Math.floor(n*0.50)] || 5,
+      hoch:   scores[Math.floor(n*0.75)] || 15,
+      kritisch: scores[Math.min(Math.floor(n*0.90), n-1)] || 30,
+    };
+  });
+})();
+
+// Settings State
+let SETTINGS = {
+  scoreMode: 'bezirk',      // 'bezirk' | 'stadt'
+  minMeldungen: 3,
+  clusterRadius: 50,
+  markerSize: 'normal',
+  progMinMeldungen: 8,
+  onlyRecurring: false,
+  onlyRecent: false,
+};
+
+// Stadtweite Schwellen
+const STADT_THRESHOLDS = { mittel:5, hoch:15, kritisch:63 };
+
+function getLabel(h){
+  if(SETTINGS.scoreMode === 'bezirk'){
+    const t = BEZIRK_THRESHOLDS[h.bezirk] || STADT_THRESHOLDS;
+    if(h.score >= t.kritisch) return 'kritisch';
+    if(h.score >= t.hoch)     return 'hoch';
+    if(h.score >= t.mittel)   return 'mittel';
+    return 'niedrig';
+  } else {
+    const t = STADT_THRESHOLDS;
+    if(h.score >= t.kritisch) return 'kritisch';
+    if(h.score >= t.hoch)     return 'hoch';
+    if(h.score >= t.mittel)   return 'mittel';
+    return 'niedrig';
+  }
+}
+
+function toggleSettings(){
+  const p = document.getElementById('settingsPanel');
+  p.style.display = p.style.display==='none' ? 'block' : 'none';
+}
+
+function setSetting(key, val){
+  SETTINGS[key] = val;
+  document.querySelectorAll(`.set-btn[data-s="${key}"]`).forEach(b=>
+    b.classList.toggle('on', b.dataset.v===val));
+  applySettings();
+}
+
+function applySettings(){
+  SETTINGS.scoreMode = document.querySelector('input[name="scoreMode"]:checked')?.value || 'bezirk';
+  SETTINGS.minMeldungen = parseInt(document.getElementById('minMeldungen').value);
+  SETTINGS.progMinMeldungen = parseInt(document.getElementById('progMinMeldungen').value);
+  SETTINGS.onlyRecurring = document.getElementById('onlyRecurring').checked;
+  SETTINGS.onlyRecent = document.getElementById('onlyRecent').checked;
+  if(progMode) renderMarkersProgMode();
+  else renderMarkers();
+  renderHList();
+  renderStats();
+}
+
+function resetSettings(){
+  SETTINGS = {scoreMode:'bezirk',minMeldungen:3,clusterRadius:50,
+    markerSize:'normal',progMinMeldungen:8,onlyRecurring:false,onlyRecent:false};
+  document.querySelector('input[name="scoreMode"][value="bezirk"]').checked = true;
+  document.getElementById('minMeldungen').value = 3;
+  document.getElementById('minMeldungenVal').textContent = '3';
+  document.getElementById('progMinMeldungen').value = 8;
+  document.getElementById('progMinVal').textContent = '8';
+  document.getElementById('onlyRecurring').checked = false;
+  document.getElementById('onlyRecent').checked = false;
+  document.querySelectorAll('.set-btn').forEach(b=>b.classList.remove('on'));
+  document.querySelector('.set-btn[data-v="normal"]').classList.add('on');
+  applySettings();
+}
 const DAYS = ['Mo','Di','Mi','Do','Fr','Sa','So'];
 const COLORS = {niedrig:'#2d7d2d',mittel:'#b8860b',hoch:'#cc5500',kritisch:'#be0000'};
 
 // ── Filter State ───────────────────────────────────────────────────────
 // Alle Filter sind MULTI-SELECT Arrays, leeres Array = kein Filter
-let F = { bezirk:'', plz:'', levels:[], kats:[], sort:'score_desc' };
+let F = { bezirk:'', levels:[], kats:[], sort:'score_desc' };
 let markers = [], map, openCard = null;
 
 // ── Filter Logik ───────────────────────────────────────────────────────
@@ -398,7 +571,6 @@ function filteredHotspots(){
   // Nur echte Hotspots anzeigen (mind. 3 Meldungen)
   hs = hs.filter(h => h.meldungen_count >= 3);
   if(F.bezirk) hs = hs.filter(h => h.bezirk === F.bezirk);
-  if(F.plz) hs = hs.filter(h => (h.plz||'').startsWith(F.plz));
   if(F.levels.length) hs = hs.filter(h => F.levels.includes(h.score_label));
   if(F.kats.length) hs = hs.filter(h => (h.kategorie_mix||[]).some(k => F.kats.includes(k.key)));
   hs.sort((a,b)=>{
@@ -411,30 +583,9 @@ function filteredHotspots(){
   return hs;
 }
 
-function updatePlzDropdown(){
-  // PLZ-Dropdown je nach gewähltem Bezirk befüllen
-  const sel = document.getElementById('fPlz');
-  const currentPlz = sel.value;
-  const source = F.bezirk
-    ? D.hotspots.filter(h=>h.bezirk===F.bezirk && h.plz)
-    : D.hotspots.filter(h=>h.plz);
-  const plzSet = [...new Set(source.map(h=>(h.plz||'').substring(0,5)).filter(p=>p.length===5))].sort();
-  sel.innerHTML = '<option value="">Alle PLZ</option>';
-  plzSet.forEach(p=>{
-    const o=document.createElement('option');
-    o.value=p; o.textContent=p;
-    if(p===currentPlz) o.selected=true;
-    sel.appendChild(o);
-  });
-}
-
 function applyFilters(){
   F.bezirk = document.getElementById('fBezirk').value;
-  F.plz = document.getElementById('fPlz').value;
-  // PLZ-Dropdown auf Bezirk einschränken
-  updatePlzDropdown();
-  if(progMode) renderMarkersProgMode();
-  else renderMarkers();
+  renderMarkers();
   renderHList();
 }
 
@@ -459,10 +610,8 @@ function setSort(el){
 }
 
 function clearFilters(){
-  F = { bezirk:'', plz:'', levels:[], kats:[], sort:'score_desc' };
+  F = { bezirk:'', levels:[], kats:[], sort:'score_desc' };
   document.getElementById('fBezirk').value = '';
-  document.getElementById('fPlz').value = '';
-  updatePlzDropdown();
   document.querySelectorAll('.chip[data-t="lvl"], .chip[data-t="kat"]').forEach(c=>c.classList.remove('on'));
   document.querySelectorAll('.chip[data-t="srt"]').forEach(c=>c.classList.remove('on'));
   document.querySelector('.chip[data-t="srt"][data-v="score_desc"]').classList.add('on');
@@ -485,10 +634,15 @@ function initMap(){
 
 function isMobile(){ return window.innerWidth <= 768; }
 
-function makeIcon(level){
-  const c=COLORS[level], r={niedrig:8,mittel:11,hoch:15,kritisch:20}[level];
+function makeIcon(level, useLabel){
+  const lbl = useLabel || level;
+  const c=COLORS[lbl];
+  const sizeMap = {klein:{niedrig:5,mittel:7,hoch:10,kritisch:14},
+                   normal:{niedrig:8,mittel:11,hoch:15,kritisch:20},
+                   groß:{niedrig:11,mittel:14,hoch:19,kritisch:25}};
+  const r=(sizeMap[SETTINGS.markerSize]||sizeMap.normal)[lbl];
   const sz=r*2+10, cx=sz/2;
-  const pulse = level==='kritisch'
+  const pulse = lbl==='kritisch'
     ? `<circle cx="${cx}" cy="${cx}" r="${r+5}" fill="none" stroke="${c}" stroke-width="1" opacity="0.3">
         <animate attributeName="r" values="${r+2};${r+9};${r+2}" dur="2.5s" repeatCount="indefinite"/>
         <animate attributeName="opacity" values="0.4;0;0.4" dur="2.5s" repeatCount="indefinite"/>
@@ -500,36 +654,10 @@ function makeIcon(level){
   return L.divIcon({html:svg,className:'',iconSize:[sz,sz],iconAnchor:[cx,cx],popupAnchor:[0,-cx]});
 }
 
-function isFiltered(h){
-  // Prüft ob ein Hotspot dem aktiven Filter entspricht
-  if(F.bezirk && h.bezirk !== F.bezirk) return false;
-  if(F.plz && !(h.plz||'').startsWith(F.plz)) return false;
-  return true;
-}
-
-function makeIconDimmed(level){
-  // Gedimmter grauer Marker für nicht-aktive Bezirke/PLZ
-  const grays = {niedrig:'#c8c8c8', mittel:'#a8a8a8', hoch:'#888', kritisch:'#666'};
-  const c = grays[level] || '#b0b0b0';
-  const r = {niedrig:5, mittel:7, hoch:9, kritisch:11}[level] || 6;
-  const sz = r*2+6, cx = sz/2;
-  return L.divIcon({
-    html:`<svg width="${sz}" height="${sz}" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="${cx}" cy="${cx}" r="${r}" fill="${c}" fill-opacity=".35" stroke="#aaa" stroke-width="0.5" stroke-opacity=".3"/>
-    </svg>`,
-    className:'', iconSize:[sz,sz], iconAnchor:[cx,cx]
-  });
-}
-
 function renderMarkers(){
+  // Alten Cluster-Layer entfernen
   if(clusterGroup) { map.removeLayer(clusterGroup); }
   markers = [];
-  const hasFilter = !!(F.bezirk || F.plz);
-
-  // Alle Hotspots anzeigen — gefilterte farbig, andere grau
-  const allHotspots = D.hotspots.filter(h=>h.meldungen_count>=3);
-  const filtered = filteredHotspots();
-  const filteredIds = new Set(filtered.map(h=>h.cluster_id));
 
   clusterGroup = L.markerClusterGroup({
     maxClusterRadius: 50,
@@ -538,52 +666,38 @@ function renderMarkers(){
     zoomToBoundsOnClick: true,
     iconCreateFunction: function(cluster) {
       const children = cluster.getAllChildMarkers();
-      const hasActive = children.some(m=>m._active);
-      if(hasFilter && !hasActive){
-        const count = cluster.getChildCount();
-        const size = count > 50 ? 28 : 22;
-        return L.divIcon({
-          html:`<div style="width:${size}px;height:${size}px;border-radius:50%;
-            background:#bbb;color:#888;display:flex;align-items:center;
-            justify-content:center;font-weight:600;font-size:9px;
-            border:1px solid #ccc;opacity:0.4">${count}</div>`,
-          className:'', iconSize:[size,size], iconAnchor:[size/2,size/2]
-        });
-      }
+      // Höchste Einstufung im Cluster bestimmen
       const levels = ['kritisch','hoch','mittel','niedrig'];
       let topLevel = 'niedrig';
       for(const m of children){
-        if(!m._active) continue;
         const lvl = m._level || 'niedrig';
         if(levels.indexOf(lvl) < levels.indexOf(topLevel)) topLevel = lvl;
       }
       const c = COLORS[topLevel];
-      const count = children.filter(m=>m._active).length || cluster.getChildCount();
+      const count = cluster.getChildCount();
       const size = count > 100 ? 44 : count > 20 ? 36 : 28;
       return L.divIcon({
-        html:`<div style="width:${size}px;height:${size}px;border-radius:50%;
+        html: `<div style="width:${size}px;height:${size}px;border-radius:50%;
           background:${c};color:white;display:flex;align-items:center;
           justify-content:center;font-weight:700;font-size:${size>36?13:11}px;
           border:2px solid white;box-shadow:0 2px 6px rgba(0,0,0,.3)">${count}</div>`,
-        className:'', iconSize:[size,size], iconAnchor:[size/2,size/2]
+        className: '',
+        iconSize: [size, size],
+        iconAnchor: [size/2, size/2]
       });
     }
   });
 
-  allHotspots.forEach(h=>{
-    const active = !hasFilter || filteredIds.has(h.cluster_id);
-    const icon = active ? makeIcon(h.score_label) : makeIconDimmed(h.score_label);
-    const m = L.marker([h.lat_center,h.lon_center],{icon});
+  filteredHotspots().forEach(h=>{
+    const m = L.marker([h.lat_center,h.lon_center],{icon:makeIcon(h.score_label)});
     m._cid = h.cluster_id;
     m._level = h.score_label;
-    m._active = active;
-    if(active){
-      m.on('click', ()=>{
-        showPopup(h);
-        highlightCard(h.cluster_id);
-      });
-      markers.push(m);
-    }
+    m.on('click', ()=>{
+      showPopup(h);
+      highlightCard(h.cluster_id);
+      // Sheet bei Marker-Klick NICHT hochziehen — Nutzer soll Karte sehen
+    });
+    markers.push(m);
     clusterGroup.addLayer(m);
   });
 
@@ -717,9 +831,10 @@ function renderHList(){
   const maxScore = Math.max(...D.hotspots.map(h=>h.score),1);
 
   document.getElementById('hList').innerHTML = hs.map(h=>{
-    const c = COLORS[h.score_label];
+    const dynLabel = getLabel(h);
+    const c = COLORS[dynLabel];
     const pct = ((h.score/maxScore)*100).toFixed(0);
-    const bgClass = {niedrig:'bg-n',mittel:'bg-m',hoch:'bg-h',kritisch:'bg-k'}[h.score_label];
+    const bgClass = {niedrig:'bg-n',mittel:'bg-m',hoch:'bg-h',kritisch:'bg-k'}[dynLabel];
 
     // Basis: top-2 Abfallarten als kleine farbige Badges
     const topCatBadges = (h.kategorie_mix||[]).slice(0,2).map(k=>
@@ -757,7 +872,7 @@ function renderHList(){
       ? `<div class="hc-addr">📍 ${h.strasse}${h.plz?' · '+h.plz:''}</div>`
       : '';
 
-    return `<div class="hcard" data-l="${h.score_label}" data-cid="${h.cluster_id}"
+    return `<div class="hcard" data-l="${dynLabel}" data-cid="${h.cluster_id}"
       onclick="toggleCard('${h.cluster_id}')">
       <div class="hc-head">
         <div class="hc-main">
@@ -771,7 +886,7 @@ function renderHList(){
           <div class="hc-topcats">${topCatBadges}</div>
         </div>
         <div class="hc-right">
-          <div class="hc-badge ${bgClass}">${h.score_label}</div>
+          <div class="hc-badge ${bgClass}">${dynLabel}</div>
           ${hasAuf?'<span class="hc-flag">⚑ Festst.</span>':''}
           <div class="hc-chevron">▼</div>
         </div>
@@ -793,10 +908,8 @@ function renderHList(){
 
 // ── Render Bezirk List ─────────────────────────────────────────────────
 function renderBList(){
-  let stats = D.bezirk_stats;
-  if(F.bezirk) stats = stats.filter(b=>b.bezirk===F.bezirk);
-  const maxScore = Math.max(...stats.map(b=>b.max_score||0),1);
-  document.getElementById('bList').innerHTML = stats.map(b=>{
+  const maxScore = Math.max(...D.bezirk_stats.map(b=>b.max_score||0),1);
+  document.getElementById('bList').innerHTML = D.bezirk_stats.map(b=>{
     const pct = ((b.max_score/maxScore)*100).toFixed(0);
     let col='#2d7d2d';
     if(b.max_score>=13) col='#be0000';
@@ -847,7 +960,7 @@ function switchProgTab(tab){
 function renderPrognose(tab){
   const P = D.prognose;
   if(!P) return;
-  const items = (P[tab] || []).filter(p => p.meldungen_count >= 8);
+  const items = P[tab] || [];
   const COLORS = {niedrig:'#2d7d2d',mittel:'#b8860b',hoch:'#cc5500',kritisch:'#be0000'};
 
   // Info-Text
@@ -897,15 +1010,18 @@ function makeGrayIcon(level){
 }
 
 function makeProgIcon(prob, color){
-  // Prognose-Marker: klar sichtbar, Größe nach Wahrscheinlichkeit
-  const r = prob >= 60 ? 20 : prob >= 40 ? 16 : prob >= 25 ? 13 : 10;
-  const sz = r*2+8, cx = sz/2;
-  // Äußerer Ring für Sichtbarkeit
-  const ring = `<circle cx="${cx}" cy="${cx}" r="${r+3}" fill="none" stroke="${color}" stroke-width="2" opacity="0.5"/>`;
+  // Prognose-Marker: leuchtend, Größe nach Wahrscheinlichkeit
+  const r = prob >= 60 ? 18 : prob >= 40 ? 14 : prob >= 25 ? 11 : 9;
+  const sz = r*2+14, cx = sz/2;
+  const pulse = `
+    <circle cx="${cx}" cy="${cx}" r="${r+4}" fill="none" stroke="${color}" stroke-width="1.5" opacity="0.4">
+      <animate attributeName="r" values="${r+2};${r+10};${r+2}" dur="2s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.5;0;0.5" dur="2s" repeatCount="indefinite"/>
+    </circle>`;
   const svg = `<svg width="${sz}" height="${sz}" xmlns="http://www.w3.org/2000/svg">
-    ${ring}
-    <circle cx="${cx}" cy="${cx}" r="${r}" fill="${color}" fill-opacity=".95" stroke="white" stroke-width="2.5"/>
-    <text x="${cx}" y="${cx+1}" text-anchor="middle" dominant-baseline="middle" fill="white" font-size="${r>=16?12:10}" font-weight="700" font-family="Arial,sans-serif">${prob}%</text>
+    ${pulse}
+    <circle cx="${cx}" cy="${cx}" r="${r}" fill="${color}" fill-opacity=".95" stroke="white" stroke-width="2"/>
+    <text x="${cx}" y="${cx+4}" text-anchor="middle" fill="white" font-size="${r>14?11:9}" font-weight="700" font-family="Arial">${prob}%</text>
   </svg>`;
   return L.divIcon({html:svg, className:'', iconSize:[sz,sz], iconAnchor:[cx,cx], popupAnchor:[0,-cx]});
 }
@@ -944,7 +1060,7 @@ function renderMarkersProgMode(){
   removeProg();
   const P = D.prognose;
   if(!P) return;
-  const items = (P[progTab] || []).filter(p => p.meldungen_count >= 8);
+  const items = P[progTab] || [];
 
   progClusterGroup = L.markerClusterGroup({
     maxClusterRadius: 40,
@@ -967,15 +1083,8 @@ function renderMarkersProgMode(){
   // Farbe nach Wahrscheinlichkeit
   const progColors = {hoch:'#be0000', mittel:'#e07b00', niedrig:'#2d9d2d', kritisch:'#7b0000'};
 
-  // Bezirks/PLZ-Filter auf Prognose anwenden
-  const filteredItems = items.filter(p=>{
-    if(F.bezirk && p.bezirk !== F.bezirk) return false;
-    if(F.plz && !(p.plz||'').startsWith(F.plz)) return false;
-    return true;
-  });
-
-  filteredItems.forEach(p=>{
-    const color = p.prob >= 50 ? '#be0000' : p.prob >= 35 ? '#e07b00' : '#1a7a1a';
+  items.forEach(p=>{
+    const color = p.prob >= 50 ? '#be0000' : p.prob >= 35 ? '#e07b00' : '#2d9d2d';
     const m = L.marker([p.lat_center, p.lon_center], {
       icon: makeProgIcon(p.prob, color),
       zIndexOffset: 1000
@@ -983,6 +1092,7 @@ function renderMarkersProgMode(){
     m._prob = p.prob;
     m._cid = p.cluster_id;
     m.on('click', ()=>{
+      // Popup mit Prognose-Info
       const fullH = D.hotspots.find(x=>x.cluster_id===p.cluster_id);
       if(fullH) showPopup(fullH);
     });
@@ -1065,9 +1175,6 @@ document.addEventListener('DOMContentLoaded',()=>{
   (D.bezirke||[]).forEach(b=>{
     const o=document.createElement('option');o.value=b;o.textContent=b;sel.appendChild(o);
   });
-
-  // PLZ Dropdown initial befüllen
-  updatePlzDropdown();
 
   renderKatChips();
   initMap();
