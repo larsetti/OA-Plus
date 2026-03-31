@@ -230,6 +230,29 @@ select.fs:focus{outline:2px solid var(--red)}
   /* Karten-Karte auf Mobile: volle Breite, tappable */
   .hcard{touch-action:manipulation}
 }
+
+/* PROGNOSE */
+.prog-header{padding:10px 12px;background:var(--light);border-bottom:1px solid var(--border);flex-shrink:0}
+.prog-tabs{display:flex;gap:4px;margin-bottom:0}
+.prog-tab{flex:1;padding:5px 4px;text-align:center;font-size:11px;font-weight:700;
+  cursor:pointer;border-radius:3px;border:1.5px solid var(--border);color:#999;
+  transition:all .12s;background:white}
+.prog-tab.on{background:var(--red);color:white;border-color:var(--red)}
+.prog-info{font-size:10px;color:#aaa;margin-top:5px;text-align:center}
+.pcard{background:white;border:1px solid var(--border);border-left:4px solid;
+  border-radius:2px;margin:4px 7px;padding:8px 10px}
+.pcard[data-l="kritisch"]{border-left-color:var(--c-kritisch)}
+.pcard[data-l="hoch"]{border-left-color:var(--c-hoch)}
+.pcard[data-l="mittel"]{border-left-color:var(--c-mittel)}
+.pcard[data-l="niedrig"]{border-left-color:var(--c-niedrig)}
+.pc-top{display:flex;justify-content:space-between;align-items:flex-start;gap:6px}
+.pc-bez{font-size:12px;font-weight:700}
+.pc-addr{font-size:11px;color:#888;margin-top:1px}
+.pc-grund{font-size:10px;color:#aaa;margin-top:3px}
+.pc-kat{font-size:10px;font-weight:600;padding:1px 6px;border-radius:8px;color:white;margin-top:3px;display:inline-block}
+.prob-bar{height:4px;background:#eee;border-radius:2px;margin-top:5px}
+.prob-fill{height:100%;border-radius:2px;background:var(--red)}
+.prob-badge{font-size:11px;font-weight:700;color:var(--red);white-space:nowrap}
 </style>
 </head>
 <body>
@@ -302,10 +325,22 @@ select.fs:focus{outline:2px solid var(--red)}
     <div class="tabs">
       <div class="tab on" onclick="switchTab('hotspots')">Standorte</div>
       <div class="tab" onclick="switchTab('bezirke')">Bezirke</div>
+      <div class="tab" onclick="switchTab('prognose')">📅 Prognose</div>
       <div class="tab" onclick="switchTab('info')">Legende</div>
     </div>
     <div class="panel on" id="panel-hotspots"><div class="hlist" id="hList"></div></div>
     <div class="panel" id="panel-bezirke"><div class="blist" id="bList"></div></div>
+    <div class="panel" id="panel-prognose">
+      <div class="prog-header">
+        <div class="prog-tabs">
+          <div class="prog-tab on" onclick="switchProgTab('heute')">Heute</div>
+          <div class="prog-tab" onclick="switchProgTab('woche')">Diese Woche</div>
+          <div class="prog-tab" onclick="switchProgTab('monat')">Dieser Monat</div>
+        </div>
+        <div class="prog-info" id="progInfo"></div>
+      </div>
+      <div id="progList" style="flex:1;overflow-y:auto"></div>
+    </div>
     <div class="panel" id="panel-info">
       <div class="isec"><h3>Einstufungssystem</h3>
         <div class="leg-row"><div class="leg-dot" style="background:var(--c-niedrig)"></div><strong style="color:var(--c-niedrig)">Niedrig (0–3)</strong> — Einzelmeldung</div>
@@ -710,9 +745,65 @@ function renderBList(){
 // ── Tab switch ─────────────────────────────────────────────────────────
 function switchTab(name){
   document.querySelectorAll('.tab').forEach((t,i)=>
-    t.classList.toggle('on',['hotspots','bezirke','info'][i]===name));
+    t.classList.toggle('on',['hotspots','bezirke','prognose','info'][i]===name));
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
   document.getElementById('panel-'+name).classList.add('on');
+  if(name==='prognose') renderPrognose('heute');
+}
+
+let progTab = 'heute';
+function switchProgTab(tab){
+  progTab = tab;
+  document.querySelectorAll('.prog-tab').forEach((t,i)=>
+    t.classList.toggle('on',['heute','woche','monat'][i]===tab));
+  renderPrognose(tab);
+}
+
+function renderPrognose(tab){
+  const P = D.prognose;
+  if(!P) return;
+  const items = P[tab] || [];
+  const COLORS = {niedrig:'#2d7d2d',mittel:'#b8860b',hoch:'#cc5500',kritisch:'#be0000'};
+
+  // Info-Text
+  const infoMap = {
+    heute: `${P.wochentag}, ${P.datum}`,
+    woche: `KW ${P.kw}`,
+    monat: P.monat_name,
+  };
+  document.getElementById('progInfo').textContent =
+    items.length + ' Standorte mit erhöhtem Risiko · ' + infoMap[tab];
+
+  if(items.length === 0){
+    document.getElementById('progList').innerHTML =
+      '<div style="padding:20px;text-align:center;color:#aaa;font-size:12px">Keine Prognose-Daten verfügbar</div>';
+    return;
+  }
+
+  document.getElementById('progList').innerHTML = items.map(p => {
+    const c = COLORS[p.score_label] || '#888';
+    return `<div class="pcard" data-l="${p.score_label}"
+      onclick="flyToHotspot('${p.cluster_id}')">
+      <div class="pc-top">
+        <div style="flex:1;min-width:0">
+          <div class="pc-bez">${p.bezirk}</div>
+          ${p.strasse ? `<div class="pc-addr">📍 ${p.strasse}</div>` : ''}
+          <div class="pc-grund">${p.grund}</div>
+          ${p.top_kat_label ? `<span class="pc-kat" style="background:${p.top_kat_color}">${p.top_kat_label}</span>` : ''}
+        </div>
+        <div class="prob-badge">${p.prob}%</div>
+      </div>
+      <div class="prob-bar"><div class="prob-fill" style="width:${p.prob}%;background:${c}"></div></div>
+    </div>`;
+  }).join('');
+}
+
+function flyToHotspot(cid){
+  const h = D.hotspots.find(x=>x.cluster_id===cid);
+  if(!h) return;
+  map.flyTo([h.lat_center, h.lon_center], 15, {duration:0.8});
+  showPopup(h);
+  switchTab('hotspots');
 }
 
 // ── Mobile Bottom Sheet ────────────────────────────────────────────────

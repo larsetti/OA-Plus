@@ -140,10 +140,98 @@ def load_data():
     """).fetchall()]
     conn.close()
 
+    # ── Prognose berechnen ─────────────────────────────────────────────
+    today = datetime.now()
+    today_wd = today.weekday()      # 0=Mo, 6=So
+    today_month = today.month
+    today_day = today.day
+    # Kalenderwoche
+    today_kw = today.isocalendar()[1]
+
+    WEEKDAY_IDX = {'Mo':0,'Di':1,'Mi':2,'Do':3,'Fr':4,'Sa':5,'So':6}
+
+    prognose_heute = []
+    prognose_woche = []
+    prognose_monat = []
+
+    for h in hotspots:
+        cid = h['cluster_id']
+        meldungen = cluster_m.get(cid, [])
+        if len(meldungen) < 3:
+            continue
+
+        # Wochentag-Wahrscheinlichkeit
+        wd_counts = [0]*7
+        month_counts = [0]*13
+        kw_counts = {}
+        day_counts = [0]*32
+
+        for m in meldungen:
+            try:
+                d = datetime.fromisoformat(m['datum'][:10])
+                wd_counts[d.weekday()] += 1
+                month_counts[d.month] += 1
+                kw = d.isocalendar()[1]
+                kw_counts[kw] = kw_counts.get(kw, 0) + 1
+                day_counts[d.day] += 1
+            except:
+                pass
+
+        total = len(meldungen)
+        if total == 0:
+            continue
+
+        # Wahrscheinlichkeit fuer heute (Wochentag)
+        wd_prob = round(wd_counts[today_wd] / total * 100)
+        # Wahrscheinlichkeit fuer diesen Monat
+        month_prob = round(month_counts[today_month] / total * 100)
+        # Wahrscheinlichkeit fuer diese KW (Durchschnitt der letzten 3 Jahre gleiche KW)
+        kw_vals = [kw_counts.get(today_kw + offset*52, 0) for offset in range(-2, 1)]
+        kw_prob = round(sum(kw_vals) / max(total, 1) * 100 * 3)
+        kw_prob = min(kw_prob, 100)
+
+        base = {
+            'cluster_id': h['cluster_id'],
+            'bezirk': h['bezirk'],
+            'strasse': h.get('strasse', ''),
+            'score_label': h['score_label'],
+            'meldungen_count': h['meldungen_count'],
+            'lat_center': h['lat_center'],
+            'lon_center': h['lon_center'],
+            'top_kat': h.get('top_kategorie', ''),
+            'top_kat_label': (KATEGORIE_GRUPPEN.get(h.get('top_kategorie',''), {}).get('label', '') if h.get('top_kategorie') else ''),
+            'top_kat_color': (KATEGORIE_GRUPPEN.get(h.get('top_kategorie',''), {}).get('color', '#888') if h.get('top_kategorie') else '#888'),
+        }
+
+        if wd_prob >= 20:
+            prognose_heute.append({**base, 'prob': wd_prob, 'grund': f"Wochentag-Muster: {wd_prob}% aller Meldungen an {WEEKDAYS_SHORT[today_wd]}"})
+
+        if month_prob >= 15:
+            prognose_monat.append({**base, 'prob': month_prob, 'grund': f"Monats-Muster: {month_prob}% aller Meldungen im {today.strftime('%B')}"})
+
+        if kw_prob >= 15:
+            prognose_woche.append({**base, 'prob': kw_prob, 'grund': f"KW-Muster: Erhöhte Aktivität in KW {today_kw}"})
+
+    # Sortieren nach Wahrscheinlichkeit, Top 50 je
+    prognose_heute.sort(key=lambda x: (-x['prob'], -x['meldungen_count']))
+    prognose_woche.sort(key=lambda x: (-x['prob'], -x['meldungen_count']))
+    prognose_monat.sort(key=lambda x: (-x['prob'], -x['meldungen_count']))
+
+    prognose = {
+        'heute': prognose_heute[:50],
+        'woche': prognose_woche[:50],
+        'monat': prognose_monat[:50],
+        'datum': today.strftime('%d.%m.%Y'),
+        'wochentag': WEEKDAYS_SHORT[today_wd],
+        'kw': today_kw,
+        'monat_name': today.strftime('%B'),
+    }
+
     return {
         "hotspots": hotspots, "bezirk_stats": bezirk_stats,
         "bezirke": sorted(set(h['bezirk'] for h in hotspots if h['bezirk'])),
         "kategorie_gruppen": {k:{'label':v['label'],'color':v['color']} for k,v in KATEGORIE_GRUPPEN.items()},
+        "prognose": prognose,
         "last_update": datetime.now().strftime("%Y-%m-%d"),
     }
 

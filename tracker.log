@@ -64,3 +64,9 @@
 2026-03-31 08:25:36,042 [INFO] 105456 Meldungen von API erhalten
 2026-03-31 08:25:40,970 [INFO] Neu gespeichert: 0 Meldungen (0 Mull)
 2026-03-31 08:25:42,005 [INFO] Fertig: 0 neu, 0 Mull, 8748 Hotspots
+2026-03-31 08:57:39,266 [INFO] Datenbank initialisiert: C:\Users\larsw\OneDrive\OA+\muell-monitor\ordnungsamt.db
+2026-03-31 08:57:39,267 [INFO] Lese lokale Datei: C:\Users\larsw\OneDrive\OA+\muell-monitor\meldungen.json (25.4 MB)
+2026-03-31 08:57:39,589 [INFO] Erfolg: 105456 Meldungen aus lokaler Datei
+2026-03-31 08:57:39,597 [INFO] 105456 Meldungen von API erhalten
+2026-03-31 08:57:44,522 [INFO] Neu gespeichert: 0 Meldungen (0 Mull)
+2026-03-31 08:57:45,017 [INFO] Fertig: 0 neu, 0 Mull, 8748 Hotspots
