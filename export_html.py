@@ -12,12 +12,12 @@ GEO_RADIUS = 0.0015
 WEEKDAYS_SHORT = ['Mo','Di','Mi','Do','Fr','Sa','So']
 
 KATEGORIE_GRUPPEN = {
-    'bauschutt':     {'keywords':['bauschutt','schutt','baumaterial'],'label':'🏗 Bauschutt','color':'#8B4513','hinweis':'Typisch für Gewerbetreibende oder Bauherren — Anzeige empfehlenswert'},
-    'gartenabfall':  {'keywords':['gartenabfall','grünschnitt','garten','grün'],'label':'🌿 Gartenabfall','color':'#2d7d2d','hinweis':'Hinweis auf Kleingärten oder Privatgärten in der Nähe'},
-    'schrottfahrzeug':{'keywords':['schrottfahrzeug','schrottauto','kfz','fahrzeug'],'label':'🚗 Schrott-KFZ','color':'#555555','hinweis':'Häufig organisierte Ablagerung — Kennzeichen-Kontrolle empfohlen'},
-    'sperrmüll':     {'keywords':['sperrmüll','sperr','sofa','matratze','kühlschrank'],'label':'🛋 Sperrmüll','color':'#996600','hinweis':'Oft Privatpersonen, die Sperrmülltermin umgehen'},
-    'elektroschrott':{'keywords':['elektroschrott','elektro','e-schrott'],'label':'⚡ Elektroschrott','color':'#0066aa','hinweis':'Entsorgungspflichtige Geräte — Rückgabepflicht besteht'},
-    'illegal':       {'keywords':['illegal','ablagerung','wild','schwarze säcke'],'label':'🚮 Illegale Ablagerung','color':'#cc0000','hinweis':'Allgemeine illegale Entsorgung'},
+    'bauschutt':     {'keywords':['bauschutt','schutt','baumaterial'],'label':'ðŸ— Bauschutt','color':'#8B4513','hinweis':'Typisch fÃ¼r Gewerbetreibende oder Bauherren â€” Anzeige empfehlenswert'},
+    'gartenabfall':  {'keywords':['gartenabfall','grÃ¼nschnitt','garten','grÃ¼n'],'label':'ðŸŒ¿ Gartenabfall','color':'#2d7d2d','hinweis':'Hinweis auf KleingÃ¤rten oder PrivatgÃ¤rten in der NÃ¤he'},
+    'schrottfahrzeug':{'keywords':['schrottfahrzeug','schrottauto','kfz','fahrzeug'],'label':'ðŸš— Schrott-KFZ','color':'#555555','hinweis':'HÃ¤ufig organisierte Ablagerung â€” Kennzeichen-Kontrolle empfohlen'},
+    'sperrmÃ¼ll':     {'keywords':['sperrmÃ¼ll','sperr','sofa','matratze','kÃ¼hlschrank'],'label':'ðŸ›‹ SperrmÃ¼ll','color':'#996600','hinweis':'Oft Privatpersonen, die SperrmÃ¼lltermin umgehen'},
+    'elektroschrott':{'keywords':['elektroschrott','elektro','e-schrott'],'label':'âš¡ Elektroschrott','color':'#0066aa','hinweis':'Entsorgungspflichtige GerÃ¤te â€” RÃ¼ckgabepflicht besteht'},
+    'illegal':       {'keywords':['illegal','ablagerung','wild','schwarze sÃ¤cke'],'label':'ðŸš® Illegale Ablagerung','color':'#cc0000','hinweis':'Allgemeine illegale Entsorgung'},
 }
 
 def kategorisiere(text):
@@ -59,23 +59,23 @@ def load_data():
             tw=len(weekdays); mon_r=cnt.get(0,0)/tw; wknd_r=(cnt.get(5,0)+cnt.get(6,0))/tw
             if mon_r>=0.35 and tw>=2:
                 h['pattern']='montag'; h['pattern_label']=f"{int(mon_r*100)}% Montags"
-                h['auffaelligkeiten'].append(f"Häufung am Montag ({int(mon_r*100)}%) — Wochenend-Ablagerungen")
+                h['auffaelligkeiten'].append(f"HÃ¤ufung am Montag ({int(mon_r*100)}%) â€” Wochenend-Ablagerungen")
             elif wknd_r>=0.35 and tw>=2:
                 h['pattern']='wochenende'; h['pattern_label']=f"{int(wknd_r*100)}% Wochenende"
-                h['auffaelligkeiten'].append(f"Häufung am Wochenende ({int(wknd_r*100)}%)")
+                h['auffaelligkeiten'].append(f"HÃ¤ufung am Wochenende ({int(wknd_r*100)}%)")
         if h['top_kategorie'] and h['top_kategorie_pct']>=50:
             gi=KATEGORIE_GRUPPEN[h['top_kategorie']]
-            h['auffaelligkeiten'].append(f"{gi['label']}: {h['top_kategorie_pct']}% — {gi['hinweis']}")
+            h['auffaelligkeiten'].append(f"{gi['label']}: {h['top_kategorie_pct']}% â€” {gi['hinweis']}")
         if h['recurrence_count']>=3:
-            h['auffaelligkeiten'].append(f"Chronischer Ablagerungsort: {h['recurrence_count']}× Wiederkehr")
+            h['auffaelligkeiten'].append(f"Chronischer Ablagerungsort: {h['recurrence_count']}Ã— Wiederkehr")
         if h['pattern']=='montag' and h['top_kategorie']=='gartenabfall':
-            h['auffaelligkeiten'].append("🔍 Montags + Gartenabfall → Kleingarten sehr wahrscheinlich")
+            h['auffaelligkeiten'].append("ðŸ” Montags + Gartenabfall â†’ Kleingarten sehr wahrscheinlich")
         elif h['pattern']=='montag' and h['top_kategorie']=='bauschutt':
-            h['auffaelligkeiten'].append("🔍 Montags + Bauschutt → Gewerbe nutzt Wochenende zur Entsorgung")
+            h['auffaelligkeiten'].append("ðŸ” Montags + Bauschutt â†’ Gewerbe nutzt Wochenende zur Entsorgung")
         elif h['top_kategorie']=='schrottfahrzeug' and h['recurrence_count']>=2:
-            h['auffaelligkeiten'].append("🔍 Wiederkehrende KFZ-Ablagerung → Kennzeichen-Kontrolle empfohlen")
+            h['auffaelligkeiten'].append("ðŸ” Wiederkehrende KFZ-Ablagerung â†’ Kennzeichen-Kontrolle empfohlen")
 
-        # ── Saisonale Analyse ──────────────────────────────────────────
+        # â”€â”€ Saisonale Analyse â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         seasons = []
         month_list = []
         monthend_count = 0
@@ -84,7 +84,7 @@ def load_data():
                 d = datetime.fromisoformat(m['datum'][:10])
                 month_list.append(d.month)
                 if d.day >= 25: monthend_count += 1
-                if d.month in [3,4,5]: seasons.append('frühling')
+                if d.month in [3,4,5]: seasons.append('frÃ¼hling')
                 elif d.month in [6,7,8]: seasons.append('sommer')
                 elif d.month in [9,10,11]: seasons.append('herbst')
                 else: seasons.append('winter')
@@ -95,41 +95,41 @@ def load_data():
             top_season, top_season_n = season_cnt.most_common(1)[0]
             season_ratio = top_season_n / len(seasons)
             SEASON_LABELS = {
-                'frühling': ('🌸 Frühlings-Häufung', 'Frühjahrsputz-Effekt — Gartenabfall und Sperrmüll häufen sich März–Mai'),
-                'sommer':   ('☀️ Sommer-Häufung',    'Sommerzeit — häufig Gartenabfall, Grillmüll, Umzugssperrmüll'),
-                'herbst':   ('🍂 Herbst-Häufung',     'Herbst — Grünschnitt und Gartenabfall nach der Gartensaison'),
-                'winter':   ('❄️ Winter-Häufung',     'Wintermonate — oft Sperrmüll und Elektroschrott nach Weihnachten'),
+                'frÃ¼hling': ('ðŸŒ¸ FrÃ¼hlings-HÃ¤ufung', 'FrÃ¼hjahrsputz-Effekt â€” Gartenabfall und SperrmÃ¼ll hÃ¤ufen sich MÃ¤rzâ€“Mai'),
+                'sommer':   ('â˜€ï¸ Sommer-HÃ¤ufung',    'Sommerzeit â€” hÃ¤ufig Gartenabfall, GrillmÃ¼ll, UmzugssperrmÃ¼ll'),
+                'herbst':   ('ðŸ‚ Herbst-HÃ¤ufung',     'Herbst â€” GrÃ¼nschnitt und Gartenabfall nach der Gartensaison'),
+                'winter':   ('â„ï¸ Winter-HÃ¤ufung',     'Wintermonate â€” oft SperrmÃ¼ll und Elektroschrott nach Weihnachten'),
             }
             if season_ratio >= 0.6 and len(seasons) >= 3:
                 lbl, hint = SEASON_LABELS[top_season]
-                h['auffaelligkeiten'].append(f"{lbl} ({int(season_ratio*100)}%) — {hint}")
+                h['auffaelligkeiten'].append(f"{lbl} ({int(season_ratio*100)}%) â€” {hint}")
             # Kombination Saison + Kategorie
-            if top_season in ['frühling','herbst'] and h['top_kategorie'] == 'gartenabfall' and season_ratio >= 0.5:
-                h['auffaelligkeiten'].append("🔍 Saison + Gartenabfall → saisonaler Ablagerungspunkt, Kontrolle im Frühjahr/Herbst erhöhen")
+            if top_season in ['frÃ¼hling','herbst'] and h['top_kategorie'] == 'gartenabfall' and season_ratio >= 0.5:
+                h['auffaelligkeiten'].append("ðŸ” Saison + Gartenabfall â†’ saisonaler Ablagerungspunkt, Kontrolle im FrÃ¼hjahr/Herbst erhÃ¶hen")
             if top_season == 'winter' and h['top_kategorie'] == 'elektroschrott':
-                h['auffaelligkeiten'].append("🔍 Winter + Elektroschrott → nach Weihnachten typisch, Aufklärungskampagne sinnvoll")
+                h['auffaelligkeiten'].append("ðŸ” Winter + Elektroschrott â†’ nach Weihnachten typisch, AufklÃ¤rungskampagne sinnvoll")
 
-        # ── Monatsende-Analyse ─────────────────────────────────────────
+        # â”€â”€ Monatsende-Analyse â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         if month_list and len(meldungen) >= 3:
             monthend_ratio = monthend_count / len(meldungen)
             if monthend_ratio >= 0.5:
-                h['auffaelligkeiten'].append(f"📅 {int(monthend_ratio*100)}% der Meldungen zum Monatsende (ab dem 25.) — Hinweis auf Wohnungswechsel/Umzüge")
-            # Monats-Häufung: immer derselbe Monat?
+                h['auffaelligkeiten'].append(f"ðŸ“… {int(monthend_ratio*100)}% der Meldungen zum Monatsende (ab dem 25.) â€” Hinweis auf Wohnungswechsel/UmzÃ¼ge")
+            # Monats-HÃ¤ufung: immer derselbe Monat?
             month_cnt = Counter(month_list)
             top_month, top_month_n = month_cnt.most_common(1)[0]
             if top_month_n / len(month_list) >= 0.5 and len(month_list) >= 3:
-                MONTH_NAMES = {1:'Januar',2:'Februar',3:'März',4:'April',5:'Mai',6:'Juni',
+                MONTH_NAMES = {1:'Januar',2:'Februar',3:'MÃ¤rz',4:'April',5:'Mai',6:'Juni',
                                7:'Juli',8:'August',9:'September',10:'Oktober',11:'November',12:'Dezember'}
-                h['auffaelligkeiten'].append(f"📅 Häufung im {MONTH_NAMES[top_month]} — möglicher periodischer Ablagerungsrhythmus")
+                h['auffaelligkeiten'].append(f"ðŸ“… HÃ¤ufung im {MONTH_NAMES[top_month]} â€” mÃ¶glicher periodischer Ablagerungsrhythmus")
 
-        # ── Gemischte Kategorien (Schmuggelpunkt) ─────────────────────
+        # â”€â”€ Gemischte Kategorien (Schmuggelpunkt) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         if total >= 4:
             unique_kats = len(set(m['kategorie'] for m in meldungen if m['kategorie']))
             mix_ratio = unique_kats / total
             if mix_ratio >= 0.7 and unique_kats >= 3:
-                h['auffaelligkeiten'].append(f"🚨 Hohe Kategorienvielfalt ({unique_kats} verschiedene Müllarten) — bekannter öffentlicher Ablagerungspunkt, viele Verursacher")
+                h['auffaelligkeiten'].append(f"ðŸš¨ Hohe Kategorienvielfalt ({unique_kats} verschiedene MÃ¼llarten) â€” bekannter Ã¶ffentlicher Ablagerungspunkt, viele Verursacher")
             elif unique_kats >= 4:
-                h['auffaelligkeiten'].append(f"⚠️ Gemischte Ablagerungen ({unique_kats} Müllarten) — Standort wird von mehreren Personengruppen genutzt")
+                h['auffaelligkeiten'].append(f"âš ï¸ Gemischte Ablagerungen ({unique_kats} MÃ¼llarten) â€” Standort wird von mehreren Personengruppen genutzt")
 
     bezirk_stats = [dict(r) for r in conn.execute("""
         SELECT bezirk, COUNT(*) as total_hotspots, SUM(meldungen_count) as total_meldungen,
@@ -140,7 +140,7 @@ def load_data():
     """).fetchall()]
     conn.close()
 
-    # ── Prognose berechnen ─────────────────────────────────────────────
+    # â”€â”€ Prognose berechnen â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     today = datetime.now()
     today_wd = today.weekday()      # 0=Mo, 6=So
     today_month = today.month
@@ -149,6 +149,7 @@ def load_data():
     today_kw = today.isocalendar()[1]
 
     WEEKDAY_IDX = {'Mo':0,'Di':1,'Mi':2,'Do':3,'Fr':4,'Sa':5,'So':6}
+    MONAT_NAMEN = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember']
 
     prognose_heute = []
     prognose_woche = []
@@ -211,14 +212,14 @@ def load_data():
             prognose_monat.append({**base, 'prob': month_prob, 'grund': f"Monats-Muster: {month_prob}% aller Meldungen im {MONAT_NAMEN[today_month-1]}"})
 
         if kw_prob >= 15:
-            prognose_woche.append({**base, 'prob': kw_prob, 'grund': f"KW-Muster: Erhöhte Aktivität in KW {today_kw}"})
+            prognose_woche.append({**base, 'prob': kw_prob, 'grund': f"KW-Muster: ErhÃ¶hte AktivitÃ¤t in KW {today_kw}"})
 
     # Sortieren nach Wahrscheinlichkeit, Top 50 je
     prognose_heute.sort(key=lambda x: (-x['prob'], -x['meldungen_count']))
     prognose_woche.sort(key=lambda x: (-x['prob'], -x['meldungen_count']))
     prognose_monat.sort(key=lambda x: (-x['prob'], -x['meldungen_count']))
 
-    MONAT_NAMEN = ['Januar','Februar','März','April','Mai','Juni',
+    MONAT_NAMEN = ['Januar','Februar','MÃ¤rz','April','Mai','Juni',
                     'Juli','August','September','Oktober','November','Dezember']
 
     prognose = {
@@ -251,3 +252,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
