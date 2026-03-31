@@ -916,16 +916,43 @@ function renderHList(){
 
 // ── Render Bezirk List ─────────────────────────────────────────────────
 function renderBList(){
+  const ALLE_BEZ = [
+    'Charlottenburg-Wilmersdorf','Friedrichshain-Kreuzberg','Lichtenberg',
+    'Marzahn-Hellersdorf','Mitte','Neukölln','Pankow','Reinickendorf',
+    'Spandau','Steglitz-Zehlendorf','Tempelhof-Schöneberg','Treptow-Köpenick'
+  ];
+  // Wenn Bezirk gefiltert, nur diesen zeigen
+  const showBezirke = F.bezirk ? [F.bezirk] : ALLE_BEZ;
+  const statsMap = {};
+  D.bezirk_stats.forEach(b=>statsMap[b.bezirk]=b);
   const maxScore = Math.max(...D.bezirk_stats.map(b=>b.max_score||0),1);
-  document.getElementById('bList').innerHTML = D.bezirk_stats.map(b=>{
+
+  document.getElementById('bList').innerHTML = showBezirke.map(bezirk=>{
+    const b = statsMap[bezirk];
+    if(!b){
+      // Bezirk ohne Daten
+      return `<div class="bcard" style="opacity:0.5">
+        <div class="bc-top">
+          <div class="bc-name">${bezirk}</div>
+          <div class="bc-scr" style="background:#aaa">Keine Daten</div>
+        </div>
+        <div style="font-size:11px;color:#aaa;padding:4px 0">
+          Keine Hotspots mit ≥${SETTINGS.minMeldungen} Meldungen.
+          <span style="color:#be0000;cursor:pointer;font-weight:600"
+            onclick="document.getElementById('minMeldungen').value=1;document.getElementById('minMeldungenVal').textContent='1';applySettings()">
+            Alle anzeigen?
+          </span>
+        </div>
+      </div>`;
+    }
     const pct = ((b.max_score/maxScore)*100).toFixed(0);
     let col='#2d7d2d';
-    if(b.max_score>=13) col='#be0000';
-    else if(b.max_score>=8) col='#cc5500';
-    else if(b.max_score>=4) col='#b8860b';
+    if(b.max_score>=63) col='#7b0000';
+    else if(b.max_score>=15) col='#cc0000';
+    else if(b.max_score>=5) col='#e07b00';
     return `<div class="bcard">
       <div class="bc-top">
-        <div class="bc-name">${b.bezirk}</div>
+        <div class="bc-name">${bezirk}</div>
         <div class="bc-scr" style="background:${col}">Bewertung ${b.max_score}</div>
       </div>
       <div class="bc-grid">
@@ -1227,9 +1254,14 @@ shHandle.addEventListener('click',()=>{
 
 // ── Init ───────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded',()=>{
-  // Bezirk Dropdown
+  // Alle 12 Berliner Bezirke immer anzeigen
+  const ALLE_BEZIRKE = [
+    'Charlottenburg-Wilmersdorf','Friedrichshain-Kreuzberg','Lichtenberg',
+    'Marzahn-Hellersdorf','Mitte','Neukölln','Pankow','Reinickendorf',
+    'Spandau','Steglitz-Zehlendorf','Tempelhof-Schöneberg','Treptow-Köpenick'
+  ];
   const sel=document.getElementById('fBezirk');
-  (D.bezirke||[]).forEach(b=>{
+  ALLE_BEZIRKE.forEach(b=>{
     const o=document.createElement('option');o.value=b;o.textContent=b;sel.appendChild(o);
   });
 
