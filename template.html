@@ -288,6 +288,14 @@ select.fs:focus{outline:2px solid var(--red)}
         </div>
       </div>
       <div class="fr">
+        <span class="fl">PLZ</span>
+        <div class="fr-right">
+          <select class="fs" id="fPlz" onchange="applyFilters()">
+            <option value="">Alle PLZ</option>
+          </select>
+        </div>
+      </div>
+      <div class="fr">
         <span class="fl">Einstufung</span>
         <div class="fr-right">
           <div class="chips" id="lvlChips">
@@ -381,7 +389,7 @@ const COLORS = {niedrig:'#2d7d2d',mittel:'#b8860b',hoch:'#cc5500',kritisch:'#be0
 
 // ── Filter State ───────────────────────────────────────────────────────
 // Alle Filter sind MULTI-SELECT Arrays, leeres Array = kein Filter
-let F = { bezirk:'', levels:[], kats:[], sort:'score_desc' };
+let F = { bezirk:'', plz:'', levels:[], kats:[], sort:'score_desc' };
 let markers = [], map, openCard = null;
 
 // ── Filter Logik ───────────────────────────────────────────────────────
@@ -390,6 +398,7 @@ function filteredHotspots(){
   // Nur echte Hotspots anzeigen (mind. 3 Meldungen)
   hs = hs.filter(h => h.meldungen_count >= 3);
   if(F.bezirk) hs = hs.filter(h => h.bezirk === F.bezirk);
+  if(F.plz) hs = hs.filter(h => (h.plz||'').startsWith(F.plz));
   if(F.levels.length) hs = hs.filter(h => F.levels.includes(h.score_label));
   if(F.kats.length) hs = hs.filter(h => (h.kategorie_mix||[]).some(k => F.kats.includes(k.key)));
   hs.sort((a,b)=>{
@@ -402,9 +411,30 @@ function filteredHotspots(){
   return hs;
 }
 
+function updatePlzDropdown(){
+  // PLZ-Dropdown je nach gewähltem Bezirk befüllen
+  const sel = document.getElementById('fPlz');
+  const currentPlz = sel.value;
+  const source = F.bezirk
+    ? D.hotspots.filter(h=>h.bezirk===F.bezirk && h.plz)
+    : D.hotspots.filter(h=>h.plz);
+  const plzSet = [...new Set(source.map(h=>(h.plz||'').substring(0,5)).filter(p=>p.length===5))].sort();
+  sel.innerHTML = '<option value="">Alle PLZ</option>';
+  plzSet.forEach(p=>{
+    const o=document.createElement('option');
+    o.value=p; o.textContent=p;
+    if(p===currentPlz) o.selected=true;
+    sel.appendChild(o);
+  });
+}
+
 function applyFilters(){
   F.bezirk = document.getElementById('fBezirk').value;
-  renderMarkers();
+  F.plz = document.getElementById('fPlz').value;
+  // PLZ-Dropdown auf Bezirk einschränken
+  updatePlzDropdown();
+  if(progMode) renderMarkersProgMode();
+  else renderMarkers();
   renderHList();
 }
 
@@ -429,8 +459,10 @@ function setSort(el){
 }
 
 function clearFilters(){
-  F = { bezirk:'', levels:[], kats:[], sort:'score_desc' };
+  F = { bezirk:'', plz:'', levels:[], kats:[], sort:'score_desc' };
   document.getElementById('fBezirk').value = '';
+  document.getElementById('fPlz').value = '';
+  updatePlzDropdown();
   document.querySelectorAll('.chip[data-t="lvl"], .chip[data-t="kat"]').forEach(c=>c.classList.remove('on'));
   document.querySelectorAll('.chip[data-t="srt"]').forEach(c=>c.classList.remove('on'));
   document.querySelector('.chip[data-t="srt"][data-v="score_desc"]').classList.add('on');
@@ -468,10 +500,36 @@ function makeIcon(level){
   return L.divIcon({html:svg,className:'',iconSize:[sz,sz],iconAnchor:[cx,cx],popupAnchor:[0,-cx]});
 }
 
+function isFiltered(h){
+  // Prüft ob ein Hotspot dem aktiven Filter entspricht
+  if(F.bezirk && h.bezirk !== F.bezirk) return false;
+  if(F.plz && !(h.plz||'').startsWith(F.plz)) return false;
+  return true;
+}
+
+function makeIconDimmed(level){
+  // Gedimmter grauer Marker für nicht-aktive Bezirke/PLZ
+  const grays = {niedrig:'#c8c8c8', mittel:'#a8a8a8', hoch:'#888', kritisch:'#666'};
+  const c = grays[level] || '#b0b0b0';
+  const r = {niedrig:5, mittel:7, hoch:9, kritisch:11}[level] || 6;
+  const sz = r*2+6, cx = sz/2;
+  return L.divIcon({
+    html:`<svg width="${sz}" height="${sz}" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="${cx}" cy="${cx}" r="${r}" fill="${c}" fill-opacity=".35" stroke="#aaa" stroke-width="0.5" stroke-opacity=".3"/>
+    </svg>`,
+    className:'', iconSize:[sz,sz], iconAnchor:[cx,cx]
+  });
+}
+
 function renderMarkers(){
-  // Alten Cluster-Layer entfernen
   if(clusterGroup) { map.removeLayer(clusterGroup); }
   markers = [];
+  const hasFilter = !!(F.bezirk || F.plz);
+
+  // Alle Hotspots anzeigen — gefilterte farbig, andere grau
+  const allHotspots = D.hotspots.filter(h=>h.meldungen_count>=3);
+  const filtered = filteredHotspots();
+  const filteredIds = new Set(filtered.map(h=>h.cluster_id));
 
   clusterGroup = L.markerClusterGroup({
     maxClusterRadius: 50,
@@ -480,38 +538,52 @@ function renderMarkers(){
     zoomToBoundsOnClick: true,
     iconCreateFunction: function(cluster) {
       const children = cluster.getAllChildMarkers();
-      // Höchste Einstufung im Cluster bestimmen
+      const hasActive = children.some(m=>m._active);
+      if(hasFilter && !hasActive){
+        const count = cluster.getChildCount();
+        const size = count > 50 ? 28 : 22;
+        return L.divIcon({
+          html:`<div style="width:${size}px;height:${size}px;border-radius:50%;
+            background:#bbb;color:#888;display:flex;align-items:center;
+            justify-content:center;font-weight:600;font-size:9px;
+            border:1px solid #ccc;opacity:0.4">${count}</div>`,
+          className:'', iconSize:[size,size], iconAnchor:[size/2,size/2]
+        });
+      }
       const levels = ['kritisch','hoch','mittel','niedrig'];
       let topLevel = 'niedrig';
       for(const m of children){
+        if(!m._active) continue;
         const lvl = m._level || 'niedrig';
         if(levels.indexOf(lvl) < levels.indexOf(topLevel)) topLevel = lvl;
       }
       const c = COLORS[topLevel];
-      const count = cluster.getChildCount();
+      const count = children.filter(m=>m._active).length || cluster.getChildCount();
       const size = count > 100 ? 44 : count > 20 ? 36 : 28;
       return L.divIcon({
-        html: `<div style="width:${size}px;height:${size}px;border-radius:50%;
+        html:`<div style="width:${size}px;height:${size}px;border-radius:50%;
           background:${c};color:white;display:flex;align-items:center;
           justify-content:center;font-weight:700;font-size:${size>36?13:11}px;
           border:2px solid white;box-shadow:0 2px 6px rgba(0,0,0,.3)">${count}</div>`,
-        className: '',
-        iconSize: [size, size],
-        iconAnchor: [size/2, size/2]
+        className:'', iconSize:[size,size], iconAnchor:[size/2,size/2]
       });
     }
   });
 
-  filteredHotspots().forEach(h=>{
-    const m = L.marker([h.lat_center,h.lon_center],{icon:makeIcon(h.score_label)});
+  allHotspots.forEach(h=>{
+    const active = !hasFilter || filteredIds.has(h.cluster_id);
+    const icon = active ? makeIcon(h.score_label) : makeIconDimmed(h.score_label);
+    const m = L.marker([h.lat_center,h.lon_center],{icon});
     m._cid = h.cluster_id;
     m._level = h.score_label;
-    m.on('click', ()=>{
-      showPopup(h);
-      highlightCard(h.cluster_id);
-      // Sheet bei Marker-Klick NICHT hochziehen — Nutzer soll Karte sehen
-    });
-    markers.push(m);
+    m._active = active;
+    if(active){
+      m.on('click', ()=>{
+        showPopup(h);
+        highlightCard(h.cluster_id);
+      });
+      markers.push(m);
+    }
     clusterGroup.addLayer(m);
   });
 
@@ -823,18 +895,15 @@ function makeGrayIcon(level){
 }
 
 function makeProgIcon(prob, color){
-  // Prognose-Marker: leuchtend, Größe nach Wahrscheinlichkeit
-  const r = prob >= 60 ? 18 : prob >= 40 ? 14 : prob >= 25 ? 11 : 9;
-  const sz = r*2+14, cx = sz/2;
-  const pulse = `
-    <circle cx="${cx}" cy="${cx}" r="${r+4}" fill="none" stroke="${color}" stroke-width="1.5" opacity="0.4">
-      <animate attributeName="r" values="${r+2};${r+10};${r+2}" dur="2s" repeatCount="indefinite"/>
-      <animate attributeName="opacity" values="0.5;0;0.5" dur="2s" repeatCount="indefinite"/>
-    </circle>`;
+  // Prognose-Marker: klar sichtbar, Größe nach Wahrscheinlichkeit
+  const r = prob >= 60 ? 20 : prob >= 40 ? 16 : prob >= 25 ? 13 : 10;
+  const sz = r*2+8, cx = sz/2;
+  // Äußerer Ring für Sichtbarkeit
+  const ring = `<circle cx="${cx}" cy="${cx}" r="${r+3}" fill="none" stroke="${color}" stroke-width="2" opacity="0.5"/>`;
   const svg = `<svg width="${sz}" height="${sz}" xmlns="http://www.w3.org/2000/svg">
-    ${pulse}
-    <circle cx="${cx}" cy="${cx}" r="${r}" fill="${color}" fill-opacity=".95" stroke="white" stroke-width="2"/>
-    <text x="${cx}" y="${cx+4}" text-anchor="middle" fill="white" font-size="${r>14?11:9}" font-weight="700" font-family="Arial">${prob}%</text>
+    ${ring}
+    <circle cx="${cx}" cy="${cx}" r="${r}" fill="${color}" fill-opacity=".95" stroke="white" stroke-width="2.5"/>
+    <text x="${cx}" y="${cx+1}" text-anchor="middle" dominant-baseline="middle" fill="white" font-size="${r>=16?12:10}" font-weight="700" font-family="Arial,sans-serif">${prob}%</text>
   </svg>`;
   return L.divIcon({html:svg, className:'', iconSize:[sz,sz], iconAnchor:[cx,cx], popupAnchor:[0,-cx]});
 }
@@ -896,8 +965,15 @@ function renderMarkersProgMode(){
   // Farbe nach Wahrscheinlichkeit
   const progColors = {hoch:'#be0000', mittel:'#e07b00', niedrig:'#2d9d2d', kritisch:'#7b0000'};
 
-  items.forEach(p=>{
-    const color = p.prob >= 50 ? '#be0000' : p.prob >= 35 ? '#e07b00' : '#2d9d2d';
+  // Bezirks/PLZ-Filter auf Prognose anwenden
+  const filteredItems = items.filter(p=>{
+    if(F.bezirk && p.bezirk !== F.bezirk) return false;
+    if(F.plz && !(p.plz||'').startsWith(F.plz)) return false;
+    return true;
+  });
+
+  filteredItems.forEach(p=>{
+    const color = p.prob >= 50 ? '#be0000' : p.prob >= 35 ? '#e07b00' : '#1a7a1a';
     const m = L.marker([p.lat_center, p.lon_center], {
       icon: makeProgIcon(p.prob, color),
       zIndexOffset: 1000
@@ -905,7 +981,6 @@ function renderMarkersProgMode(){
     m._prob = p.prob;
     m._cid = p.cluster_id;
     m.on('click', ()=>{
-      // Popup mit Prognose-Info
       const fullH = D.hotspots.find(x=>x.cluster_id===p.cluster_id);
       if(fullH) showPopup(fullH);
     });
@@ -988,6 +1063,9 @@ document.addEventListener('DOMContentLoaded',()=>{
   (D.bezirke||[]).forEach(b=>{
     const o=document.createElement('option');o.value=b;o.textContent=b;sel.appendChild(o);
   });
+
+  // PLZ Dropdown initial befüllen
+  updatePlzDropdown();
 
   renderKatChips();
   initMap();

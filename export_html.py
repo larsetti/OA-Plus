@@ -194,6 +194,7 @@ def load_data():
             'cluster_id': h['cluster_id'],
             'bezirk': h['bezirk'],
             'strasse': h.get('strasse', ''),
+            'plz': h.get('plz', ''),
             'score_label': h['score_label'],
             'meldungen_count': h['meldungen_count'],
             'lat_center': h['lat_center'],
