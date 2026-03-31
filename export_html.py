@@ -265,7 +265,11 @@ def load_data():
     return {
         "hotspots": hotspots,
         "bezirk_stats": bezirk_stats,
-        "bezirke": sorted(set(h['bezirk'] for h in hotspots if h['bezirk'])),
+        "bezirke": [
+            'Charlottenburg-Wilmersdorf','Friedrichshain-Kreuzberg','Lichtenberg',
+            'Marzahn-Hellersdorf','Mitte','Neukölln','Pankow','Reinickendorf',
+            'Spandau','Steglitz-Zehlendorf','Tempelhof-Schöneberg','Treptow-Köpenick'
+        ],
         "kat_keys": {k: {'label': v['label'], 'color': v['color']} for k, v in KATEGORIE_GRUPPEN.items()},
         "prognose": prognose,
         "last_update": datetime.now().strftime("%Y-%m-%d"),
