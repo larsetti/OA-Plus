@@ -694,7 +694,7 @@ function renderMarkers(){
   filteredHotspots().forEach(h=>{
     const m = L.marker([h.lat_center,h.lon_center],{icon:makeIcon(h.score_label, getLabel(h))});
     m._cid = h.cluster_id;
-    m._level = h.score_label;
+    m._level = getLabel(h);
     m.on('click', ()=>{
       showPopup(h);
       highlightCard(h.cluster_id);
@@ -1237,6 +1237,7 @@ document.addEventListener('DOMContentLoaded',()=>{
 </script>
 </body>
 </html>
+
 
 
 
