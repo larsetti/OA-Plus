@@ -484,7 +484,7 @@ const BEZIRK_THRESHOLDS = {};
     BEZIRK_THRESHOLDS[b] = {
       mittel: scores[Math.floor(n*0.50)] || 5,
       hoch:   scores[Math.floor(n*0.75)] || 15,
-      kritisch: scores[Math.min(Math.floor(n*0.90), n-1)] || 30,
+      kritisch: scores[Math.min(Math.floor(n*0.95), n-1)] || 30,
     };
   });
 })();
@@ -1237,6 +1237,7 @@ document.addEventListener('DOMContentLoaded',()=>{
 </script>
 </body>
 </html>
+
 
 
 
