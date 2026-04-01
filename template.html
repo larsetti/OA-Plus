@@ -385,8 +385,8 @@ select.fs:focus{outline:2px solid var(--red)}
         <span class="fl">Sortierung</span>
         <div class="fr-right">
           <div class="chips">
-            <span class="chip on" data-t="srt" data-v="score_desc" onclick="setSort(this)">â–¼ Bewertung</span>
-            <span class="chip" data-t="srt" data-v="score_asc" onclick="setSort(this)">â–² Bewertung</span>
+            <span class="chip on" data-t="srt" data-v="score_desc" onclick="setSort(this)">▼ Bewertung</span>
+            <span class="chip" data-t="srt" data-v="score_asc" onclick="setSort(this)">▲ Bewertung</span>
             <span class="chip" data-t="srt" data-v="meldungen" onclick="setSort(this)">Meldungen</span>
             <span class="chip" data-t="srt" data-v="datum" onclick="setSort(this)">Aktuellste</span>
           </div>
@@ -431,18 +431,18 @@ select.fs:focus{outline:2px solid var(--red)}
         <div class="li"><span class="ln">🚗</span>Schrottfahrzeug —” Verstoß gegen FZV</div>
         <div class="li"><span class="ln">🛋</span>Sperrmüll —” Umgehung regulärer Entsorgungswege</div>
         <div class="li"><span class="ln">⚡</span>Elektroschrott —” Verstoß gegen ElektroG</div>
-        <div class="li"><span class="ln">🚮</span>Illegale Entsorgung —” Ordnungswidrigkeit Â§61 KrWG</div>
+        <div class="li"><span class="ln">🚮</span>Illegale Entsorgung —” Ordnungswidrigkeit §61 KrWG</div>
       </div>
       <div class="isec"><h3>Zeitliche Auswertung</h3>
-        <div class="li"><span class="ln" style="color:var(--red)">Mo</span>Montags-Schwerpunkt â†’ Ablagerung am Wochenende</div>
-        <div class="li"><span class="ln" style="color:#7b3fa0">Sa/So</span>Wochenend-Schwerpunkt â†’ außerhalb der Werktage</div>
-        <div class="li"><span class="ln">📅</span>Monatsendhäufung â†’ Zusammenhang mit Wohnungswechseln</div>
-        <div class="li"><span class="ln">🌸</span>Saisonale Häufung â†’ jahreszeittypisches Muster</div>
+        <div class="li"><span class="ln" style="color:var(--red)">Mo</span>Montags-Schwerpunkt → Ablagerung am Wochenende</div>
+        <div class="li"><span class="ln" style="color:#7b3fa0">Sa/So</span>Wochenend-Schwerpunkt → außerhalb der Werktage</div>
+        <div class="li"><span class="ln">📅</span>Monatsendhäufung → Zusammenhang mit Wohnungswechseln</div>
+        <div class="li"><span class="ln">🌸</span>Saisonale Häufung → jahreszeittypisches Muster</div>
       </div>
       <div class="isec"><h3>Bewertungsberechnung</h3>
         <div class="li"><span class="ln">+1</span>Pro Meldung an diesem Standort</div>
         <div class="li"><span class="ln">+3</span>Folgemeldung innerhalb 21 Tagen nach Beseitigung</div>
-        <div class="li"><span class="ln">Ã—</span>Zeitfaktor: aktuellere Standorte höher gewichtet</div>
+        <div class="li"><span class="ln">×</span>Zeitfaktor: aktuellere Standorte höher gewichtet</div>
       </div>
       <div class="isec"><h3>Datengrundlage</h3>
         <p style="font-size:12px;color:#666;line-height:1.6">Ordnungsamt Online API · Berlin Open Data<br>Datenlizenz Deutschland —“ Namensnennung 2.0<br>Tagesaktuelle Aktualisierung</p>
@@ -759,7 +759,7 @@ function makePopupHTML(h){
     <div class="pop-addr">${addrLine}</div>
     <div class="pop-grid">
       <div><div class="pop-l">Meldungen</div><div class="pop-v">${h.meldungen_count}</div></div>
-      <div><div class="pop-l">Wiederkehr</div><div class="pop-v">${h.recurrence_count}Ã—</div></div>
+      <div><div class="pop-l">Wiederkehr</div><div class="pop-v">${h.recurrence_count}×</div></div>
       <div><div class="pop-l">Erstmeldung</div><div class="pop-v" style="font-size:11px">${h.first_seen}</div></div>
       <div><div class="pop-l">Letzte Meldung</div><div class="pop-v" style="font-size:11px">${h.last_seen}</div></div>
     </div>
@@ -893,15 +893,15 @@ function renderHList(){
           ${addrLine}
           <div class="hc-meta">
             <span class="hc-m"><strong>${h.meldungen_count}</strong> Meld.</span>
-            <span class="hc-m"><strong>${h.recurrence_count}Ã—</strong> Wiederk.</span>
+            <span class="hc-m"><strong>${h.recurrence_count}×</strong> Wiederk.</span>
             <span class="hc-m">Bew. <strong style="color:${c}">${h.score}</strong></span>
           </div>
           <div class="hc-topcats">${topCatBadges}</div>
         </div>
         <div class="hc-right">
           <div class="hc-badge ${bgClass}">${dynLabel}</div>
-          ${hasAuf?'<span class="hc-flag">âš‘ Festst.</span>':''}
-          <div class="hc-chevron">â–¼</div>
+          ${hasAuf?'<span class="hc-flag">⚑ Festst.</span>':''}
+          <div class="hc-chevron">▼</div>
         </div>
       </div>
       <div class="hc-det">
