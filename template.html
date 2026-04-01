@@ -796,18 +796,43 @@ function highlightCard(cid){
   dimOtherMarkers(cid);
 }
 
+function makeDimIcon(level){
+  const c = '#aaaaaa';
+  const r = {niedrig:8,mittel:11,hoch:15,kritisch:20}[level]||8;
+  const sz=r*2+10, cx=sz/2;
+  return L.divIcon({
+    html:`<svg width="${sz}" height="${sz}" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="${cx}" cy="${cx}" r="${r}" fill="${c}" fill-opacity=".3" stroke="#ccc" stroke-width="1"/>
+    </svg>`,
+    className:'', iconSize:[sz,sz], iconAnchor:[cx,cx]
+  });
+}
+
+function makeSelectedIcon(level){
+  const c = COLORS[level]||'#be0000';
+  const r = {niedrig:10,mittel:13,hoch:17,kritisch:22}[level]||10;
+  const sz=r*2+14, cx=sz/2;
+  return L.divIcon({
+    html:`<svg width="${sz}" height="${sz}" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="${cx}" cy="${cx}" r="${r+4}" fill="none" stroke="${c}" stroke-width="2" opacity="0.5"/>
+      <circle cx="${cx}" cy="${cx}" r="${r}" fill="${c}" fill-opacity="1" stroke="white" stroke-width="2.5"/>
+    </svg>`,
+    className:'', iconSize:[sz,sz], iconAnchor:[cx,cx], popupAnchor:[0,-cx]
+  });
+}
+
 function dimOtherMarkers(cid){
   if(!markers) return;
   markers.forEach(m=>{
-    const el = m.getElement ? m.getElement() : null;
-    if(!el) return;
+    const h = D.hotspots.find(x=>x.cluster_id===m._cid);
+    if(!h) return;
+    const lbl = getLabel(h);
     if(m._cid === cid){
-      el.style.opacity = '1';
-      el.style.filter = 'drop-shadow(0 0 6px #be0000)';
-      el.style.zIndex = '1000';
+      m.setIcon(makeSelectedIcon(lbl));
+      m.setZIndexOffset(1000);
     } else {
-      el.style.opacity = '0.2';
-      el.style.filter = 'grayscale(100%)';
+      m.setIcon(makeDimIcon(lbl));
+      m.setZIndexOffset(0);
     }
   });
 }
@@ -816,11 +841,11 @@ function clearDimming(){
   selectedCid = null;
   if(!markers) return;
   markers.forEach(m=>{
-    const el = m.getElement ? m.getElement() : null;
-    if(!el) return;
-    el.style.opacity = '1';
-    el.style.filter = '';
-    el.style.zIndex = '';
+    const h = D.hotspots.find(x=>x.cluster_id===m._cid);
+    if(!h) return;
+    const lbl = getLabel(h);
+    m.setIcon(makeIcon(h.score_label, lbl));
+    m.setZIndexOffset(0);
   });
   document.querySelectorAll('.hcard').forEach(el=>el.classList.remove('sel'));
 }
