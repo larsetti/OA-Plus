@@ -675,7 +675,7 @@ function renderMarkers(){
     iconCreateFunction: function(cluster) {
       const children = cluster.getAllChildMarkers();
       // HÃ¶chste Einstufung im Cluster bestimmen
-      const levelOrder={kritisch:3,hoch:2,mittel:1,niedrig:0}; const scores=children.map(m=>levelOrder[m._level]||0); const avg=scores.reduce((a,b)=>a+b,0)/scores.length; const topLevel=avg>=2.5?'kritisch':avg>=1.5?'hoch':avg>=0.5?'mittel':'niedrig';
+      const lvlCount={niedrig:0,mittel:0,hoch:0,kritisch:0}; children.forEach(m=>{lvlCount[m._level||'niedrig']++;}); const topLevel=['niedrig','mittel','hoch','kritisch'].reduce((a,b)=>lvlCount[b]>lvlCount[a]?b:a);
       const c = COLORS[topLevel];
       const count = cluster.getChildCount();
       const size = count > 100 ? 44 : count > 20 ? 36 : 28;
