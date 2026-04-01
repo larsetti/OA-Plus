@@ -711,6 +711,7 @@ function renderMarkers(){
       });
       markers.push(m);
     }
+    m._h = h;
     clusterGroup.addLayer(m);
   });
 
@@ -821,31 +822,33 @@ function makeSelectedIcon(level){
   });
 }
 
+function getAllMarkers(){
+  // Alle Marker aus dem clusterGroup holen — auch geclusterte
+  const all = [];
+  if(clusterGroup) {
+    clusterGroup.eachLayer(m=>{ if(m._cid) all.push(m); });
+  }
+  return all;
+}
+
 function dimOtherMarkers(cid){
-  if(!markers) return;
-  markers.forEach(m=>{
-    const h = D.hotspots.find(x=>x.cluster_id===m._cid);
-    if(!h) return;
-    const lbl = getLabel(h);
+  getAllMarkers().forEach(m=>{
+    if(!m._h) return;
+    const lbl = getLabel(m._h);
     if(m._cid === cid){
       m.setIcon(makeSelectedIcon(lbl));
-      m.setZIndexOffset(1000);
     } else {
       m.setIcon(makeDimIcon(lbl));
-      m.setZIndexOffset(0);
     }
   });
 }
 
 function clearDimming(){
   selectedCid = null;
-  if(!markers) return;
-  markers.forEach(m=>{
-    const h = D.hotspots.find(x=>x.cluster_id===m._cid);
-    if(!h) return;
-    const lbl = getLabel(h);
-    m.setIcon(makeIcon(h.score_label, lbl));
-    m.setZIndexOffset(0);
+  getAllMarkers().forEach(m=>{
+    if(!m._h) return;
+    const lbl = getLabel(m._h);
+    m.setIcon(makeIcon(m._h.score_label, lbl));
   });
   document.querySelectorAll('.hcard').forEach(el=>el.classList.remove('sel'));
 }
