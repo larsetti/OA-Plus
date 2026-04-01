@@ -199,7 +199,7 @@ select.fs:focus{outline:2px solid var(--red)}
 .leaflet-control-zoom a{color:var(--gray)!important;font-weight:700!important}
 .leaflet-control-attribution{font-size:9px!important}
 
-/* â•â• MOBILE BOTTOM SHEET â•â• */
+/* â•â• MOBILE BOTTOM SHEET â•â• */
 @media(max-width:768px){
   .hdr-stats .hst:nth-child(n+3){display:none}
   .main{overflow:visible}
@@ -279,7 +279,7 @@ select.fs:focus{outline:2px solid var(--red)}
   <button id="settingsBtn" onclick="toggleSettings()" style="
     background:rgba(255,255,255,.15);border:none;color:white;cursor:pointer;
     padding:4px 10px;border-radius:3px;font-size:13px;margin-left:8px;
-    font-family:inherit;font-weight:600">âš™ï¸</button>
+    font-family:inherit;font-weight:600">âš™ï¸</button>
 </div>
 
 <!-- EINSTELLUNGS-PANEL -->
@@ -316,7 +316,7 @@ select.fs:focus{outline:2px solid var(--red)}
 
   <!-- Cluster-Radius -->
   <div style="margin-bottom:12px">
-    <div style="font-weight:600;margin-bottom:5px">ðŸ—ºï¸ Cluster-Radius</div>
+    <div style="font-weight:600;margin-bottom:5px">ðŸ—ºï¸ Cluster-Radius</div>
     <div style="display:flex;align-items:center;gap:8px">
       <input type="range" id="clusterRadius" min="20" max="120" value="50"
         oninput="document.getElementById('clusterRadiusVal').textContent=this.value+'px';applySettings()"
@@ -348,7 +348,7 @@ select.fs:focus{outline:2px solid var(--red)}
 
   <!-- Nur aktive Standorte -->
   <div style="margin-bottom:12px">
-    <div style="font-weight:600;margin-bottom:5px">ðŸ“ Standort-Filter</div>
+    <div style="font-weight:600;margin-bottom:5px">ðŸ“ Standort-Filter</div>
     <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:4px">
       <input type="checkbox" id="onlyRecurring" onchange="applySettings()">
       <span>Nur Wiederkehr-Standorte <span style="color:#aaa;font-size:11px">(recurrence > 0)</span></span>
@@ -442,7 +442,7 @@ select.fs:focus{outline:2px solid var(--red)}
         <div class="leg-row"><div class="leg-dot" style="background:var(--c-kritisch)"></div><strong style="color:var(--c-kritisch)">Kritisch (13+)</strong> â€” Dauerhafter Problemstandort</div>
       </div>
       <div class="isec"><h3>Abfallarten</h3>
-        <div class="li"><span class="ln">ðŸ—</span>Bauschutt â€” gewerbliche Herkunft wahrscheinlich</div>
+        <div class="li"><span class="ln">ðŸ—</span>Bauschutt â€” gewerbliche Herkunft wahrscheinlich</div>
         <div class="li"><span class="ln">ðŸŒ¿</span>Grünschnitt/Gartenabfall â€” Garten- oder Kleingartenanlagen</div>
         <div class="li"><span class="ln">ðŸš—</span>Schrottfahrzeug â€” VerstoÃŸ gegen FZV</div>
         <div class="li"><span class="ln">ðŸ›‹</span>Sperrmüll â€” Umgehung regulärer Entsorgungswege</div>
@@ -748,8 +748,8 @@ function makePopupHTML(h){
   ).join('');
 
   const addrLine = h.strasse
-    ? `ðŸ“ ${[h.strasse,h.plz,h.bezirk].filter(Boolean).join(' Â· ')}`
-    : `ðŸ“ ${h.bezirk||'Unbekannt'}`;
+    ? `ðŸ“ ${[h.strasse,h.plz,h.bezirk].filter(Boolean).join(' Â· ')}`
+    : `ðŸ“ ${h.bezirk||'Unbekannt'}`;
 
   const maxScore=30, scorePct=Math.min(100,(h.score/maxScore)*100).toFixed(0);
 
@@ -885,7 +885,7 @@ function renderHList(){
 
     const hasAuf = (h.auffaelligkeiten||[]).length > 0;
     const addrLine = h.strasse
-      ? `<div class="hc-addr">ðŸ“ ${h.strasse}${h.plz?' Â· '+h.plz:''}</div>`
+      ? `<div class="hc-addr">ðŸ“ ${h.strasse}${h.plz?' Â· '+h.plz:''}</div>`
       : '';
 
     return `<div class="hcard" data-l="${dynLabel}" data-cid="${h.cluster_id}"
@@ -1020,7 +1020,7 @@ function renderPrognose(tab){
       <div class="pc-top">
         <div style="flex:1;min-width:0">
           <div class="pc-bez">${p.bezirk}</div>
-          ${p.strasse ? `<div class="pc-addr">ðŸ“ ${p.strasse}${p.plz?' Â· '+p.plz:''}</div>` : ''}
+          ${p.strasse ? `<div class="pc-addr">ðŸ“ ${p.strasse}${p.plz?' Â· '+p.plz:''}</div>` : ''}
           <div class="pc-grund">${p.grund}</div>
           ${p.top_kat_label ? `<span class="pc-kat" style="background:${p.top_kat_color}">${p.top_kat_label}</span>` : ''}
           <div style="font-size:10px;color:#aaa;margin-top:2px">ðŸ“Š ${p.meldungen_count} Meldungen Â· Klicken für Details</div>
@@ -1173,7 +1173,7 @@ function flyToHotspot(cid){
           <div class="pop-su">${p.prob}% Wahrscheinlichkeit</div>
         </div>
         <div class="pop-bd">
-          ${p.strasse ? `<div class="pop-addr">ðŸ“ ${p.strasse}</div>` : ''}
+          ${p.strasse ? `<div class="pop-addr">ðŸ“ ${p.strasse}</div>` : ''}
           <div style="font-size:12px;margin-bottom:6px">${p.grund}</div>
           ${p.top_kat_label ? `<span style="background:${p.top_kat_color};color:white;padding:2px 8px;border-radius:8px;font-size:11px">${p.top_kat_label}</span>` : ''}
           <div style="margin-top:8px;font-size:11px;color:#999">ðŸ“Š ${p.meldungen_count} historische Meldungen</div>
