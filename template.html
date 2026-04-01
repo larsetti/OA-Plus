@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>MÃ¼ll-Hotspot Monitor Berlin</title>
+<title>Müll-Hotspot Monitor Berlin</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.css"/>
@@ -139,7 +139,7 @@ select.fs:focus{outline:2px solid var(--red)}
 .kp{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;
   border-radius:10px;font-size:11px;font-weight:600;color:white}
 .kp-pct{opacity:.75;font-size:10px}
-/* Wochentag-Chart â€” feste HÃ¶he, kein Overflow */
+/* Wochentag-Chart â€” feste Höhe, kein Overflow */
 .wd-chart{display:flex;gap:3px;height:36px}
 .wd-col{display:flex;flex-direction:column;align-items:center;
   justify-content:flex-end;flex:1;gap:2px;min-width:0}
@@ -273,7 +273,7 @@ select.fs:focus{outline:2px solid var(--red)}
       <line x1="17" y1="16" x2="17" y2="25" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
       <line x1="21" y1="16" x2="21" y2="25" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
     </svg>
-    <div class="hdr-title">MÃ¼ll-Hotspot Monitor Â· Berlin</div>
+    <div class="hdr-title">Müll-Hotspot Monitor Â· Berlin</div>
   </div>
   <div class="hdr-stats" id="hStats"></div>
   <button id="settingsBtn" onclick="toggleSettings()" style="
@@ -299,7 +299,7 @@ select.fs:focus{outline:2px solid var(--red)}
     </label>
     <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
       <input type="radio" name="scoreMode" value="stadt" onchange="applySettings()">
-      <span>Stadtweit <span style="color:#aaa;font-size:11px">(Einheitliche Schwellen fÃ¼r ganz Berlin)</span></span>
+      <span>Stadtweit <span style="color:#aaa;font-size:11px">(Einheitliche Schwellen für ganz Berlin)</span></span>
     </label>
   </div>
 
@@ -325,9 +325,9 @@ select.fs:focus{outline:2px solid var(--red)}
     </div>
   </div>
 
-  <!-- Marker-GrÃ¶ÃŸe -->
+  <!-- Marker-GröÃŸe -->
   <div style="margin-bottom:12px">
-    <div style="font-weight:600;margin-bottom:5px">â­• Marker-GrÃ¶ÃŸe</div>
+    <div style="font-weight:600;margin-bottom:5px">â­• Marker-GröÃŸe</div>
     <div style="display:flex;gap:6px">
       <button onclick="setSetting('markerSize','klein')" class="set-btn" data-s="markerSize" data-v="klein">Klein</button>
       <button onclick="setSetting('markerSize','normal')" class="set-btn on" data-s="markerSize" data-v="normal">Normal</button>
@@ -361,7 +361,7 @@ select.fs:focus{outline:2px solid var(--red)}
 
   <button onclick="resetSettings()" style="width:100%;padding:6px;background:#f5f5f5;
     border:1px solid #ddd;border-radius:3px;cursor:pointer;font-family:inherit;font-size:12px">
-    Einstellungen zurÃ¼cksetzen
+    Einstellungen zurücksetzen
   </button>
 </div>
 
@@ -410,7 +410,7 @@ select.fs:focus{outline:2px solid var(--red)}
       </div>
       <div class="filter-actions">
         <span class="rcount" id="rCount"></span>
-        <button class="clear-btn" onclick="clearFilters()">Filter zurÃ¼cksetzen</button>
+        <button class="clear-btn" onclick="clearFilters()">Filter zurücksetzen</button>
       </div>
     </div>
 
@@ -437,28 +437,28 @@ select.fs:focus{outline:2px solid var(--red)}
     <div class="panel" id="panel-info">
       <div class="isec"><h3>Einstufungssystem</h3>
         <div class="leg-row"><div class="leg-dot" style="background:var(--c-niedrig)"></div><strong style="color:var(--c-niedrig)">Niedrig (0â€“3)</strong> â€” Einzelmeldung</div>
-        <div class="leg-row"><div class="leg-dot" style="background:var(--c-mittel)"></div><strong style="color:var(--c-mittel)">Mittel (4â€“7)</strong> â€” Gelegentliche HÃ¤ufung</div>
+        <div class="leg-row"><div class="leg-dot" style="background:var(--c-mittel)"></div><strong style="color:var(--c-mittel)">Mittel (4â€“7)</strong> â€” Gelegentliche Häufung</div>
         <div class="leg-row"><div class="leg-dot" style="background:var(--c-hoch)"></div><strong style="color:var(--c-hoch)">Hoch (8â€“12)</strong> â€” Wiederholungsmuster</div>
         <div class="leg-row"><div class="leg-dot" style="background:var(--c-kritisch)"></div><strong style="color:var(--c-kritisch)">Kritisch (13+)</strong> â€” Dauerhafter Problemstandort</div>
       </div>
       <div class="isec"><h3>Abfallarten</h3>
         <div class="li"><span class="ln">ðŸ—</span>Bauschutt â€” gewerbliche Herkunft wahrscheinlich</div>
-        <div class="li"><span class="ln">ðŸŒ¿</span>GrÃ¼nschnitt/Gartenabfall â€” Garten- oder Kleingartenanlagen</div>
+        <div class="li"><span class="ln">ðŸŒ¿</span>Grünschnitt/Gartenabfall â€” Garten- oder Kleingartenanlagen</div>
         <div class="li"><span class="ln">ðŸš—</span>Schrottfahrzeug â€” VerstoÃŸ gegen FZV</div>
-        <div class="li"><span class="ln">ðŸ›‹</span>SperrmÃ¼ll â€” Umgehung regulÃ¤rer Entsorgungswege</div>
+        <div class="li"><span class="ln">ðŸ›‹</span>Sperrmüll â€” Umgehung regulärer Entsorgungswege</div>
         <div class="li"><span class="ln">âš¡</span>Elektroschrott â€” VerstoÃŸ gegen ElektroG</div>
         <div class="li"><span class="ln">ðŸš®</span>Illegale Entsorgung â€” Ordnungswidrigkeit Â§61 KrWG</div>
       </div>
       <div class="isec"><h3>Zeitliche Auswertung</h3>
         <div class="li"><span class="ln" style="color:var(--red)">Mo</span>Montags-Schwerpunkt â†’ Ablagerung am Wochenende</div>
         <div class="li"><span class="ln" style="color:#7b3fa0">Sa/So</span>Wochenend-Schwerpunkt â†’ auÃŸerhalb der Werktage</div>
-        <div class="li"><span class="ln">ðŸ“…</span>MonatsendhÃ¤ufung â†’ Zusammenhang mit Wohnungswechseln</div>
-        <div class="li"><span class="ln">ðŸŒ¸</span>Saisonale HÃ¤ufung â†’ jahreszeittypisches Muster</div>
+        <div class="li"><span class="ln">ðŸ“…</span>Monatsendhäufung â†’ Zusammenhang mit Wohnungswechseln</div>
+        <div class="li"><span class="ln">ðŸŒ¸</span>Saisonale Häufung â†’ jahreszeittypisches Muster</div>
       </div>
       <div class="isec"><h3>Bewertungsberechnung</h3>
         <div class="li"><span class="ln">+1</span>Pro Meldung an diesem Standort</div>
         <div class="li"><span class="ln">+3</span>Folgemeldung innerhalb 21 Tagen nach Beseitigung</div>
-        <div class="li"><span class="ln">Ã—</span>Zeitfaktor: aktuellere Standorte hÃ¶her gewichtet</div>
+        <div class="li"><span class="ln">Ã—</span>Zeitfaktor: aktuellere Standorte höher gewichtet</div>
       </div>
       <div class="isec"><h3>Datengrundlage</h3>
         <p style="font-size:12px;color:#666;line-height:1.6">Ordnungsamt Online API Â· Berlin Open Data<br>Datenlizenz Deutschland â€“ Namensnennung 2.0<br>Tagesaktuelle Aktualisierung</p>
@@ -674,8 +674,11 @@ function renderMarkers(){
     zoomToBoundsOnClick: true,
     iconCreateFunction: function(cluster) {
       const children = cluster.getAllChildMarkers();
-      // HÃ¶chste Einstufung im Cluster bestimmen
-      const lvlCount={niedrig:0,mittel:0,hoch:0,kritisch:0}; children.forEach(m=>{lvlCount[m._level||'niedrig']++;}); const topLevel=['niedrig','mittel','hoch','kritisch'].reduce((a,b)=>lvlCount[b]>lvlCount[a]?b:a);
+      // Höchste Einstufung im Cluster bestimmen
+      const lvlW={niedrig:0,mittel:1,hoch:2,kritisch:3};
+      const activeC=children.filter(m=>m._active||!hasFilter);
+      const wAvg=activeC.length?activeC.reduce((s,m)=>s+(lvlW[m._level||'niedrig']),0)/activeC.length:0;
+      const topLevel=wAvg>1.8?'kritisch':wAvg>1.2?'hoch':wAvg>0.5?'mittel':'niedrig';
       const c = COLORS[topLevel];
       const count = cluster.getChildCount();
       const size = count > 100 ? 44 : count > 20 ? 36 : 28;
@@ -795,7 +798,7 @@ function toggleCard(cid){
   card.classList.add('sel');
   document.querySelectorAll('.hcard:not([data-cid="'+cid+'"])').forEach(c=>c.classList.remove('sel'));
 
-  // Karte zentrieren + Popup Ã¶ffnen
+  // Karte zentrieren + Popup öffnen
   map.flyTo([h.lat_center, h.lon_center], 14, {duration:0.8});
   showPopup(h);
 
@@ -973,11 +976,11 @@ function renderPrognose(tab){
     monat: P.monat_name,
   };
   document.getElementById('progInfo').textContent =
-    items.length + ' Standorte mit erhÃ¶htem Risiko Â· ' + infoMap[tab];
+    items.length + ' Standorte mit erhöhtem Risiko Â· ' + infoMap[tab];
 
   if(items.length === 0){
     document.getElementById('progList').innerHTML =
-      '<div style="padding:20px;text-align:center;color:#aaa;font-size:12px">Keine Prognose-Daten verfÃ¼gbar</div>';
+      '<div style="padding:20px;text-align:center;color:#aaa;font-size:12px">Keine Prognose-Daten verfügbar</div>';
     return;
   }
 
@@ -989,11 +992,11 @@ function renderPrognose(tab){
   });
 
   document.getElementById('progInfo').textContent =
-    filteredItems.length + ' Standorte mit erhÃ¶htem Risiko Â· ' + infoMap[tab];
+    filteredItems.length + ' Standorte mit erhöhtem Risiko Â· ' + infoMap[tab];
 
   if(filteredItems.length === 0){
     document.getElementById('progList').innerHTML =
-      '<div style="padding:20px;text-align:center;color:#aaa;font-size:12px">Keine Prognose-Daten fÃ¼r diesen Filter verfÃ¼gbar</div>';
+      '<div style="padding:20px;text-align:center;color:#aaa;font-size:12px">Keine Prognose-Daten für diesen Filter verfügbar</div>';
     return;
   }
 
@@ -1010,7 +1013,7 @@ function renderPrognose(tab){
           ${p.strasse ? `<div class="pc-addr">ðŸ“ ${p.strasse}${p.plz?' Â· '+p.plz:''}</div>` : ''}
           <div class="pc-grund">${p.grund}</div>
           ${p.top_kat_label ? `<span class="pc-kat" style="background:${p.top_kat_color}">${p.top_kat_label}</span>` : ''}
-          <div style="font-size:10px;color:#aaa;margin-top:2px">ðŸ“Š ${p.meldungen_count} Meldungen Â· Klicken fÃ¼r Details</div>
+          <div style="font-size:10px;color:#aaa;margin-top:2px">ðŸ“Š ${p.meldungen_count} Meldungen Â· Klicken für Details</div>
         </div>
         <div class="prob-badge" style="font-size:14px">${p.prob}%</div>
       </div>
@@ -1033,7 +1036,7 @@ function makeGrayIcon(level){
 }
 
 function makeProgIcon(prob, color){
-  // Prognose-Marker: leuchtend, GrÃ¶ÃŸe nach Wahrscheinlichkeit
+  // Prognose-Marker: leuchtend, GröÃŸe nach Wahrscheinlichkeit
   const r = prob >= 60 ? 18 : prob >= 40 ? 14 : prob >= 25 ? 11 : 9;
   const sz = r*2+14, cx = sz/2;
   const pulse = `
