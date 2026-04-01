@@ -869,8 +869,24 @@ function toggleCard(cid){
   document.querySelectorAll('.hcard:not([data-cid="'+cid+'"])').forEach(c=>c.classList.remove('sel'));
 
   // Karte zentrieren + Popup öffnen
-  map.flyTo([h.lat_center, h.lon_center], 14, {duration:0.8});
-  showPopup(h);
+  map.flyTo([h.lat_center, h.lon_center], 17, {duration:0.8});
+
+  // Nach Zoom: Cluster aufsprengen und Marker dimmen
+  setTimeout(()=>{
+    showPopup(h);
+    // Direkt alle Layer-Icons aktualisieren
+    if(clusterGroup){
+      clusterGroup.eachLayer(m=>{
+        if(!m._h) return;
+        const lbl = getLabel(m._h);
+        if(m._cid === cid){
+          try { m.setIcon(makeSelectedIcon(lbl)); } catch(e){}
+        } else {
+          try { m.setIcon(makeDimIcon(lbl)); } catch(e){}
+        }
+      });
+    }
+  }, 900);
 
   // Mobile: Sheet auf peek damit Karte sichtbar bleibt
   if(isMobile()) setSheet('peek');
