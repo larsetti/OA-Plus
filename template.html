@@ -474,7 +474,7 @@ const D = __APP_DATA_PLACEHOLDER__;
 const BEZIRK_THRESHOLDS = {};
 (function(){
   const byBezirk = {};
-  D.hotspots.forEach(h=>{
+  D.hotspots.filter(h=>h.meldungen_count>=3).forEach(h=>{
     if(!byBezirk[h.bezirk]) byBezirk[h.bezirk]=[];
     byBezirk[h.bezirk].push(h.score);
   });
@@ -1242,4 +1242,5 @@ document.addEventListener('DOMContentLoaded',()=>{
 </script>
 </body>
 </html>
+
 
