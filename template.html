@@ -634,7 +634,7 @@ function initMap(){
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
     attribution:'© OpenStreetMap',maxZoom:19}).addTo(map);
   renderMarkers();
-  map.on('click', ()=>{ if(isMobile() && sheetState!=='peek') setSheet('peek'); });
+  map.on('click', ()=>{ clearDimming(); if(isMobile() && sheetState!=='peek') setSheet('peek'); });
 }
 
 function isMobile(){ return window.innerWidth <= 768; }
@@ -782,12 +782,47 @@ function showPopup(h){
 }
 
 // â”€â”€ Card Interaktion â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+let selectedCid = null;
+
 function highlightCard(cid){
   document.querySelectorAll('.hcard').forEach(el=>{
     el.classList.toggle('sel', el.dataset.cid===cid);
   });
   const card = document.querySelector(`.hcard[data-cid="${cid}"]`);
   if(card) card.scrollIntoView({behavior:'smooth',block:'nearest'});
+
+  // Alle anderen Marker ausgrauen, ausgewählten hervorheben
+  selectedCid = cid;
+  dimOtherMarkers(cid);
+}
+
+function dimOtherMarkers(cid){
+  if(!markers) return;
+  markers.forEach(m=>{
+    const el = m.getElement ? m.getElement() : null;
+    if(!el) return;
+    if(m._cid === cid){
+      el.style.opacity = '1';
+      el.style.filter = 'drop-shadow(0 0 6px #be0000)';
+      el.style.zIndex = '1000';
+    } else {
+      el.style.opacity = '0.2';
+      el.style.filter = 'grayscale(100%)';
+    }
+  });
+}
+
+function clearDimming(){
+  selectedCid = null;
+  if(!markers) return;
+  markers.forEach(m=>{
+    const el = m.getElement ? m.getElement() : null;
+    if(!el) return;
+    el.style.opacity = '1';
+    el.style.filter = '';
+    el.style.zIndex = '';
+  });
+  document.querySelectorAll('.hcard').forEach(el=>el.classList.remove('sel'));
 }
 
 function toggleCard(cid){
