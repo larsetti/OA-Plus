@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="de">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Müll-Hotspot Monitor Berlin</title>
+<title>MÃ¼ll-Hotspot Monitor Berlin</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.css"/>
@@ -39,7 +39,7 @@ body{font-family:'Source Sans 3',Arial,sans-serif;background:var(--light);color:
 .main{display:flex;flex:1;overflow:hidden;position:relative}
 #map{flex:1;z-index:1}
 
-/* SIDEBAR — Desktop */
+/* SIDEBAR â€” Desktop */
 .sidebar{width:360px;background:white;border-left:1px solid var(--border);
   display:flex;flex-direction:column;overflow:hidden;flex-shrink:0;z-index:2}
 
@@ -57,7 +57,7 @@ select.fs{width:100%;padding:4px 22px 4px 7px;border:1px solid var(--border);
   appearance:none;color:var(--gray)}
 select.fs:focus{outline:2px solid var(--red)}
 
-/* FILTER CHIPS — multi-select */
+/* FILTER CHIPS â€” multi-select */
 .chips{display:flex;gap:4px;flex-wrap:wrap}
 .chip{padding:3px 9px;border-radius:12px;font-size:11px;font-weight:600;
   cursor:pointer;border:1.5px solid;background:transparent;
@@ -107,7 +107,7 @@ select.fs:focus{outline:2px solid var(--red)}
 .hcard.sel{border-color:var(--red);background:#fff8f8}
 .hcard:active{background:#fafafa}
 
-/* Card head — immer sichtbar */
+/* Card head â€” immer sichtbar */
 .hc-head{display:flex;justify-content:space-between;align-items:flex-start;
   padding:9px 10px;gap:8px}
 .hc-main{flex:1;min-width:0}
@@ -129,7 +129,7 @@ select.fs:focus{outline:2px solid var(--red)}
 .hc-chevron{font-size:11px;color:#ccc;transition:transform .2s;line-height:1}
 .hcard.open .hc-chevron{transform:rotate(180deg)}
 
-/* Card detail — aufklappbar */
+/* Card detail â€” aufklappbar */
 .hc-det{display:none;padding:0 10px 10px;border-top:1px solid #f5f5f5}
 .hcard.open .hc-det{display:block}
 .det-sec{margin-top:8px}
@@ -139,7 +139,7 @@ select.fs:focus{outline:2px solid var(--red)}
 .kp{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;
   border-radius:10px;font-size:11px;font-weight:600;color:white}
 .kp-pct{opacity:.75;font-size:10px}
-/* Wochentag-Chart — feste Höhe, kein Overflow */
+/* Wochentag-Chart â€” feste HÃ¶he, kein Overflow */
 .wd-chart{display:flex;gap:3px;height:36px}
 .wd-col{display:flex;flex-direction:column;align-items:center;
   justify-content:flex-end;flex:1;gap:2px;min-width:0}
@@ -153,7 +153,7 @@ select.fs:focus{outline:2px solid var(--red)}
 .auf-list{display:flex;flex-direction:column;gap:2px}
 .auf-i{font-size:11px;color:#555;line-height:1.5;
   padding:3px 0 3px 12px;position:relative}
-.auf-i::before{content:'·';position:absolute;left:3px;color:var(--red);font-weight:700}
+.auf-i::before{content:'Â·';position:absolute;left:3px;color:var(--red);font-weight:700}
 .sbar{height:3px;background:#eee;border-radius:1px;margin-top:8px}
 .sfill{height:100%;border-radius:1px}
 .det-dates{font-size:10px;color:#bbb;margin-top:5px}
@@ -199,7 +199,7 @@ select.fs:focus{outline:2px solid var(--red)}
 .leaflet-control-zoom a{color:var(--gray)!important;font-weight:700!important}
 .leaflet-control-attribution{font-size:9px!important}
 
-/* ══ MOBILE BOTTOM SHEET ══ */
+/* â•â• MOBILE BOTTOM SHEET â•â• */
 @media(max-width:768px){
   .hdr-stats .hst:nth-child(n+3){display:none}
   .main{overflow:visible}
@@ -273,13 +273,13 @@ select.fs:focus{outline:2px solid var(--red)}
       <line x1="17" y1="16" x2="17" y2="25" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
       <line x1="21" y1="16" x2="21" y2="25" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
     </svg>
-    <div class="hdr-title">Müll-Hotspot Monitor · Berlin</div>
+    <div class="hdr-title">MÃ¼ll-Hotspot Monitor Â· Berlin</div>
   </div>
   <div class="hdr-stats" id="hStats"></div>
   <button id="settingsBtn" onclick="toggleSettings()" style="
     background:rgba(255,255,255,.15);border:none;color:white;cursor:pointer;
     padding:4px 10px;border-radius:3px;font-size:13px;margin-left:8px;
-    font-family:inherit;font-weight:600">⚙️</button>
+    font-family:inherit;font-weight:600">âš™ï¸</button>
 </div>
 
 <!-- EINSTELLUNGS-PANEL -->
@@ -292,20 +292,20 @@ select.fs:focus{outline:2px solid var(--red)}
 
   <!-- Score-Modus -->
   <div style="margin-bottom:12px">
-    <div style="font-weight:600;margin-bottom:5px">📊 Bewertungs-Modus</div>
+    <div style="font-weight:600;margin-bottom:5px">ðŸ“Š Bewertungs-Modus</div>
     <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:4px">
       <input type="radio" name="scoreMode" value="bezirk" checked onchange="applySettings()">
-      <span>Bezirksrelativ <span style="color:#aaa;font-size:11px">(Standard — Top 10% im Bezirk = kritisch)</span></span>
+      <span>Bezirksrelativ <span style="color:#aaa;font-size:11px">(Standard â€” Top 10% im Bezirk = kritisch)</span></span>
     </label>
     <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
       <input type="radio" name="scoreMode" value="stadt" onchange="applySettings()">
-      <span>Stadtweit <span style="color:#aaa;font-size:11px">(Einheitliche Schwellen für ganz Berlin)</span></span>
+      <span>Stadtweit <span style="color:#aaa;font-size:11px">(Einheitliche Schwellen fÃ¼r ganz Berlin)</span></span>
     </label>
   </div>
 
   <!-- Min. Meldungen -->
   <div style="margin-bottom:12px">
-    <div style="font-weight:600;margin-bottom:5px">🔢 Mindest-Meldungen anzeigen</div>
+    <div style="font-weight:600;margin-bottom:5px">ðŸ”¢ Mindest-Meldungen anzeigen</div>
     <div style="display:flex;align-items:center;gap:8px">
       <input type="range" id="minMeldungen" min="1" max="20" value="3"
         oninput="document.getElementById('minMeldungenVal').textContent=this.value;applySettings()"
@@ -316,7 +316,7 @@ select.fs:focus{outline:2px solid var(--red)}
 
   <!-- Cluster-Radius -->
   <div style="margin-bottom:12px">
-    <div style="font-weight:600;margin-bottom:5px">🗺️ Cluster-Radius</div>
+    <div style="font-weight:600;margin-bottom:5px">ðŸ—ºï¸ Cluster-Radius</div>
     <div style="display:flex;align-items:center;gap:8px">
       <input type="range" id="clusterRadius" min="20" max="120" value="50"
         oninput="document.getElementById('clusterRadiusVal').textContent=this.value+'px';applySettings()"
@@ -325,19 +325,19 @@ select.fs:focus{outline:2px solid var(--red)}
     </div>
   </div>
 
-  <!-- Marker-Größe -->
+  <!-- Marker-GrÃ¶ÃŸe -->
   <div style="margin-bottom:12px">
-    <div style="font-weight:600;margin-bottom:5px">⭕ Marker-Größe</div>
+    <div style="font-weight:600;margin-bottom:5px">â­• Marker-GrÃ¶ÃŸe</div>
     <div style="display:flex;gap:6px">
       <button onclick="setSetting('markerSize','klein')" class="set-btn" data-s="markerSize" data-v="klein">Klein</button>
       <button onclick="setSetting('markerSize','normal')" class="set-btn on" data-s="markerSize" data-v="normal">Normal</button>
-      <button onclick="setSetting('markerSize','groß')" class="set-btn" data-s="markerSize" data-v="groß">Groß</button>
+      <button onclick="setSetting('markerSize','groÃŸ')" class="set-btn" data-s="markerSize" data-v="groÃŸ">GroÃŸ</button>
     </div>
   </div>
 
   <!-- Prognose Min Meldungen -->
   <div style="margin-bottom:12px">
-    <div style="font-weight:600;margin-bottom:5px">📅 Prognose — Mindest-Meldungen</div>
+    <div style="font-weight:600;margin-bottom:5px">ðŸ“… Prognose â€” Mindest-Meldungen</div>
     <div style="display:flex;align-items:center;gap:8px">
       <input type="range" id="progMinMeldungen" min="3" max="30" value="8"
         oninput="document.getElementById('progMinVal').textContent=this.value;applySettings()"
@@ -348,7 +348,7 @@ select.fs:focus{outline:2px solid var(--red)}
 
   <!-- Nur aktive Standorte -->
   <div style="margin-bottom:12px">
-    <div style="font-weight:600;margin-bottom:5px">📍 Standort-Filter</div>
+    <div style="font-weight:600;margin-bottom:5px">ðŸ“ Standort-Filter</div>
     <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:4px">
       <input type="checkbox" id="onlyRecurring" onchange="applySettings()">
       <span>Nur Wiederkehr-Standorte <span style="color:#aaa;font-size:11px">(recurrence > 0)</span></span>
@@ -361,7 +361,7 @@ select.fs:focus{outline:2px solid var(--red)}
 
   <button onclick="resetSettings()" style="width:100%;padding:6px;background:#f5f5f5;
     border:1px solid #ddd;border-radius:3px;cursor:pointer;font-family:inherit;font-size:12px">
-    Einstellungen zurücksetzen
+    Einstellungen zurÃ¼cksetzen
   </button>
 </div>
 
@@ -401,8 +401,8 @@ select.fs:focus{outline:2px solid var(--red)}
         <span class="fl">Sortierung</span>
         <div class="fr-right">
           <div class="chips">
-            <span class="chip on" data-t="srt" data-v="score_desc" onclick="setSort(this)">▼ Bewertung</span>
-            <span class="chip" data-t="srt" data-v="score_asc" onclick="setSort(this)">▲ Bewertung</span>
+            <span class="chip on" data-t="srt" data-v="score_desc" onclick="setSort(this)">â–¼ Bewertung</span>
+            <span class="chip" data-t="srt" data-v="score_asc" onclick="setSort(this)">â–² Bewertung</span>
             <span class="chip" data-t="srt" data-v="meldungen" onclick="setSort(this)">Meldungen</span>
             <span class="chip" data-t="srt" data-v="datum" onclick="setSort(this)">Aktuellste</span>
           </div>
@@ -410,7 +410,7 @@ select.fs:focus{outline:2px solid var(--red)}
       </div>
       <div class="filter-actions">
         <span class="rcount" id="rCount"></span>
-        <button class="clear-btn" onclick="clearFilters()">Filter zurücksetzen</button>
+        <button class="clear-btn" onclick="clearFilters()">Filter zurÃ¼cksetzen</button>
       </div>
     </div>
 
@@ -418,7 +418,7 @@ select.fs:focus{outline:2px solid var(--red)}
     <div class="tabs">
       <div class="tab on" onclick="switchTab('hotspots')">Standorte</div>
       <div class="tab" onclick="switchTab('bezirke')">Bezirke</div>
-      <div class="tab" onclick="switchTab('prognose')">📅 Prognose</div>
+      <div class="tab" onclick="switchTab('prognose')">ðŸ“… Prognose</div>
       <div class="tab" onclick="switchTab('info')">Legende</div>
     </div>
     <div class="panel on" id="panel-hotspots"><div class="hlist" id="hList"></div></div>
@@ -436,32 +436,32 @@ select.fs:focus{outline:2px solid var(--red)}
     </div>
     <div class="panel" id="panel-info">
       <div class="isec"><h3>Einstufungssystem</h3>
-        <div class="leg-row"><div class="leg-dot" style="background:var(--c-niedrig)"></div><strong style="color:var(--c-niedrig)">Niedrig (0–3)</strong> — Einzelmeldung</div>
-        <div class="leg-row"><div class="leg-dot" style="background:var(--c-mittel)"></div><strong style="color:var(--c-mittel)">Mittel (4–7)</strong> — Gelegentliche Häufung</div>
-        <div class="leg-row"><div class="leg-dot" style="background:var(--c-hoch)"></div><strong style="color:var(--c-hoch)">Hoch (8–12)</strong> — Wiederholungsmuster</div>
-        <div class="leg-row"><div class="leg-dot" style="background:var(--c-kritisch)"></div><strong style="color:var(--c-kritisch)">Kritisch (13+)</strong> — Dauerhafter Problemstandort</div>
+        <div class="leg-row"><div class="leg-dot" style="background:var(--c-niedrig)"></div><strong style="color:var(--c-niedrig)">Niedrig (0â€“3)</strong> â€” Einzelmeldung</div>
+        <div class="leg-row"><div class="leg-dot" style="background:var(--c-mittel)"></div><strong style="color:var(--c-mittel)">Mittel (4â€“7)</strong> â€” Gelegentliche HÃ¤ufung</div>
+        <div class="leg-row"><div class="leg-dot" style="background:var(--c-hoch)"></div><strong style="color:var(--c-hoch)">Hoch (8â€“12)</strong> â€” Wiederholungsmuster</div>
+        <div class="leg-row"><div class="leg-dot" style="background:var(--c-kritisch)"></div><strong style="color:var(--c-kritisch)">Kritisch (13+)</strong> â€” Dauerhafter Problemstandort</div>
       </div>
       <div class="isec"><h3>Abfallarten</h3>
-        <div class="li"><span class="ln">🏗</span>Bauschutt — gewerbliche Herkunft wahrscheinlich</div>
-        <div class="li"><span class="ln">🌿</span>Grünschnitt/Gartenabfall — Garten- oder Kleingartenanlagen</div>
-        <div class="li"><span class="ln">🚗</span>Schrottfahrzeug — Verstoß gegen FZV</div>
-        <div class="li"><span class="ln">🛋</span>Sperrmüll — Umgehung regulärer Entsorgungswege</div>
-        <div class="li"><span class="ln">⚡</span>Elektroschrott — Verstoß gegen ElektroG</div>
-        <div class="li"><span class="ln">🚮</span>Illegale Entsorgung — Ordnungswidrigkeit §61 KrWG</div>
+        <div class="li"><span class="ln">ðŸ—</span>Bauschutt â€” gewerbliche Herkunft wahrscheinlich</div>
+        <div class="li"><span class="ln">ðŸŒ¿</span>GrÃ¼nschnitt/Gartenabfall â€” Garten- oder Kleingartenanlagen</div>
+        <div class="li"><span class="ln">ðŸš—</span>Schrottfahrzeug â€” VerstoÃŸ gegen FZV</div>
+        <div class="li"><span class="ln">ðŸ›‹</span>SperrmÃ¼ll â€” Umgehung regulÃ¤rer Entsorgungswege</div>
+        <div class="li"><span class="ln">âš¡</span>Elektroschrott â€” VerstoÃŸ gegen ElektroG</div>
+        <div class="li"><span class="ln">ðŸš®</span>Illegale Entsorgung â€” Ordnungswidrigkeit Â§61 KrWG</div>
       </div>
       <div class="isec"><h3>Zeitliche Auswertung</h3>
-        <div class="li"><span class="ln" style="color:var(--red)">Mo</span>Montags-Schwerpunkt → Ablagerung am Wochenende</div>
-        <div class="li"><span class="ln" style="color:#7b3fa0">Sa/So</span>Wochenend-Schwerpunkt → außerhalb der Werktage</div>
-        <div class="li"><span class="ln">📅</span>Monatsendhäufung → Zusammenhang mit Wohnungswechseln</div>
-        <div class="li"><span class="ln">🌸</span>Saisonale Häufung → jahreszeittypisches Muster</div>
+        <div class="li"><span class="ln" style="color:var(--red)">Mo</span>Montags-Schwerpunkt â†’ Ablagerung am Wochenende</div>
+        <div class="li"><span class="ln" style="color:#7b3fa0">Sa/So</span>Wochenend-Schwerpunkt â†’ auÃŸerhalb der Werktage</div>
+        <div class="li"><span class="ln">ðŸ“…</span>MonatsendhÃ¤ufung â†’ Zusammenhang mit Wohnungswechseln</div>
+        <div class="li"><span class="ln">ðŸŒ¸</span>Saisonale HÃ¤ufung â†’ jahreszeittypisches Muster</div>
       </div>
       <div class="isec"><h3>Bewertungsberechnung</h3>
         <div class="li"><span class="ln">+1</span>Pro Meldung an diesem Standort</div>
         <div class="li"><span class="ln">+3</span>Folgemeldung innerhalb 21 Tagen nach Beseitigung</div>
-        <div class="li"><span class="ln">×</span>Zeitfaktor: aktuellere Standorte höher gewichtet</div>
+        <div class="li"><span class="ln">Ã—</span>Zeitfaktor: aktuellere Standorte hÃ¶her gewichtet</div>
       </div>
       <div class="isec"><h3>Datengrundlage</h3>
-        <p style="font-size:12px;color:#666;line-height:1.6">Ordnungsamt Online API · Berlin Open Data<br>Datenlizenz Deutschland – Namensnennung 2.0<br>Tagesaktuelle Aktualisierung</p>
+        <p style="font-size:12px;color:#666;line-height:1.6">Ordnungsamt Online API Â· Berlin Open Data<br>Datenlizenz Deutschland â€“ Namensnennung 2.0<br>Tagesaktuelle Aktualisierung</p>
       </div>
     </div>
   </div>
@@ -470,7 +470,7 @@ select.fs:focus{outline:2px solid var(--red)}
 <script>
 const D = __APP_DATA_PLACEHOLDER__;
 
-// Bezirksrelativer Score — Schwellen pro Bezirk berechnen
+// Bezirksrelativer Score â€” Schwellen pro Bezirk berechnen
 const BEZIRK_THRESHOLDS = {};
 (function(){
   const byBezirk = {};
@@ -560,12 +560,12 @@ function resetSettings(){
 const DAYS = ['Mo','Di','Mi','Do','Fr','Sa','So'];
 const COLORS = {niedrig:'#2d7d2d',mittel:'#b8860b',hoch:'#cc5500',kritisch:'#be0000'};
 
-// ── Filter State ───────────────────────────────────────────────────────
+// â”€â”€ Filter State â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Alle Filter sind MULTI-SELECT Arrays, leeres Array = kein Filter
 let F = { bezirk:'', plz:'', levels:[], kats:[], sort:'score_desc' };
 let markers = [], map, openCard = null;
 
-// ── Filter Logik ───────────────────────────────────────────────────────
+// â”€â”€ Filter Logik â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function filteredHotspots(){
   let hs = D.hotspots.slice();
   const minM = (typeof SETTINGS !== 'undefined') ? SETTINGS.minMeldungen : 3;
@@ -627,7 +627,7 @@ function clearFilters(){
   renderHList();
 }
 
-// ── Map ────────────────────────────────────────────────────────────────
+// â”€â”€ Map â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 let clusterGroup = null;
 let progClusterGroup = null;
 let progMode = false;
@@ -635,7 +635,7 @@ let progMode = false;
 function initMap(){
   map = L.map('map',{center:[52.52,13.405],zoom:11});
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
-    attribution:'© OpenStreetMap',maxZoom:19}).addTo(map);
+    attribution:'Â© OpenStreetMap',maxZoom:19}).addTo(map);
   renderMarkers();
   map.on('click', ()=>{ if(isMobile() && sheetState!=='peek') setSheet('peek'); });
 }
@@ -647,7 +647,7 @@ function makeIcon(level, useLabel){
   const c=COLORS[lbl];
   const sizeMap = {klein:{niedrig:5,mittel:7,hoch:10,kritisch:14},
                    normal:{niedrig:8,mittel:11,hoch:15,kritisch:20},
-                   groß:{niedrig:11,mittel:14,hoch:19,kritisch:25}};
+                   groÃŸ:{niedrig:11,mittel:14,hoch:19,kritisch:25}};
   const r=(sizeMap[SETTINGS.markerSize]||sizeMap.normal)[lbl];
   const sz=r*2+10, cx=sz/2;
   const pulse = lbl==='kritisch'
@@ -674,7 +674,7 @@ function renderMarkers(){
     zoomToBoundsOnClick: true,
     iconCreateFunction: function(cluster) {
       const children = cluster.getAllChildMarkers();
-      // Höchste Einstufung im Cluster bestimmen
+      // HÃ¶chste Einstufung im Cluster bestimmen
       const levels = ['kritisch','hoch','mittel','niedrig'];
       let topLevel = 'niedrig';
       for(const m of children){
@@ -697,13 +697,13 @@ function renderMarkers(){
   });
 
   filteredHotspots().forEach(h=>{
-    const m = L.marker([h.lat_center,h.lon_center],{icon:makeIcon(h.score_label)});
+    const m = L.marker([h.lat_center,h.lon_center],{icon:makeIcon(h.score_label, getLabel(h))});
     m._cid = h.cluster_id;
     m._level = h.score_label;
     m.on('click', ()=>{
       showPopup(h);
       highlightCard(h.cluster_id);
-      // Sheet bei Marker-Klick NICHT hochziehen — Nutzer soll Karte sehen
+      // Sheet bei Marker-Klick NICHT hochziehen â€” Nutzer soll Karte sehen
     });
     markers.push(m);
     clusterGroup.addLayer(m);
@@ -712,7 +712,7 @@ function renderMarkers(){
   map.addLayer(clusterGroup);
 }
 
-// ── Popup (volle Details) ──────────────────────────────────────────────
+// â”€â”€ Popup (volle Details) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function makePopupHTML(h){
   const c = COLORS[h.score_label];
   const kats = (h.kategorie_mix||[]).map(k=>
@@ -735,26 +735,26 @@ function makePopupHTML(h){
 
   const auf = (h.auffaelligkeiten||[]).map(a=>
     `<div style="font-size:11px;color:#555;padding:2px 0 2px 10px;position:relative;line-height:1.4;border-bottom:1px solid #f5f5f5">
-      <span style="position:absolute;left:0;color:var(--red);font-weight:700">·</span>${a}
+      <span style="position:absolute;left:0;color:var(--red);font-weight:700">Â·</span>${a}
     </div>`
   ).join('');
 
   const addrLine = h.strasse
-    ? `📍 ${[h.strasse,h.plz,h.bezirk].filter(Boolean).join(' · ')}`
-    : `📍 ${h.bezirk||'Unbekannt'}`;
+    ? `ðŸ“ ${[h.strasse,h.plz,h.bezirk].filter(Boolean).join(' Â· ')}`
+    : `ðŸ“ ${h.bezirk||'Unbekannt'}`;
 
   const maxScore=30, scorePct=Math.min(100,(h.score/maxScore)*100).toFixed(0);
 
   return `
   <div class="pop-hd">
-    <div class="pop-ti">${h.bezirk||'Unbekannt'} · ${h.score_label.charAt(0).toUpperCase()+h.score_label.slice(1)}</div>
+    <div class="pop-ti">${h.bezirk||'Unbekannt'} Â· ${h.score_label.charAt(0).toUpperCase()+h.score_label.slice(1)}</div>
     <div class="pop-su">Bewertung ${h.score}</div>
   </div>
   <div class="pop-bd">
     <div class="pop-addr">${addrLine}</div>
     <div class="pop-grid">
       <div><div class="pop-l">Meldungen</div><div class="pop-v">${h.meldungen_count}</div></div>
-      <div><div class="pop-l">Wiederkehr</div><div class="pop-v">${h.recurrence_count}×</div></div>
+      <div><div class="pop-l">Wiederkehr</div><div class="pop-v">${h.recurrence_count}Ã—</div></div>
       <div><div class="pop-l">Erstmeldung</div><div class="pop-v" style="font-size:11px">${h.first_seen}</div></div>
       <div><div class="pop-l">Letzte Meldung</div><div class="pop-v" style="font-size:11px">${h.last_seen}</div></div>
     </div>
@@ -776,7 +776,7 @@ function showPopup(h){
   });
 }
 
-// ── Card Interaktion ───────────────────────────────────────────────────
+// â”€â”€ Card Interaktion â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function highlightCard(cid){
   document.querySelectorAll('.hcard').forEach(el=>{
     el.classList.toggle('sel', el.dataset.cid===cid);
@@ -793,14 +793,14 @@ function toggleCard(cid){
 
   const wasOpen = card.classList.contains('open');
 
-  // Anderen schließen
+  // Anderen schlieÃŸen
   document.querySelectorAll('.hcard.open').forEach(c=>{ if(c!==card) c.classList.remove('open'); });
 
   card.classList.toggle('open', !wasOpen);
   card.classList.add('sel');
   document.querySelectorAll('.hcard:not([data-cid="'+cid+'"])').forEach(c=>c.classList.remove('sel'));
 
-  // Karte zentrieren + Popup öffnen
+  // Karte zentrieren + Popup Ã¶ffnen
   map.flyTo([h.lat_center, h.lon_center], 14, {duration:0.8});
   showPopup(h);
 
@@ -808,7 +808,7 @@ function toggleCard(cid){
   if(isMobile()) setSheet('peek');
 }
 
-// ── Render Header Stats ────────────────────────────────────────────────
+// â”€â”€ Render Header Stats â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function renderStats(){
   const hs=D.hotspots;
   const krit=hs.filter(h=>h.score_label==='kritisch').length;
@@ -821,7 +821,7 @@ function renderStats(){
      <div class="hst"><div class="hst-v">${total}</div><div class="hst-l">Meldungen</div></div>`;
 }
 
-// ── Render Abfallart Chips ─────────────────────────────────────────────
+// â”€â”€ Render Abfallart Chips â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function renderKatChips(){
   const kk = D.kat_keys||{};
   document.getElementById('katChips').innerHTML = Object.entries(kk).map(([key,info])=>
@@ -830,7 +830,7 @@ function renderKatChips(){
   ).join('');
 }
 
-// ── Render Hotspot List ────────────────────────────────────────────────
+// â”€â”€ Render Hotspot List â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function renderHList(){
   const hs = filteredHotspots();
   document.getElementById('rCount').textContent =
@@ -868,7 +868,7 @@ function renderHList(){
 
     const patTag = h.pattern && h.pattern!=='normal'
       ? `<span class="pat-tag ${h.pattern==='montag'?'pt-mo':'pt-wk'}">
-          ${h.pattern==='montag'?'Montags-Schwerpunkt':'Wochenend-Schwerpunkt'} · ${h.pattern_label}
+          ${h.pattern==='montag'?'Montags-Schwerpunkt':'Wochenend-Schwerpunkt'} Â· ${h.pattern_label}
         </span>` : '';
 
     const aufItems = (h.auffaelligkeiten||[]).map(a=>
@@ -877,7 +877,7 @@ function renderHList(){
 
     const hasAuf = (h.auffaelligkeiten||[]).length > 0;
     const addrLine = h.strasse
-      ? `<div class="hc-addr">📍 ${h.strasse}${h.plz?' · '+h.plz:''}</div>`
+      ? `<div class="hc-addr">ðŸ“ ${h.strasse}${h.plz?' Â· '+h.plz:''}</div>`
       : '';
 
     return `<div class="hcard" data-l="${dynLabel}" data-cid="${h.cluster_id}"
@@ -888,15 +888,15 @@ function renderHList(){
           ${addrLine}
           <div class="hc-meta">
             <span class="hc-m"><strong>${h.meldungen_count}</strong> Meld.</span>
-            <span class="hc-m"><strong>${h.recurrence_count}×</strong> Wiederk.</span>
+            <span class="hc-m"><strong>${h.recurrence_count}Ã—</strong> Wiederk.</span>
             <span class="hc-m">Bew. <strong style="color:${c}">${h.score}</strong></span>
           </div>
           <div class="hc-topcats">${topCatBadges}</div>
         </div>
         <div class="hc-right">
           <div class="hc-badge ${bgClass}">${dynLabel}</div>
-          ${hasAuf?'<span class="hc-flag">⚑ Festst.</span>':''}
-          <div class="hc-chevron">▼</div>
+          ${hasAuf?'<span class="hc-flag">âš‘ Festst.</span>':''}
+          <div class="hc-chevron">â–¼</div>
         </div>
       </div>
       <div class="hc-det">
@@ -908,13 +908,13 @@ function renderHList(){
         ${patTag?`<div style="margin-top:5px">${patTag}</div>`:''}
         ${aufItems?`<div class="det-sec"><div class="det-lbl">Feststellungen</div><div class="auf-list">${aufItems}</div></div>`:''}
         <div class="sbar"><div class="sfill" style="width:${pct}%;background:${c}"></div></div>
-        <div class="det-dates">Erstmeldung: ${h.first_seen} · Letzte Meldung: ${h.last_seen}</div>
+        <div class="det-dates">Erstmeldung: ${h.first_seen} Â· Letzte Meldung: ${h.last_seen}</div>
       </div>
     </div>`;
   }).join('');
 }
 
-// ── Render Bezirk List ─────────────────────────────────────────────────
+// â”€â”€ Render Bezirk List â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function renderBList(){
   const maxScore = Math.max(...D.bezirk_stats.map(b=>b.max_score||0),1);
   document.getElementById('bList').innerHTML = D.bezirk_stats.map(b=>{
@@ -939,7 +939,7 @@ function renderBList(){
   }).join('');
 }
 
-// ── Tab switch ─────────────────────────────────────────────────────────
+// â”€â”€ Tab switch â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function switchTab(name){
   document.querySelectorAll('.tab').forEach((t,i)=>
     t.classList.toggle('on',['hotspots','bezirke','prognose','info'][i]===name));
@@ -978,11 +978,11 @@ function renderPrognose(tab){
     monat: P.monat_name,
   };
   document.getElementById('progInfo').textContent =
-    items.length + ' Standorte mit erhöhtem Risiko · ' + infoMap[tab];
+    items.length + ' Standorte mit erhÃ¶htem Risiko Â· ' + infoMap[tab];
 
   if(items.length === 0){
     document.getElementById('progList').innerHTML =
-      '<div style="padding:20px;text-align:center;color:#aaa;font-size:12px">Keine Prognose-Daten verfügbar</div>';
+      '<div style="padding:20px;text-align:center;color:#aaa;font-size:12px">Keine Prognose-Daten verfÃ¼gbar</div>';
     return;
   }
 
@@ -994,11 +994,11 @@ function renderPrognose(tab){
   });
 
   document.getElementById('progInfo').textContent =
-    filteredItems.length + ' Standorte mit erhöhtem Risiko · ' + infoMap[tab];
+    filteredItems.length + ' Standorte mit erhÃ¶htem Risiko Â· ' + infoMap[tab];
 
   if(filteredItems.length === 0){
     document.getElementById('progList').innerHTML =
-      '<div style="padding:20px;text-align:center;color:#aaa;font-size:12px">Keine Prognose-Daten für diesen Filter verfügbar</div>';
+      '<div style="padding:20px;text-align:center;color:#aaa;font-size:12px">Keine Prognose-Daten fÃ¼r diesen Filter verfÃ¼gbar</div>';
     return;
   }
 
@@ -1012,10 +1012,10 @@ function renderPrognose(tab){
       <div class="pc-top">
         <div style="flex:1;min-width:0">
           <div class="pc-bez">${p.bezirk}</div>
-          ${p.strasse ? `<div class="pc-addr">📍 ${p.strasse}${p.plz?' · '+p.plz:''}</div>` : ''}
+          ${p.strasse ? `<div class="pc-addr">ðŸ“ ${p.strasse}${p.plz?' Â· '+p.plz:''}</div>` : ''}
           <div class="pc-grund">${p.grund}</div>
           ${p.top_kat_label ? `<span class="pc-kat" style="background:${p.top_kat_color}">${p.top_kat_label}</span>` : ''}
-          <div style="font-size:10px;color:#aaa;margin-top:2px">📊 ${p.meldungen_count} Meldungen · Klicken für Details</div>
+          <div style="font-size:10px;color:#aaa;margin-top:2px">ðŸ“Š ${p.meldungen_count} Meldungen Â· Klicken fÃ¼r Details</div>
         </div>
         <div class="prob-badge" style="font-size:14px">${p.prob}%</div>
       </div>
@@ -1024,7 +1024,7 @@ function renderPrognose(tab){
   }).join('');
 }
 
-// ── Prognose-Karten-Modus ─────────────────────────────────────────────
+// â”€â”€ Prognose-Karten-Modus â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function makeGrayIcon(level){
   // Graustufen je nach Score-Level
   const grays = {niedrig:'#d0d0d0', mittel:'#b0b0b0', hoch:'#888888', kritisch:'#606060'};
@@ -1038,7 +1038,7 @@ function makeGrayIcon(level){
 }
 
 function makeProgIcon(prob, color){
-  // Prognose-Marker: leuchtend, Größe nach Wahrscheinlichkeit
+  // Prognose-Marker: leuchtend, GrÃ¶ÃŸe nach Wahrscheinlichkeit
   const r = prob >= 60 ? 18 : prob >= 40 ? 14 : prob >= 25 ? 11 : 9;
   const sz = r*2+14, cx = sz/2;
   const pulse = `
@@ -1135,7 +1135,7 @@ function renderMarkersProgMode(){
 }
 
 function showPopupAtCoords(lat, lon, html){
-  // Öffnet Popup direkt an Koordinaten — funktioniert auch im Cluster-Modus
+  // Ã–ffnet Popup direkt an Koordinaten â€” funktioniert auch im Cluster-Modus
   L.popup({maxWidth:300, className:''})
     .setLatLng([lat, lon])
     .setContent(html)
@@ -1161,14 +1161,14 @@ function flyToHotspot(cid){
     } else if(p){
       // Prognose-Popup
       const html = `<div class="pop-hd" style="background:#e07b00">
-          <div class="pop-ti">${p.bezirk} · Prognose</div>
+          <div class="pop-ti">${p.bezirk} Â· Prognose</div>
           <div class="pop-su">${p.prob}% Wahrscheinlichkeit</div>
         </div>
         <div class="pop-bd">
-          ${p.strasse ? `<div class="pop-addr">📍 ${p.strasse}</div>` : ''}
+          ${p.strasse ? `<div class="pop-addr">ðŸ“ ${p.strasse}</div>` : ''}
           <div style="font-size:12px;margin-bottom:6px">${p.grund}</div>
           ${p.top_kat_label ? `<span style="background:${p.top_kat_color};color:white;padding:2px 8px;border-radius:8px;font-size:11px">${p.top_kat_label}</span>` : ''}
-          <div style="margin-top:8px;font-size:11px;color:#999">📊 ${p.meldungen_count} historische Meldungen</div>
+          <div style="margin-top:8px;font-size:11px;color:#999">ðŸ“Š ${p.meldungen_count} historische Meldungen</div>
         </div>`;
       showPopupAtCoords(lat, lon, html);
     }
@@ -1176,7 +1176,7 @@ function flyToHotspot(cid){
   }, 900);
 }
 
-// ── Mobile Bottom Sheet ────────────────────────────────────────────────
+// â”€â”€ Mobile Bottom Sheet â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 let sheetState='peek', dragY0=null, sheetY0=null;
 const sheet=document.getElementById('sheet');
 const shHandle=document.getElementById('shHandle');
@@ -1225,7 +1225,7 @@ shHandle.addEventListener('click',()=>{
   setSheet(states[(states.indexOf(sheetState)+1)%3]);
 });
 
-// ── Init ───────────────────────────────────────────────────────────────
+// â”€â”€ Init â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 document.addEventListener('DOMContentLoaded',()=>{
   // Bezirk Dropdown
   const sel=document.getElementById('fBezirk');
@@ -1242,3 +1242,4 @@ document.addEventListener('DOMContentLoaded',()=>{
 </script>
 </body>
 </html>
+
