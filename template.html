@@ -331,7 +331,7 @@ select.fs:focus{outline:2px solid var(--red)}
     <div style="display:flex;gap:6px">
       <button onclick="setSetting('markerSize','klein')" class="set-btn" data-s="markerSize" data-v="klein">Klein</button>
       <button onclick="setSetting('markerSize','normal')" class="set-btn on" data-s="markerSize" data-v="normal">Normal</button>
-      <button onclick="setSetting('markerSize','groÃŸ')" class="set-btn" data-s="markerSize" data-v="groÃŸ">GroÃŸ</button>
+      <button onclick="setSetting('markerSize','groß')" class="set-btn" data-s="markerSize" data-v="groß">GroÃŸ</button>
     </div>
   </div>
 
@@ -635,7 +635,7 @@ let progMode = false;
 function initMap(){
   map = L.map('map',{center:[52.52,13.405],zoom:11});
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
-    attribution:'Â© OpenStreetMap',maxZoom:19}).addTo(map);
+    attribution:'© OpenStreetMap',maxZoom:19}).addTo(map);
   renderMarkers();
   map.on('click', ()=>{ if(isMobile() && sheetState!=='peek') setSheet('peek'); });
 }
@@ -647,7 +647,7 @@ function makeIcon(level, useLabel){
   const c=COLORS[lbl];
   const sizeMap = {klein:{niedrig:5,mittel:7,hoch:10,kritisch:14},
                    normal:{niedrig:8,mittel:11,hoch:15,kritisch:20},
-                   groÃŸ:{niedrig:11,mittel:14,hoch:19,kritisch:25}};
+                   groß:{niedrig:11,mittel:14,hoch:19,kritisch:25}};
   const r=(sizeMap[SETTINGS.markerSize]||sizeMap.normal)[lbl];
   const sz=r*2+10, cx=sz/2;
   const pulse = lbl==='kritisch'
@@ -694,16 +694,26 @@ function renderMarkers(){
     }
   });
 
-  filteredHotspots().forEach(h=>{
-    const m = L.marker([h.lat_center,h.lon_center],{icon:makeIcon(h.score_label, getLabel(h))});
+    const hasFilter = !!(F.bezirk || F.plz);
+  const filtered = filteredHotspots();
+  const filteredIds = new Set(filtered.map(h=>h.cluster_id));
+  const allVisible = D.hotspots.filter(h=>h.meldungen_count>=SETTINGS.minMeldungen);
+
+  allVisible.forEach(h=>{
+    const active = !hasFilter || filteredIds.has(h.cluster_id);
+    const dynLabel = getLabel(h);
+    const icon = active ? makeIcon(h.score_label, dynLabel) : makeIconDimmed(h.score_label);
+    const m = L.marker([h.lat_center,h.lon_center],{icon});
     m._cid = h.cluster_id;
-    m._level = getLabel(h);
-    m.on('click', ()=>{
-      showPopup(h);
-      highlightCard(h.cluster_id);
-      // Sheet bei Marker-Klick NICHT hochziehen â€” Nutzer soll Karte sehen
-    });
-    markers.push(m);
+    m._level = dynLabel;
+    m._active = active;
+    if(active){
+      m.on('click', ()=>{
+        showPopup(h);
+        highlightCard(h.cluster_id);
+      });
+      markers.push(m);
+    }
     clusterGroup.addLayer(m);
   });
 
