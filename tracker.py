@@ -288,8 +288,8 @@ datum = m.get("erstellungsDatum") or m.get("datum") or now[:10]
 
         conn.execute("""
             INSERT INTO meldungen
-                (id, fetched_at, datum, kategorie, betreff, bezirk, lat, lon, status, is_muell, raw_json, strasse, plz)
-            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)
+                (id, fetched_at, datum, kategorie, betreff, bezirk, lat, lon, status, is_muell, strasse, plz)
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,?)
         """, (
             mid, now, datum,
             m.get("kategorie") or m.get("category", ""),
@@ -298,7 +298,6 @@ datum = m.get("erstellungsDatum") or m.get("datum") or now[:10]
             lat, lon,
             m.get("status", ""),
             1 if muell else 0,
-            json.dumps(m, ensure_ascii=False),
             strasse, str(plz_val)
         ))
         count_new += 1
