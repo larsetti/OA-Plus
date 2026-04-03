@@ -630,7 +630,7 @@ function renderMarkers(){
   map.addLayer(clusterGroup);
 }
 
-function getAllMarkers(){const all=[];if(clusterGroup)clusterGroup.eachLayer(m=>{if(m._cid)all.push(m);});return all;}
+function getAllMarkers(){return clusterGroup?clusterGroup.getLayers().filter(m=>m._cid):[];}
 function dimOtherMarkers(cid){
   getAllMarkers().forEach(m=>{
     if(!m._h) return;
@@ -667,7 +667,7 @@ function highlightCard(cid){
   document.querySelectorAll('.hcard').forEach(el=>el.classList.toggle('sel',el.dataset.cid===cid));
   const card=document.querySelector(`.hcard[data-cid="${cid}"]`);
   if(card)card.scrollIntoView({behavior:'smooth',block:'nearest'});
-  setTimeout(()=>dimOtherMarkers(cid),600);
+  dimOtherMarkers(cid);
 }
 function toggleCard(cid){
   const card=document.querySelector(`.hcard[data-cid="${cid}"]`);
@@ -679,7 +679,7 @@ function toggleCard(cid){
   card.classList.add('sel');
   document.querySelectorAll('.hcard:not([data-cid="'+cid+'"])').forEach(c=>c.classList.remove('sel'));
   map.flyTo([h.lat_center,h.lon_center],17,{duration:0.8});
-  setTimeout(()=>{showPopupAtCoords(h.lat_center,h.lon_center,makePopupHTML(h));dimOtherMarkers(cid);if(isMobile())setSheet('peek');},900);
+  map.once('moveend',()=>{showPopupAtCoords(h.lat_center,h.lon_center,makePopupHTML(h));dimOtherMarkers(cid);if(isMobile())setSheet('peek');});
 }
 
 // Stats
