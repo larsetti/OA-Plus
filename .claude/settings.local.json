@@ -7,7 +7,10 @@
       "Bash(git push:*)",
       "Bash(git checkout:*)",
       "Bash(python export_html.py)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(sqlite3 ordnungsamt.db \".schema\")",
+      "Bash(python3 -c \":*)",
+      "Bash(git commit:*)"
     ]
   }
 }
