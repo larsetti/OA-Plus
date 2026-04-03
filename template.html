@@ -28,6 +28,14 @@
   --header-h:56px;
   --radius:8px;
 }
+body.dark{--header:#1a202c;--bg:#0f1117;--surface:#1a1e2a;--border:#2d3748;--text:#e2e8f0;--text2:#a0aec0;--text3:#718096}
+body.dark .leaflet-container{background:#1a1e2a!important}
+body.dark select,body.dark .set-btn,body.dark .prog-tab{background:var(--surface);color:var(--text);border-color:var(--border)}
+body.dark .hcard,body.dark .bcard,body.dark .pcard{background:var(--surface)}
+body.dark #settingsPanel{background:var(--surface);border-color:var(--border)}
+body.cb{--c-kritisch:#d32f2f;--c-hoch:#1565c0;--c-mittel:#f9a825;--c-niedrig:#2e7d32}
+body.font-klein{font-size:14px}
+body.font-gross{font-size:18px}
 body{font-family:'Montserrat',system-ui,sans-serif;background:var(--bg);color:var(--text);height:100vh;display:flex;flex-direction:column;overflow:hidden;font-size:16px;line-height:1.5;-webkit-tap-highlight-color:transparent}
 
 /* HEADER */
@@ -351,7 +359,24 @@ select.fs:focus{outline:2px solid var(--header);outline-offset:1px}
       Nur aktuelle Meldungen (letzte 365 Tage)
     </label>
   </div>
-  <button onclick="resetSettings()" style="width:100%;padding:7px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);cursor:pointer;font-family:inherit;font-size:12px;color:var(--text2)">Einstellungen zurücksetzen</button>
+  <h4>Schriftgrösse</h4>
+  <div style="display:flex;gap:5px;margin-bottom:14px">
+    <button onclick="setFontSize('klein')" class="set-btn" data-s="fontSize" data-v="klein">Klein</button>
+    <button onclick="setFontSize('normal')" class="set-btn on" data-s="fontSize" data-v="normal">Normal</button>
+    <button onclick="setFontSize('gross')" class="set-btn" data-s="fontSize" data-v="gross">Gross</button>
+  </div>
+  <h4>Barrierefreiheit</h4>
+  <div style="margin-bottom:14px">
+    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:5px;font-size:13px">
+      <input type="checkbox" id="cbFriendly" onchange="toggleColorblind(this.checked)">
+      Farbenblind-Modus
+    </label>
+    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px">
+      <input type="checkbox" id="darkMode" onchange="toggleDarkMode(this.checked)">
+      Dunkelmodus
+    </label>
+  </div>
+  <button onclick="resetSettings()" style="width:100%;padding:8px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);cursor:pointer;font-family:inherit;font-size:13px;color:var(--text2)">Einstellungen zurücksetzen</button>
 </div>
 
 <div class="main">
@@ -555,9 +580,30 @@ function resetSettings(){
   document.getElementById('progMinVal').textContent='8';
   document.getElementById('onlyRecurring').checked=false;
   document.getElementById('onlyRecent').checked=false;
+  document.getElementById('cbFriendly').checked=false;
+  document.getElementById('darkMode').checked=false;
   document.querySelectorAll('.set-btn').forEach(b=>b.classList.remove('on'));
-  document.querySelector('.set-btn[data-v="normal"]').classList.add('on');
+  document.querySelectorAll('.set-btn[data-v="normal"]').forEach(b=>b.classList.add('on'));
+  document.body.classList.remove('dark','cb','font-klein','font-gross');
+  COLORS_ORIG={...COLORS};
   applySettings();
+}
+function setFontSize(size){
+  document.body.classList.remove('font-klein','font-gross');
+  if(size!=='normal') document.body.classList.add('font-'+size);
+  document.querySelectorAll('.set-btn[data-s="fontSize"]').forEach(b=>b.classList.toggle('on',b.dataset.v===size));
+}
+function toggleColorblind(on){
+  document.body.classList.toggle('cb',on);
+  if(on){
+    COLORS.kritisch='#d32f2f';COLORS.hoch='#1565c0';COLORS.mittel='#f9a825';COLORS.niedrig='#2e7d32';
+  } else {
+    COLORS.kritisch='#e53e3e';COLORS.hoch='#dd6b20';COLORS.mittel='#d69e2e';COLORS.niedrig='#38a169';
+  }
+  renderMarkers();renderHList();renderBList();renderStats();
+}
+function toggleDarkMode(on){
+  document.body.classList.toggle('dark',on);
 }
 function setMinMeldungen(val){
   SETTINGS.minMeldungen=val;
@@ -605,6 +651,14 @@ function applyFilters(){
   updatePlzDropdown();
   if(progMode){renderMarkersProgMode();renderPrognose(progTab);}else renderMarkers();
   renderHList(); renderBList();
+  zoomToBezirk();
+}
+function zoomToBezirk(){
+  if(!F.bezirk)return;
+  const pts=D.hotspots.filter(h=>h.bezirk===F.bezirk&&h.meldungen_count>=SETTINGS.minMeldungen);
+  if(pts.length===0)return;
+  const bounds=L.latLngBounds(pts.map(h=>[h.lat_center,h.lon_center]));
+  map.fitBounds(bounds.pad(0.1),{maxZoom:14,duration:0.6});
 }
 function toggleChip(el){
   const t=el.dataset.t,v=el.dataset.v;
