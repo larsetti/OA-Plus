@@ -48,11 +48,24 @@ def parse_datum(s):
         except: pass
     return None
 
-def _col_exists(conn, col):
-    cols = [r[1] for r in conn.execute("PRAGMA table_info(meldungen)").fetchall()]
-    return col in cols
+def get_saison(month):
+    if month in [3,4,5]: return 'frühling'
+    if month in [6,7,8]: return 'sommer'
+    if month in [9,10,11]: return 'herbst'
+    return 'winter'
 
 def load_data():
+    today = datetime.now()
+    today_wd = today.weekday()
+    today_month = today.month
+    today_kw = today.isocalendar()[1]
+    today_saison = get_saison(today_month)
+    # Nächste 4 Wochen Monate
+    naechste_monate = set()
+    for offset in range(5):
+        m = ((today_month - 1 + offset) % 12) + 1
+        naechste_monate.add(m)
+
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
 
@@ -129,7 +142,7 @@ def load_data():
             if mon_r >= 0.35 and tw >= 2:
                 h['pattern'] = 'montag'
                 h['pattern_label'] = f"{int(mon_r*100)}% Montags"
-                h['auffaelligkeiten'].append(f"Häufung am Montag ({int(mon_r*100)}%) — Wochenend-Ablagerungen")
+                h['auffaelligkeiten'].append(f"Häufung am Montag ({int(mon_r*100)}%) — Ablagerung meist am Wochenende")
             elif wknd_r >= 0.35 and tw >= 2:
                 h['pattern'] = 'wochenende'
                 h['pattern_label'] = f"{int(wknd_r*100)}% Wochenende"
@@ -138,7 +151,7 @@ def load_data():
         if h['recurrence_count'] >= 3:
             h['auffaelligkeiten'].append(f"Chronischer Ablagerungsort: {h['recurrence_count']}× Wiederkehr")
 
-        # Saisonale Analyse
+        # Saisonale Analyse — NUR aktuelle/kommende Saison anzeigen
         if parsed_dates:
             seasons = []
             month_list = []
@@ -146,30 +159,33 @@ def load_data():
             for d in parsed_dates:
                 month_list.append(d.month)
                 if d.day >= 25: monthend_count += 1
-                if d.month in [3,4,5]: seasons.append('frühling')
-                elif d.month in [6,7,8]: seasons.append('sommer')
-                elif d.month in [9,10,11]: seasons.append('herbst')
-                else: seasons.append('winter')
+                seasons.append(get_saison(d.month))
 
             if seasons:
                 sc = Counter(seasons)
                 ts, tsn = sc.most_common(1)[0]
                 sr = tsn / len(seasons)
-                SL = {'frühling':'🌸 Frühlings-Häufung','sommer':'☀️ Sommer-Häufung',
-                      'herbst':'🍂 Herbst-Häufung','winter':'❄️ Winter-Häufung'}
-                if sr >= 0.6 and len(seasons) >= 3:
-                    h['auffaelligkeiten'].append(f"{SL[ts]} ({int(sr*100)}%)")
+                # NUR anzeigen wenn aktuelle oder nächste Saison betroffen
+                if sr >= 0.5 and len(seasons) >= 3:
+                    naechste_saison = get_saison(((today_month) % 12) + 1)
+                    if ts == today_saison or ts == naechste_saison:
+                        SL = {'frühling':'🌸 Frühlings-Hotspot','sommer':'☀️ Sommer-Hotspot',
+                              'herbst':'🍂 Herbst-Hotspot','winter':'❄️ Winter-Hotspot'}
+                        h['auffaelligkeiten'].append(f"{SL[ts]} ({int(sr*100)}% der Meldungen in dieser Jahreszeit)")
 
             if len(meldungen) >= 3:
                 mer = monthend_count / len(meldungen)
                 if mer >= 0.5:
                     h['auffaelligkeiten'].append(
                         f"📅 {int(mer*100)}% der Meldungen zum Monatsende — Hinweis auf Umzüge")
+
+                # Monats-Häufung: NUR anzeigen wenn der Monat aktuell relevant ist
                 mc = Counter(month_list)
                 tm, tmn = mc.most_common(1)[0]
-                if tmn / len(month_list) >= 0.5 and len(month_list) >= 3:
-                    h['auffaelligkeiten'].append(
-                        f"📅 Häufung im {MONAT_NAMEN[tm-1]} — periodischer Ablagerungsrhythmus")
+                if tmn / len(month_list) >= 0.4 and len(month_list) >= 3:
+                    if tm in naechste_monate:
+                        h['auffaelligkeiten'].append(
+                            f"📅 Häufung im {MONAT_NAMEN[tm-1]} — jetzt erhöhte Aktivität erwartet")
 
         if total >= 4:
             uk = len(set(g for g in grp_list if g))
@@ -187,12 +203,7 @@ def load_data():
     """).fetchall()]
     conn.close()
 
-    # Prognose berechnen
-    today = datetime.now()
-    today_wd = today.weekday()
-    today_month = today.month
-    today_kw = today.isocalendar()[1]
-
+    # Prognose berechnen — nur zeitlich relevante Muster
     prognose_heute = []
     prognose_woche = []
     prognose_monat = []
@@ -200,12 +211,13 @@ def load_data():
     for h in hotspots:
         cid = h['cluster_id']
         meldungen = cluster_m.get(cid, [])
-        if len(meldungen) < 3:
+        if len(meldungen) < 5:  # Mindest 5 Meldungen für aussagekräftige Prognose
             continue
 
         wd_counts = [0]*7
         month_counts = [0]*13
         kw_counts = {}
+        parsed = []
 
         for m in meldungen:
             d = parse_datum(m['datum'])
@@ -214,14 +226,32 @@ def load_data():
                 month_counts[d.month] += 1
                 kw = d.isocalendar()[1]
                 kw_counts[kw] = kw_counts.get(kw, 0) + 1
+                parsed.append(d)
 
-        total = len(meldungen)
-        if total == 0: continue
+        total = len(parsed)
+        if total < 5: continue
 
+        # Wochentag-Wahrscheinlichkeit (heute)
         wd_prob = round(wd_counts[today_wd] / total * 100)
+
+        # Monats-Wahrscheinlichkeit (aktueller Monat)
         month_prob = round(month_counts[today_month] / total * 100)
+
+        # KW-Wahrscheinlichkeit (letzte 3 Jahre gleiche KW)
         kw_vals = [kw_counts.get(today_kw + offset*52, 0) for offset in range(-2, 1)]
         kw_prob = min(round(sum(kw_vals) / max(total, 1) * 100 * 3), 100)
+
+        # Saison-Bonus: wenn aktuelle Saison historisch stark ist
+        saison_counts = Counter(get_saison(d.month) for d in parsed)
+        saison_ratio = saison_counts.get(today_saison, 0) / total
+
+        # Kombinierter Score für Prognose
+        # Gewichtet: Wochentag + Monats-Relevanz + Saison
+        combined_prob = round(
+            wd_prob * 0.5 +           # 50% Gewicht auf Wochentag
+            month_prob * 0.3 +        # 30% auf aktuellen Monat
+            saison_ratio * 100 * 0.2  # 20% auf Saison
+        )
 
         top_kat = h.get('top_kategorie', '')
         base = {
@@ -231,6 +261,7 @@ def load_data():
             'plz': h.get('plz', ''),
             'score_label': h['score_label'],
             'meldungen_count': h['meldungen_count'],
+            'recurrence_count': h['recurrence_count'],
             'lat_center': h['lat_center'],
             'lon_center': h['lon_center'],
             'top_kat': top_kat,
@@ -238,15 +269,27 @@ def load_data():
             'top_kat_color': KATEGORIE_GRUPPEN.get(top_kat, {}).get('color', '#888') if top_kat else '#888',
         }
 
-        if wd_prob >= 20:
-            prognose_heute.append({**base, 'prob': wd_prob,
-                'grund': f"Wochentag-Muster: {wd_prob}% aller Meldungen an {WEEKDAYS_SHORT[today_wd]}"})
-        if month_prob >= 15:
-            prognose_monat.append({**base, 'prob': month_prob,
-                'grund': f"Monats-Muster: {month_prob}% aller Meldungen im {MONAT_NAMEN[today_month-1]}"})
+        # Heute: kombinierter Score >= 15%
+        if combined_prob >= 15:
+            grund_parts = []
+            if wd_prob >= 15:
+                grund_parts.append(f"{wd_prob}% an {WEEKDAYS_SHORT[today_wd]}")
+            if month_prob >= 15:
+                grund_parts.append(f"{month_prob}% im {MONAT_NAMEN[today_month-1]}")
+            if saison_ratio >= 0.4:
+                grund_parts.append(f"{int(saison_ratio*100)}% im {today_saison.capitalize()}")
+            grund = " · ".join(grund_parts) if grund_parts else f"{combined_prob}% Wahrscheinlichkeit"
+            prognose_heute.append({**base, 'prob': combined_prob, 'grund': grund})
+
+        # Diese Woche: KW-Muster
         if kw_prob >= 15:
             prognose_woche.append({**base, 'prob': kw_prob,
-                'grund': f"KW-Muster: Erhöhte Aktivität in KW {today_kw}"})
+                'grund': f"KW {today_kw}: {kw_prob}% basierend auf Vorjahres-Daten"})
+
+        # Dieser Monat: Monats-Muster
+        if month_prob >= 15:
+            prognose_monat.append({**base, 'prob': month_prob,
+                'grund': f"{month_prob}% aller Meldungen im {MONAT_NAMEN[today_month-1]}"})
 
     prognose_heute.sort(key=lambda x: (-x['prob'], -x['meldungen_count']))
     prognose_woche.sort(key=lambda x: (-x['prob'], -x['meldungen_count']))
