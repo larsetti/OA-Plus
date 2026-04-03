@@ -20,7 +20,7 @@ KATEGORIE_GRUPPEN = {
     'bauschutt':      {'keywords':['bauschutt','bauabfälle','schutt','baumaterial'],
                        'label':'🏗 Bauschutt','color':'#8B4513'},
     'elektroschrott': {'keywords':['elektroschrott','elektro','e-schrott'],
-                       'label':'⚡ Elektroschrott','color':'#0066aa'},
+                       'label':'⚡ E-Schrott','color':'#0066aa'},
     'gartenabfall':   {'keywords':['bioabfälle','gartenabfall','grünschnitt','grünanlage','weihnachtsbäume'],
                        'label':'🌿 Grünabfall','color':'#2d7d2d'},
     'schrottfahrzeug':{'keywords':['autowrack','schrottfahrräder','kfz-teile','betriebsstoffe','schrottauto'],
@@ -30,7 +30,7 @@ KATEGORIE_GRUPPEN = {
     'tierisch':       {'keywords':['tierkadaver','tote tiere','hundekot'],
                        'label':'🐾 Tierisch','color':'#7b3fa0'},
     'illegal':        {'keywords':['illegal','ablagerung','müllablagerung','unrat','müll','abfall'],
-                       'label':'🚮 Illegale Ablagerung','color':'#cc0000'},
+                       'label':'🚮 Illeg. Ablag.','color':'#cc0000'},
 }
 
 def kategorisiere(text):
@@ -305,9 +305,24 @@ def load_data():
         'monat_name': MONAT_NAMEN[today_month - 1],
     }
 
+    # Analyse-Daten: Monatliche Aggregation
+    monthly = {}
+    for row in muell:
+        d = parse_datum(row['datum'])
+        if not d: continue
+        key = d.strftime('%Y-%m')
+        if key not in monthly:
+            monthly[key] = {'month': key, 'count': 0}
+        monthly[key]['count'] += 1
+
+    # Letzte 18 Monate, sortiert
+    sorted_months = sorted(monthly.keys())[-18:]
+    analyse_monthly = [monthly[m] for m in sorted_months]
+
     return {
         "hotspots": hotspots,
         "bezirk_stats": bezirk_stats,
+        "analyse": {"monthly": analyse_monthly},
         "bezirke": [
             'Charlottenburg-Wilmersdorf','Friedrichshain-Kreuzberg','Lichtenberg',
             'Marzahn-Hellersdorf','Mitte','Neukölln','Pankow','Reinickendorf',
