@@ -86,7 +86,9 @@ select.fs:focus{outline:2px solid var(--header);outline-offset:1px}
 .chip[data-t="kat"].on{background:var(--header);color:white;border-color:var(--header)}
 .chip[data-t="srt"]{border-color:var(--border);color:var(--text2);font-size:13px}
 .chip[data-t="srt"].on{background:var(--header);color:white;border-color:var(--header)}
-.filter-actions{display:flex;justify-content:space-between;align-items:center;margin-top:6px}
+.filter-toggle{display:none}
+.filter-more{}
+.filter-actions{display:flex;justify-content:flex-end;align-items:center;margin-top:6px}
 .rcount{font-size:13px;color:var(--text2)}
 .clear-btn{font-size:13px;color:var(--accent);cursor:pointer;font-weight:500;border:none;background:none;font-family:inherit;padding:0}
 .clear-btn:hover{text-decoration:underline}
@@ -281,17 +283,30 @@ select.fs:focus{outline:2px solid var(--header);outline-offset:1px}
   .hdr-stats .hst:nth-child(n+3){display:none}
   .main{overflow:visible}
   #map{position:absolute;inset:0;z-index:1}
-  .sidebar{position:absolute;left:0;right:0;bottom:0;width:100%;border-left:none;border-top:none;border-radius:14px 14px 0 0;box-shadow:0 -4px 20px rgba(0,0,0,.1);height:92vh;transform:translateY(calc(100% - 180px));transition:transform .3s cubic-bezier(.32,.72,0,1);z-index:100}
-  .sidebar.s-mid{transform:translateY(calc(100% - 52vh))}
-  .sidebar.s-full{transform:translateY(8vh)}
-  .sh-handle{background:white;border-radius:14px 14px 0 0;padding:10px 0 4px;text-align:center;flex-shrink:0;cursor:pointer;touch-action:none;user-select:none}
+  .sidebar{position:absolute;left:0;right:0;bottom:0;width:100%;border-left:none;border-top:none;border-radius:14px 14px 0 0;box-shadow:0 -4px 20px rgba(0,0,0,.1);height:92vh;transform:translateY(calc(100% - 240px));transition:transform .3s cubic-bezier(.32,.72,0,1);z-index:100}
+  .sidebar.s-mid{transform:translateY(calc(100% - 60vh))}
+  .sidebar.s-full{transform:translateY(12vh)}
+  .sh-handle{background:white;border-radius:14px 14px 0 0;padding:10px 0 4px;text-align:center;flex-shrink:0;cursor:pointer;touch-action:none;user-select:none;position:relative}
   .sh-handle::after{content:'';display:inline-block;width:36px;height:4px;background:#e2e8f0;border-radius:2px}
+  .sh-map-btn{display:none;font-size:11px;font-weight:600;color:var(--header);position:absolute;right:14px;top:10px}
+  .sidebar.s-mid .sh-map-btn,.sidebar.s-full .sh-map-btn{display:block}
   .filters{padding:8px 10px}
-  .fr{margin-bottom:5px;gap:5px}
-  .fl{min-width:42px;font-size:9px}
-  .chip{font-size:11px;padding:3px 9px}
-  .tabs .tab{font-size:9px;padding:8px 2px;letter-spacing:0}
+  .fr{margin-bottom:4px;gap:4px}
+  .fl{min-width:42px;font-size:10px}
+  .chip{font-size:11px;padding:3px 8px}
+  .filter-toggle{display:flex;justify-content:space-between;align-items:center;padding:6px 0;cursor:pointer;user-select:none}
+  .filter-toggle-btn{font-size:12px;font-weight:600;color:var(--header);display:flex;align-items:center;gap:4px}
+  .filter-toggle-arrow{transition:transform .2s;font-size:10px}
+  .filter-toggle.open .filter-toggle-arrow{transform:rotate(180deg)}
+  .filter-more{display:none}
+  .filter-more.open{display:block}
+  .tabs .tab{font-size:10px;padding:10px 4px;letter-spacing:0}
   .hcard{touch-action:manipulation}
+  .fv-filters{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;gap:8px}
+  .fv-filters select,.fv-filters .fv-chip,.fv-filters label{flex-shrink:0}
+  .fv-back{font-size:24px;padding:4px 8px}
+  .fv-table{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .fv-table th:nth-child(n+5),.fv-table td:nth-child(n+5){display:table-cell}
 }
 </style>
 </head>
@@ -382,7 +397,7 @@ select.fs:focus{outline:2px solid var(--header);outline-offset:1px}
 <div class="main">
   <div id="map"></div>
   <div class="sidebar" id="sheet">
-    <div class="sh-handle" id="shHandle"></div>
+    <div class="sh-handle" id="shHandle"><span class="sh-map-btn" id="shMapBtn" onclick="event.stopPropagation();setSheet('peek')">Karte zeigen ↓</span></div>
 
     <!-- FILTER -->
     <div class="filters">
@@ -402,37 +417,39 @@ select.fs:focus{outline:2px solid var(--header);outline-offset:1px}
           </select>
         </div>
       </div>
-      <div class="fr">
-        <span class="fl">Einstufung</span>
-        <div class="fr-right">
-          <div class="chips" id="lvlChips">
-            <span class="chip" data-t="lvl" data-v="kritisch" onclick="toggleChip(this)">Kritisch</span>
-            <span class="chip" data-t="lvl" data-v="hoch" onclick="toggleChip(this)">Hoch</span>
-            <span class="chip" data-t="lvl" data-v="mittel" onclick="toggleChip(this)">Mittel</span>
-            <span class="chip" data-t="lvl" data-v="niedrig" onclick="toggleChip(this)">Niedrig</span>
+      <div class="filter-toggle" onclick="document.getElementById('filterMore').classList.toggle('open');this.classList.toggle('open')"><span class="rcount" id="rCount"></span><span class="filter-toggle-btn">Filter <span class="filter-toggle-arrow">▼</span></span></div>
+      <div class="filter-more" id="filterMore">
+        <div class="fr">
+          <span class="fl">Einstufung</span>
+          <div class="fr-right">
+            <div class="chips" id="lvlChips">
+              <span class="chip" data-t="lvl" data-v="kritisch" onclick="toggleChip(this)">Kritisch</span>
+              <span class="chip" data-t="lvl" data-v="hoch" onclick="toggleChip(this)">Hoch</span>
+              <span class="chip" data-t="lvl" data-v="mittel" onclick="toggleChip(this)">Mittel</span>
+              <span class="chip" data-t="lvl" data-v="niedrig" onclick="toggleChip(this)">Niedrig</span>
+            </div>
           </div>
         </div>
-      </div>
-      <div class="fr">
-        <span class="fl">Abfallart</span>
-        <div class="fr-right">
-          <div class="chips" id="katChips"></div>
-        </div>
-      </div>
-      <div class="fr">
-        <span class="fl">Sortierung</span>
-        <div class="fr-right">
-          <div class="chips">
-            <span class="chip on" data-t="srt" data-v="score_desc" onclick="setSort(this)">▼ Bewertung</span>
-            <span class="chip" data-t="srt" data-v="score_asc" onclick="setSort(this)">▲ Bewertung</span>
-            <span class="chip" data-t="srt" data-v="meldungen" onclick="setSort(this)">Meldungen</span>
-            <span class="chip" data-t="srt" data-v="datum" onclick="setSort(this)">Aktuellste</span>
+        <div class="fr">
+          <span class="fl">Abfallart</span>
+          <div class="fr-right">
+            <div class="chips" id="katChips"></div>
           </div>
         </div>
-      </div>
-      <div class="filter-actions">
-        <span class="rcount" id="rCount"></span>
-        <button class="clear-btn" onclick="clearFilters()">Filter zurücksetzen</button>
+        <div class="fr">
+          <span class="fl">Sortierung</span>
+          <div class="fr-right">
+            <div class="chips">
+              <span class="chip on" data-t="srt" data-v="score_desc" onclick="setSort(this)">▼ Bewertung</span>
+              <span class="chip" data-t="srt" data-v="score_asc" onclick="setSort(this)">▲ Bewertung</span>
+              <span class="chip" data-t="srt" data-v="meldungen" onclick="setSort(this)">Meldungen</span>
+              <span class="chip" data-t="srt" data-v="datum" onclick="setSort(this)">Aktuellste</span>
+            </div>
+          </div>
+        </div>
+        <div class="filter-actions">
+          <button class="clear-btn" onclick="clearFilters()">Filter zurücksetzen</button>
+        </div>
       </div>
     </div>
 
