@@ -274,8 +274,8 @@ def run():
         mid  = make_id(m)
         lat, lon = extract_coords(m)
         muell = is_muell(m)
-# Datum-Feld
-datum = m.get("erstellungsDatum") or m.get("datum") or now[:10]
+        # Datum-Feld
+        datum = m.get("erstellungsDatum") or m.get("datum") or now[:10]
 
         existing = conn.execute("SELECT id FROM meldungen WHERE id=?", (mid,)).fetchone()
         if existing:
